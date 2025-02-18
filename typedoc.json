@@ -1,0 +1,34 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "name": "GoF23 TypeScript Design Patterns",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeNotDocumented": false,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Creational Patterns",
+    "Structural Patterns",
+    "Behavioral Patterns",
+    "*"
+  ],
+  "navigationLinks": {
+    "GitHub": "https://github.com/yourusername/GoF23_TypeScript",
+    "Documentation": "https://yourusername.github.io/GoF23_TypeScript"
+  },
+  "sidebarLinks": {
+    "API": "https://yourusername.github.io/GoF23_TypeScript/api"
+  },
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "default",
+  "readme": "none",
+  "sort": ["source-order"],
+  "validation": {
+    "invalidLink": true,
+    "notDocumented": true
+  }
+} 
