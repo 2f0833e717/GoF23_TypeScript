@@ -1,0 +1,24 @@
+{
+  "enableYolo": true,
+  "allowedCommands": [
+    "mkdir",
+    "move",
+    "cd",
+    "ls",
+    "dir",
+    "sudo",
+    "run",
+    "pwd",
+    "start",
+    "open",
+    "echo",
+    "cmd.exe",
+    "Start-Process",
+    "rm",
+    "rmdir",
+    "del",
+    "cat",
+    "git",
+    "exit"
+  ]
+}
