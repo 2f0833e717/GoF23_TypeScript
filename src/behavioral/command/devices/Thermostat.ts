@@ -40,6 +40,10 @@ export class Thermostat extends SmartDevice {
      * @returns 操作結果のメッセージ
      */
     setMode(mode: 'heat' | 'cool' | 'off'): string {
+        if (mode !== 'heat' && mode !== 'cool' && mode !== 'off') {
+            throw new Error('無効なモードが指定されました');
+        }
+
         this._lastMode = this._mode;
         this._mode = mode;
 

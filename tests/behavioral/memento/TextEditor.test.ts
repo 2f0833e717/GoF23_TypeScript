@@ -1,188 +1,184 @@
-import { TextEditor, EditorMemento } from '../../../src/behavioral/memento/TextEditor';
-import { EditorHistory } from '../../../src/behavioral/memento/EditorHistory';
+/**
+ * テキストエディタシステムのテスト
+ */
+import { TextEditor } from '../../../src/behavioral/memento/TextEditor';
 
-describe('Memento Pattern - Text Editor Tests', () => {
+describe('Memento Pattern - Text Editor', () => {
     let editor: TextEditor;
-    let history: EditorHistory;
 
     beforeEach(() => {
         editor = new TextEditor();
-        history = new EditorHistory();
     });
 
-    describe('TextEditor', () => {
-        test('テキストの設定と取得', () => {
-            editor.setText('Hello, World!');
-            expect(editor.getText()).toBe('Hello, World!');
-            expect(editor.getCursorPosition()).toBe(13);
+    describe('Basic Operations', () => {
+        test('should handle text insertion and cursor movement', () => {
+            editor.insertText('Hello');
+            expect(editor.getText()).toBe('Hello');
+            expect(editor.getCursorPosition()).toBe(5);
+
+            editor.moveCursor(2);
+            expect(editor.getCursorPosition()).toBe(2);
+
+            editor.insertText(' World');
+            expect(editor.getText()).toBe('He Worldllo');
+            expect(editor.getCursorPosition()).toBe(8);
         });
 
-        test('カーソル位置の設定', () => {
-            editor.setText('Hello');
-            editor.setCursor(2);
+        test('should handle text deletion', () => {
+            editor.insertText('HelloWorld');
+            editor.moveCursor(5);
+            editor.deleteText(1);
+            expect(editor.getText()).toBe('Helloorld');
+
+            editor.deleteText(-1);
+            expect(editor.getText()).toBe('Hellorld');
+        });
+
+        test('should handle text selection', () => {
+            editor.insertText('Hello World');
+            editor.select(0, 5);
+            expect(editor.hasSelection()).toBe(true);
+            expect(editor.getSelectionStart()).toBe(0);
+            expect(editor.getSelectionEnd()).toBe(5);
+
+            editor.insertText('Hi');
+            expect(editor.getText()).toBe('Hi World');
+            expect(editor.hasSelection()).toBe(false);
+        });
+    });
+
+    describe('State Management', () => {
+        test('should save and restore editor state', () => {
+            editor.insertText('Hello');
+            const memento1 = editor.save();
+
+            editor.insertText(' World');
+            const memento2 = editor.save();
+
+            editor.insertText('!');
+            const memento3 = editor.save();
+
+            editor.restore(memento1);
+            expect(editor.getText()).toBe('Hello');
+
+            editor.restore(memento2);
+            expect(editor.getText()).toBe('Hello World');
+
+            editor.restore(memento3);
+            expect(editor.getText()).toBe('Hello World!');
+        });
+
+        test('should handle undo/redo operations', () => {
+            editor.insertText('Hello');
+            editor.insertText(' World');
+            editor.insertText('!');
+
+            editor.undo();
+            expect(editor.getText()).toBe('Hello World');
+
+            editor.undo();
+            expect(editor.getText()).toBe('Hello');
+
+            editor.redo();
+            expect(editor.getText()).toBe('Hello World');
+
+            editor.redo();
+            expect(editor.getText()).toBe('Hello World!');
+        });
+
+        test('should handle state navigation', () => {
+            editor.insertText('Hello');
+            editor.insertText(' World');
+            editor.insertText('!');
+
+            editor.goTo(1);
+            expect(editor.getText()).toBe('Hello');
+
+            editor.goTo(2);
+            expect(editor.getText()).toBe('Hello World');
+
+            editor.goTo(3);
+            expect(editor.getText()).toBe('Hello World!');
+        });
+    });
+
+    describe('Edge Cases', () => {
+        test('should handle invalid restore operation', () => {
+            editor.insertText('Hello');
+            editor.restore(null as any);
+            expect(editor.getText()).toBe('Hello');
+        });
+
+        test('should handle invalid goTo operation', () => {
+            editor.insertText('Hello');
+            editor.goTo(-1);
+            expect(editor.getText()).toBe('Hello');
+            editor.goTo(999);
+            expect(editor.getText()).toBe('Hello');
+        });
+
+        test('should handle initial state', () => {
+            expect(editor.getText()).toBe('');
+            expect(editor.getCursorPosition()).toBe(0);
+            expect(editor.getSelectionStart()).toBe(-1);
+            expect(editor.getSelectionEnd()).toBe(-1);
+        });
+
+        test('should handle selection edge cases', () => {
+            editor.insertText('Hello World');
+            editor.select(-5, 15); // 範囲外の選択
+            expect(editor.getSelectionStart()).toBe(0);
+            expect(editor.getSelectionEnd()).toBe(11);
+
+            editor.select(8, 3); // 逆順の選択
+            expect(editor.getSelectionStart()).toBe(3);
+            expect(editor.getSelectionEnd()).toBe(8);
+        });
+    });
+
+    describe('Error Handling', () => {
+        test('should handle deletion at text boundaries', () => {
+            editor.insertText('Hello');
+            editor.moveCursor(0);
+            editor.deleteText(-1); // 先頭での後方削除
+            expect(editor.getText()).toBe('Hello');
+
+            editor.moveCursor(5);
+            editor.deleteText(1); // 末尾での前方削除
+            expect(editor.getText()).toBe('Hello');
+        });
+
+        test('should handle zero-length deletion', () => {
+            editor.insertText('Hello');
+            editor.moveCursor(2);
+            editor.deleteText(0);
+            expect(editor.getText()).toBe('Hello');
             expect(editor.getCursorPosition()).toBe(2);
         });
 
-        test('無効なカーソル位置でエラー', () => {
-            editor.setText('Hello');
-            expect(() => editor.setCursor(-1)).toThrow('無効なカーソル位置です');
-            expect(() => editor.setCursor(6)).toThrow('無効なカーソル位置です');
+        test('should handle selection operations at boundaries', () => {
+            editor.select(0, 0);
+            expect(editor.hasSelection()).toBe(true);
+            expect(editor.getSelectionStart()).toBe(0);
+            expect(editor.getSelectionEnd()).toBe(0);
+
+            editor.clearSelection();
+            expect(editor.hasSelection()).toBe(false);
         });
 
-        test('テキスト選択', () => {
-            editor.setText('Hello, World!');
-            editor.setSelection(0, 5);
-            const selection = editor.getSelection();
-            expect(selection.start).toBe(0);
-            expect(selection.end).toBe(5);
-            expect(editor.getCursorPosition()).toBe(5);
-        });
+        test('should handle undo/redo at boundaries', () => {
+            expect(editor.undo()).toBeNull(); // 初期状態でのundo
+            expect(editor.redo()).toBeNull(); // 初期状態でのredo
 
-        test('無効な選択範囲でエラー', () => {
-            editor.setText('Hello');
-            expect(() => editor.setSelection(-1, 3)).toThrow('無効な選択範囲です');
-            expect(() => editor.setSelection(3, 6)).toThrow('無効な選択範囲です');
-            expect(() => editor.setSelection(4, 2)).toThrow('無効な選択範囲です');
-        });
-    });
+            editor.insertText('Hello');
+            expect(editor.getText()).toBe('Hello');
 
-    describe('EditorHistory', () => {
-        test('状態の保存と復元', () => {
-            editor.setText('First State');
-            history.push(editor.save());
+            editor.undo();
+            expect(editor.getText()).toBe('');
 
-            editor.setText('Second State');
-            history.push(editor.save());
-
-            editor.setText('Third State');
-            history.push(editor.save());
-
-            expect(history.getHistorySize()).toBe(3);
-            expect(history.getCurrentIndex()).toBe(2);
-        });
-
-        test('Undoの実行', () => {
-            editor.setText('First State');
-            history.push(editor.save());
-
-            editor.setText('Second State');
-            history.push(editor.save());
-
-            const memento = history.undo();
-            if (memento) {
-                editor.restore(memento);
-                expect(editor.getText()).toBe('First State');
-            }
-            expect(history.getCurrentIndex()).toBe(0);
-        });
-
-        test('履歴が空の場合のUndo', () => {
-            expect(history.undo()).toBeNull();
-            expect(history.getCurrentIndex()).toBe(-1);
-        });
-
-        test('最初の状態でのUndo', () => {
-            editor.setText('First State');
-            history.push(editor.save());
-            expect(history.undo()).toBeNull();
-        });
-
-        test('Redoの実行', () => {
-            editor.setText('First State');
-            history.push(editor.save());
-
-            editor.setText('Second State');
-            history.push(editor.save());
-
-            let memento = history.undo();
-            if (memento) {
-                editor.restore(memento);
-            }
-
-            memento = history.redo();
-            if (memento) {
-                editor.restore(memento);
-                expect(editor.getText()).toBe('Second State');
-            }
-            expect(history.getCurrentIndex()).toBe(1);
-        });
-
-        test('履歴が空の場合のRedo', () => {
-            expect(history.redo()).toBeNull();
-            expect(history.getCurrentIndex()).toBe(-1);
-        });
-
-        test('最後の状態でのRedo', () => {
-            editor.setText('State');
-            history.push(editor.save());
-            expect(history.redo()).toBeNull();
-        });
-
-        test('履歴の制限', () => {
-            editor.setText('First');
-            history.push(editor.save());
-
-            editor.setText('Second');
-            history.push(editor.save());
-
-            editor.setText('Third');
-            history.push(editor.save());
-
-            // Undoを実行して新しい状態を追加
-            history.undo();
-            editor.setText('New State');
-            history.push(editor.save());
-
-            // Third以降の履歴が削除されていることを確認
-            expect(history.getHistorySize()).toBe(3);
-            expect(editor.getText()).toBe('New State');
-        });
-
-        test('特定の時点の状態の取得', () => {
-            editor.setText('First');
-            history.push(editor.save());
-
-            editor.setText('Second');
-            history.push(editor.save());
-
-            // 有効なインデックスでの取得
-            const state = history.getStateAt(0);
-            expect(state).not.toBeNull();
-            if (state) {
-                editor.restore(state);
-                expect(editor.getText()).toBe('First');
-            }
-
-            // 無効なインデックスでの取得
-            expect(history.getStateAt(-1)).toBeNull();
-            expect(history.getStateAt(2)).toBeNull();
-        });
-
-        test('履歴のクリア', () => {
-            editor.setText('First');
-            history.push(editor.save());
-
-            editor.setText('Second');
-            history.push(editor.save());
-
-            history.clear();
-            expect(history.getHistorySize()).toBe(0);
-            expect(history.getCurrentIndex()).toBe(-1);
-            expect(history.undo()).toBeNull();
-            expect(history.redo()).toBeNull();
-        });
-
-        test('タイムスタンプの保持', () => {
-            const now = new Date();
-            editor.setText('Test');
-            history.push(editor.save());
-
-            const state = history.getStateAt(0);
-            expect(state).not.toBeNull();
-            if (state) {
-                const timestamp = state.getTimestamp();
-                expect(timestamp.getTime()).toBeGreaterThanOrEqual(now.getTime());
-            }
+            editor.redo();
+            expect(editor.getText()).toBe('Hello');
+            expect(editor.redo()).toBeNull(); // これ以上redoできない
         });
     });
 }); 

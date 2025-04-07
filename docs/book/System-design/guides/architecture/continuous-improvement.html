@@ -1,0 +1,337 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>continuous improvement - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/guides/architecture/continuous-improvement.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="継続的改善"><a class="header" href="#継続的改善">継続的改善</a></h1>
+<p>このドキュメントでは、GoF23デザインパターンTypeScript実装プロジェクトの継続的改善に関するガイドラインを説明します。</p>
+<h2 id="1-コードレビュー基準"><a class="header" href="#1-コードレビュー基準">1. コードレビュー基準</a></h2>
+<ul>
+<li>設計原則やコーディング規約に沿っているか</li>
+<li>パターンの実装が適切か</li>
+<li>テストが十分か</li>
+<li>ドキュメントが更新されているか</li>
+<li>パフォーマンスに問題がないか</li>
+<li>セキュリティに考慮されているか</li>
+<li>コードの読みやすさと保守性は高いか</li>
+</ul>
+<h2 id="2-技術的負債の管理"><a class="header" href="#2-技術的負債の管理">2. 技術的負債の管理</a></h2>
+<ul>
+<li>技術的負債を認識し、文書化する</li>
+<li>定期的にリファクタリングの時間を確保する</li>
+<li>「TODO」や「FIXME」コメントを管理し、計画的に対処する</li>
+<li>既知の問題とその対処計画をドキュメント化する</li>
+<li>技術的負債の優先順位付けと評価を行う</li>
+</ul>
+<h2 id="3-ナレッジ共有"><a class="header" href="#3-ナレッジ共有">3. ナレッジ共有</a></h2>
+<ul>
+<li>設計判断とその背景を記録する</li>
+<li>複雑なパターン適用には詳細な説明を付ける</li>
+<li>実装のベストプラクティスをドキュメント化する</li>
+<li>サンプルコードと使用例を充実させる</li>
+<li>定期的な勉強会やペアプログラミングを実施する</li>
+<li>コード解説セッションで知識の共有を図る</li>
+</ul>
+<h2 id="4-パフォーマンス最適化"><a class="header" href="#4-パフォーマンス最適化">4. パフォーマンス最適化</a></h2>
+<ul>
+<li>パフォーマンスのボトルネックを特定する測定手法</li>
+<li>メモリ使用量の最適化テクニック</li>
+<li>実行速度の向上戦略</li>
+<li>バンドルサイズの最適化</li>
+<li>キャッシング戦略</li>
+<li>非同期処理の効率化</li>
+</ul>
+<h2 id="5-依存関係管理"><a class="header" href="#5-依存関係管理">5. 依存関係管理</a></h2>
+<h3 id="51-外部ライブラリの選定基準"><a class="header" href="#51-外部ライブラリの選定基準">5.1 外部ライブラリの選定基準</a></h3>
+<ul>
+<li>必要最小限の依存関係を維持する</li>
+<li>広く使用されている安定したライブラリを選ぶ</li>
+<li>メンテナンスが継続的に行われているか確認する</li>
+<li>ライセンスの互換性を確認する</li>
+<li>バンドルサイズへの影響を考慮する</li>
+<li>セキュリティ脆弱性の履歴を確認する</li>
+</ul>
+<h3 id="52-内部依存関係の管理"><a class="header" href="#52-内部依存関係の管理">5.2 内部依存関係の管理</a></h3>
+<ul>
+<li>循環依存を避ける</li>
+<li>明確な層構造を定義し、依存方向を遵守する</li>
+<li>コア機能と拡張機能を分離する</li>
+<li>共通ユーティリティは専用モジュールに配置する</li>
+<li>内部APIを明確に定義し、変更のインパクトを最小化する</li>
+<li>依存関係図を定期的に確認し最適化する</li>
+</ul>
+<h3 id="53-バージョン管理"><a class="header" href="#53-バージョン管理">5.3 バージョン管理</a></h3>
+<ul>
+<li>セマンティックバージョニングを採用する</li>
+<li>バージョン固定でインストールし、安定性を確保する</li>
+<li>依存関係の更新を定期的に行い、セキュリティと互換性を維持する</li>
+<li>重要な依存関係の更新はテストを十分に行う</li>
+<li>変更履歴を詳細に記録し、バージョン間の違いを明確にする</li>
+</ul>
+<h3 id="54-パッケージ管理のベストプラクティス"><a class="header" href="#54-パッケージ管理のベストプラクティス">5.4 パッケージ管理のベストプラクティス</a></h3>
+<ul>
+<li>package.json の整理と最適化</li>
+<li>devDependencies と dependencies の適切な分離</li>
+<li>peerDependencies の適切な指定</li>
+<li>npmスクリプトの標準化と文書化</li>
+<li>ロックファイル（package-lock.json）の管理</li>
+<li>依存関係のセキュリティ監査の定期実行</li>
+</ul>
+<h2 id="6-品質向上のためのツールと自動化"><a class="header" href="#6-品質向上のためのツールと自動化">6. 品質向上のためのツールと自動化</a></h2>
+<h3 id="61-静的解析ツール"><a class="header" href="#61-静的解析ツール">6.1 静的解析ツール</a></h3>
+<ul>
+<li>ESLint による構文チェックと品質管理</li>
+<li>TypeScript の厳格なコンパイラ設定</li>
+<li>SonarQube などによるコード品質メトリクスの監視</li>
+<li>技術的負債と重複コードの検出</li>
+</ul>
+<h3 id="62-cicd-パイプライン"><a class="header" href="#62-cicd-パイプライン">6.2 CI/CD パイプライン</a></h3>
+<ul>
+<li>コミット前のリントとテスト実行</li>
+<li>プルリクエスト時のコードレビュー補助</li>
+<li>マージ後の自動テストとドキュメント生成</li>
+<li>定期的なセキュリティスキャンの実行</li>
+<li>依存関係の脆弱性チェック</li>
+</ul>
+<h3 id="63-モニタリングと分析"><a class="header" href="#63-モニタリングと分析">6.3 モニタリングと分析</a></h3>
+<ul>
+<li>パフォーマンスメトリクスの収集と分析</li>
+<li>エラー率と種類の監視</li>
+<li>ユーザーフィードバックの体系的収集</li>
+<li>使用パターンの分析と最適化</li>
+</ul>
+<h2 id="7-継続的な学習と改善"><a class="header" href="#7-継続的な学習と改善">7. 継続的な学習と改善</a></h2>
+<h3 id="71-チーム開発の改善"><a class="header" href="#71-チーム開発の改善">7.1 チーム開発の改善</a></h3>
+<ul>
+<li>レトロスペクティブミーティングの実施</li>
+<li>プロセスのボトルネック特定と改善</li>
+<li>コミュニケーションツールと方法の最適化</li>
+<li>チーム全体のスキル向上の支援</li>
+</ul>
+<h3 id="72-新技術の導入評価"><a class="header" href="#72-新技術の導入評価">7.2 新技術の導入評価</a></h3>
+<ul>
+<li>TypeScript の新機能と互換性の評価</li>
+<li>補完ツールやライブラリの定期的な再評価</li>
+<li>業界のベストプラクティスの定期的なレビュー</li>
+<li>実験的実装による新技術の検証</li>
+</ul>
+<h3 id="73-プロジェクト展望"><a class="header" href="#73-プロジェクト展望">7.3 プロジェクト展望</a></h3>
+<ul>
+<li>長期的な改善計画の策定</li>
+<li>優先度の高い改善領域の特定</li>
+<li>バージョンアップとマイグレーション計画</li>
+<li>コミュニティフィードバックの収集と対応</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/guides/architecture/architecture-overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/guides/architecture/dependencies.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/guides/architecture/architecture-overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/guides/architecture/dependencies.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

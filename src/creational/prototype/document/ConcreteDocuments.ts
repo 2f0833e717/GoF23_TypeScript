@@ -80,4 +80,25 @@ export class Contract extends DocumentPrototype {
         this.copyBasicProperties(clone);
         return clone;
     }
+
+    toString(): string {
+        // metadata Mapから必要な情報を取得
+        const type = this.metadata.get('type') || '';
+        const parties = this.metadata.get('parties') || '';
+        const expiration = this.metadata.get('expiration') || '';
+        
+        // 日付形式を2025/12/31から12/31/2025に変更
+        const parts = expiration.split('/');
+        const formattedExpiration = parts.length === 3 ? `${parts[1]}/${parts[2]}/${parts[0]}` : expiration;
+        
+        return `タイトル: ${this.title}
+作成者: ${this.author}
+作成日時: ${this.createdAt.toLocaleString()}
+メタデータ:
+type: ${type}
+parties: ${parties}
+expiration: ${formattedExpiration}
+内容:
+${this.content}`;
+    }
 } 

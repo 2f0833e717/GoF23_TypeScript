@@ -1,0 +1,530 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>architecture overview - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/guides/architecture/architecture-overview.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="アーキテクチャ概要"><a class="header" href="#アーキテクチャ概要">アーキテクチャ概要</a></h1>
+<h2 id="1-システム構成"><a class="header" href="#1-システム構成">1. システム構成</a></h2>
+<h3 id="11-全体アーキテクチャ"><a class="header" href="#11-全体アーキテクチャ">1.1 全体アーキテクチャ</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph LR
+    subgraph &quot;デザインパターン実装&quot;
+        A[エントリーポイント] --&gt; B[パターンカテゴリ]
+        B --&gt; C1[生成パターン]
+        B --&gt; C2[構造パターン]
+        B --&gt; C3[振る舞いパターン]
+        
+        C1 --&gt; D1[Factory]
+        C1 --&gt; D2[Builder]
+        C1 --&gt; D3[Singleton]
+        C1 --&gt; D4[Abstract Factory]
+        C1 --&gt; D5[Prototype]
+        
+        C2 --&gt; E1[Adapter]
+        C2 --&gt; E2[Composite]
+        C2 --&gt; E3[Proxy]
+        C2 --&gt; E4[Bridge]
+        C2 --&gt; E5[Decorator]
+        C2 --&gt; E6[Facade]
+        C2 --&gt; E7[Flyweight]
+        
+        C3 --&gt; F1[Observer]
+        C3 --&gt; F2[Strategy]
+        C3 --&gt; F3[Visitor]
+        C3 --&gt; F4[Command]
+        C3 --&gt; F5[Iterator]
+        C3 --&gt; F6[Mediator]
+        C3 --&gt; F7[State]
+        C3 --&gt; F8[Template Method]
+        C3 --&gt; F9[Chain of Responsibility]
+        C3 --&gt; F10[Memento]
+        C3 --&gt; F11[Interpreter]
+    end
+</pre>
+<h3 id="12-モジュール構成"><a class="header" href="#12-モジュール構成">1.2 モジュール構成</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TB
+    %% コアレイヤー
+    subgraph &quot;コアレイヤー&quot;
+        A[共通インターフェース]
+        B[ユーティリティ]
+        C[型定義]
+    end
+    
+    %% パターンレイヤー
+    subgraph &quot;パターンレイヤー&quot;
+        D[生成パターン]
+        E[構造パターン]
+        F[振る舞いパターン]
+    end
+    
+    %% アプリケーションレイヤー
+    subgraph &quot;アプリケーションレイヤー&quot;
+        G[サンプル実装]
+        H[テストケース]
+        I[ドキュメント]
+    end
+
+    %% シンプルな依存関係
+    A -.-&gt; D &amp; E &amp; F
+    B -.-&gt; D &amp; E &amp; F
+    C -.-&gt; D &amp; E &amp; F
+    
+    D &amp; E &amp; F -.-&gt; G
+    D &amp; E &amp; F -.-&gt; H
+    
+    D &amp; E &amp; F -.-&gt; I
+    
+    class A,B,C core
+    class D,E,F pattern
+    class G,H,I app
+</pre>
+<h2 id="2-技術スタック"><a class="header" href="#2-技術スタック">2. 技術スタック</a></h2>
+<h3 id="21-主要技術"><a class="header" href="#21-主要技術">2.1 主要技術</a></h3>
+<ul>
+<li>TypeScript 5.3以上
+<ul>
+<li>Decoratorsサポート（Stage 3標準）</li>
+<li>satisfies演算子</li>
+<li>const型パラメータ</li>
+<li>using宣言とリソース破棄</li>
+<li>template文字列型の改善</li>
+</ul>
+</li>
+<li>Node.js 20.0以上</li>
+<li>Jest 29.7以上（テストフレームワーク）</li>
+<li>TypeDoc 0.25.7以上（ドキュメント生成）</li>
+<li>mdbook 0.4.48以上（ドキュメント管理）</li>
+<li>mdbook-mermaid 0.13.0以上（図表サポート）</li>
+</ul>
+<h3 id="22-開発ツール"><a class="header" href="#22-開発ツール">2.2 開発ツール</a></h3>
+<ul>
+<li>ESLint 8.x（静的解析）</li>
+<li>Prettier 3.5.x（コードフォーマット）</li>
+<li>ts-node 10.9.x（TypeScript直接実行）</li>
+<li>ts-node-dev 2.0.x（開発環境監視実行）</li>
+<li>rimraf 5.0.x（クロスプラットフォームrm -rf）</li>
+<li>serve 14.2.x（静的ファイルサーバー）</li>
+</ul>
+<h2 id="3-アーキテクチャの特徴"><a class="header" href="#3-アーキテクチャの特徴">3. アーキテクチャの特徴</a></h2>
+<h3 id="31-設計原則"><a class="header" href="#31-設計原則">3.1 設計原則</a></h3>
+<ol>
+<li>
+<p><strong>モジュール性</strong></p>
+<ul>
+<li>疎結合な設計</li>
+<li>高凝集なコンポーネント</li>
+<li>明確な責任分担</li>
+<li>インターフェースベースの設計</li>
+</ul>
+</li>
+<li>
+<p><strong>拡張性</strong></p>
+<ul>
+<li>新しいパターンの追加が容易</li>
+<li>プラグイン可能なアーキテクチャ</li>
+<li>型安全性の確保</li>
+<li>一貫した実装スタイル</li>
+</ul>
+</li>
+<li>
+<p><strong>保守性</strong></p>
+<ul>
+<li>一貫した命名規則</li>
+<li>適切な抽象化レベル</li>
+<li>包括的なドキュメント</li>
+<li>高いテストカバレッジ</li>
+</ul>
+</li>
+</ol>
+<h3 id="32-パターン間の連携"><a class="header" href="#32-パターン間の連携">3.2 パターン間の連携</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TD
+    %% パターン連携の整理と視覚化
+    subgraph &quot;構造パターン&quot;
+        A[Composite] --&gt; B[Visitor]
+        G[Adapter] --&gt; H[Facade]
+        O[Flyweight] --&gt; P[Factory Method]
+    end
+    
+    subgraph &quot;生成パターン&quot;
+        C[Factory] --&gt; D[Builder]
+    end
+    
+    subgraph &quot;振る舞いパターン&quot;
+        E[Observer] --&gt; F[Strategy]
+        I[Template Method] --&gt; J[Strategy]
+        K[Command] --&gt; L[Memento]
+        M[Chain of Responsibility] --&gt; N[Command]
+    end
+    
+    class A,B,G,H,O,P structural
+    class C,D creational
+    class E,F,I,J,K,L,M,N behavioral
+</pre>
+<h2 id="4-ディレクトリ構造"><a class="header" href="#4-ディレクトリ構造">4. ディレクトリ構造</a></h2>
+<pre><code>GoF23_TypeScript/
+├── src/                  # ソースコード
+│   ├── behavioral/       # 振る舞いパターン
+│   │   ├── chain-of-responsibility/
+│   │   ├── command/
+│   │   ├── interpreter/
+│   │   ├── iterator/
+│   │   ├── mediator/
+│   │   ├── memento/
+│   │   ├── observer/
+│   │   ├── state/
+│   │   ├── strategy/
+│   │   ├── template-method/
+│   │   └── visitor/
+│   ├── structural/       # 構造パターン
+│   │   ├── adapter/
+│   │   ├── bridge/
+│   │   ├── composite/
+│   │   ├── decorator/
+│   │   ├── facade/
+│   │   ├── flyweight/
+│   │   └── proxy/
+│   ├── creational/       # 生成パターン
+│   │   ├── abstract-factory/
+│   │   ├── builder/
+│   │   ├── factory-method/
+│   │   ├── prototype/
+│   │   └── singleton/
+│   └── common/           # 共通機能
+├── tests/                # テストファイル
+│   ├── behavioral/       # 振る舞いパターンのテスト
+│   │   ├── chain-of-responsibility/
+│   │   ├── command/
+│   │   ├── interpreter/
+│   │   ├── iterator/
+│   │   ├── mediator/
+│   │   ├── memento/
+│   │   ├── observer/
+│   │   ├── state/
+│   │   ├── strategy/
+│   │   ├── template-method/
+│   │   └── visitor/
+│   ├── structural/       # 構造パターンのテスト
+│   │   ├── adapter/
+│   │   ├── bridge/
+│   │   ├── composite/
+│   │   ├── decorator/
+│   │   ├── facade/
+│   │   ├── flyweight/
+│   │   └── proxy/
+│   └── creational/       # 生成パターンのテスト
+│       ├── abstract-factory/
+│       ├── builder/
+│       ├── factory-method/
+│       ├── prototype/
+│       └── singleton/
+├── docs/                 # ドキュメント
+│   ├── api/              # API文書（TypeDoc生成）
+│   ├── System-design/    # 設計図と詳細解説
+│   │   ├── behavioral/   # 振る舞いパターン解説
+│   │   ├── structural/   # 構造パターン解説
+│   │   ├── creational/   # 生成パターン解説
+│   │   └── architecture/ # アーキテクチャ文書
+│   ├── book/             # ビルド済みドキュメント
+│   ├── book.toml         # mdbook設定ファイル
+│   ├── mermaid-init.js   # mermaid初期化スクリプト
+│   ├── mermaid.min.js    # mermaidライブラリ
+│   ├── CodeViz/          # コード可視化
+│   └── SUMMARY.md        # ドキュメント目次
+├── examples/             # 使用例
+│   ├── behavioral/       # 振る舞いパターンの使用例
+│   │   ├── chain-of-responsibility/
+│   │   ├── command/
+│   │   ├── interpreter/
+│   │   ├── iterator/
+│   │   ├── mediator/
+│   │   ├── memento/
+│   │   ├── observer/
+│   │   ├── state/
+│   │   ├── strategy/
+│   │   ├── template-method/
+│   │   └── visitor/
+│   ├── structural/       # 構造パターンの使用例
+│   │   ├── adapter/
+│   │   ├── bridge/
+│   │   ├── composite/
+│   │   ├── decorator/
+│   │   ├── facade/
+│   │   ├── flyweight/
+│   │   └── proxy/
+│   └── creational/       # 生成パターンの使用例
+│       ├── abstract-factory/
+│       ├── builder/
+│       ├── factory-method/
+│       ├── prototype/
+│       └── singleton/
+├── scripts/              # ユーティリティスクリプト
+│   ├── mdbook/           # mdbook関連ファイル
+│   │   ├── mdbook.exe
+│   │   └── mdbook-mermaid.exe
+│   ├── generate-summary.js # 目次自動生成
+│   └── coverage-viewer.js  # カバレッジビューワー
+├── coverage/             # テストカバレッジレポート
+├── logs/                 # ログファイル
+├── package.json          # プロジェクト定義
+├── package-lock.json     # 依存関係ロック
+├── tsconfig.json         # TypeScript設定
+├── jest.config.js        # Jestテスト設定
+├── jest.setup.js         # Jestセットアップ
+├── .eslintrc.json        # ESLint設定
+├── .eslintrc.js          # ESLint追加設定
+├── .prettierrc           # Prettier設定
+├── .gitignore            # Git除外設定
+├── LICENSE               # ライセンス
+├── README.md             # プロジェクト概要
+├── test-results.json     # テスト結果ファイル
+└── typedoc.json          # TypeDoc設定
+</code></pre>
+<h2 id="5-実装アプローチ"><a class="header" href="#5-実装アプローチ">5. 実装アプローチ</a></h2>
+<h3 id="51-typescriptの特長活用"><a class="header" href="#51-typescriptの特長活用">5.1 TypeScriptの特長活用</a></h3>
+<ul>
+<li><strong>型安全性</strong>: 厳格な型チェックによるバグの早期発見</li>
+<li><strong>インターフェース</strong>: 明確な契約による堅牢な設計</li>
+<li><strong>ジェネリクス</strong>: 型パラメータによる柔軟な実装</li>
+<li><strong>デコレータ</strong>: メタプログラミングによる宣言的な機能拡張</li>
+<li><strong>非同期処理</strong>: async/awaitによる読みやすく保守しやすいコード</li>
+<li><strong>型推論</strong>: 冗長なコードを減らし可読性を向上</li>
+<li><strong>型ガード</strong>: 実行時の型安全性を確保</li>
+</ul>
+<h3 id="52-現代的な実装アプローチ"><a class="header" href="#52-現代的な実装アプローチ">5.2 現代的な実装アプローチ</a></h3>
+<ul>
+<li>関数型プログラミングの活用</li>
+<li>イミュータブルデータ構造</li>
+<li>Null安全な設計（Optional型の活用）</li>
+<li>副作用の最小化</li>
+<li>効率的なエラーハンドリング（Result型パターン）</li>
+<li>非同期処理の適切な管理（Promise, async/await）</li>
+<li>メモリ効率とパフォーマンスの最適化</li>
+<li>Tree-shakingを考慮したモジュール設計</li>
+</ul>
+<h3 id="53-実務を想定した実装"><a class="header" href="#53-実務を想定した実装">5.3 実務を想定した実装</a></h3>
+<p>各パターンは単なる教科書的な例ではなく、以下の点を考慮した実践的な実装を目指しています：</p>
+<ul>
+<li>実際のビジネスシナリオに基づくユースケース</li>
+<li>スケーラブルな設計</li>
+<li>エラー耐性と例外処理</li>
+<li>監視可能性とデバッグ容易性</li>
+<li>パフォーマンス最適化</li>
+<li>セキュリティ考慮</li>
+<li>保守性と拡張性</li>
+<li>適切なコメントとドキュメント</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/guides/architecture/continuous-improvement.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/guides/architecture/continuous-improvement.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

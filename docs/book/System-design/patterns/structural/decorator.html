@@ -1,0 +1,710 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>decorator - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/structural/decorator.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="decoratorパターン---動的機能拡張"><a class="header" href="#decoratorパターン---動的機能拡張">Decoratorパターン - 動的機能拡張</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Decorator パターン（デコレーター・パターン）は、既存のオブジェクトに動的に責任や機能を追加するためのデザインパターンです。継承を使わずに機能拡張を行うことができ、実行時に柔軟にオブジェクトの振る舞いを変更することができます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>継承を使わずにクラスの機能を動的に拡張する</li>
+<li>個々の機能を別々のデコレーターとして分離する</li>
+<li>機能の組み合わせを柔軟に行う</li>
+<li>オブジェクトの核となる機能と付加機能を分離する</li>
+<li>単一責任の原則に従ってコードを整理する</li>
+<li>クラス爆発を防止する</li>
+<li>実行時にオブジェクトの振る舞いを変更できるようにする</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>既存のクラスのコードを変更せずに機能を拡張したい場合</li>
+<li>継承が適切でない場合または継承できない場合</li>
+<li>実行時に機能を追加/削除したい場合</li>
+<li>機能の組み合わせが多数存在し、そのすべてのクラスを作るとクラス爆発が起こる場合</li>
+<li>付加的な機能を分離し、必要に応じて組み合わせたい場合</li>
+<li>ユーザーの権限や設定に応じて、動的に機能を追加したい場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Component {
+        &lt;&lt;interface&gt;&gt;
+        +operation()
+    }
+    
+    class ConcreteComponent {
+        +operation()
+    }
+    
+    class Decorator {
+        &lt;&lt;abstract&gt;&gt;
+        -component: Component
+        +operation()
+    }
+    
+    class ConcreteDecoratorA {
+        -addedState
+        +operation()
+        +addedBehavior()
+    }
+    
+    class ConcreteDecoratorB {
+        +operation()
+        +addedBehavior()
+    }
+    
+    Component &lt;|.. ConcreteComponent
+    Component &lt;|.. Decorator
+    Decorator o-- Component
+    Decorator &lt;|-- ConcreteDecoratorA
+    Decorator &lt;|-- ConcreteDecoratorB
+    
+    note for Component &quot;デコレータと被デコレータの\n共通インターフェースを定義&quot;
+    note for ConcreteComponent &quot;デコレータによって装飾される\n基本オブジェクト&quot;
+    note for Decorator &quot;Componentインターフェースを実装し\n装飾対象のComponentへの参照を持つ&quot;
+    note for ConcreteDecoratorA &quot;Componentに追加機能や状態を\n加える具体的なデコレータA&quot;
+    note for ConcreteDecoratorB &quot;Componentに追加機能や状態を\n加える具体的なデコレータB&quot;
+
+    note &quot;Decorator パターンの目的：\n既存のオブジェクトに動的に\n責任や機能を追加する&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Component</td><td>インターフェース</td><td>デコレータと被デコレータの共通インターフェースを定義</td><td>ConcreteComponent、Decoratorに実装される</td></tr>
+<tr><td>ConcreteComponent</td><td>クラス</td><td>デコレータによって装飾される基本オブジェクト</td><td>Componentを実装</td></tr>
+<tr><td>Decorator</td><td>抽象クラス</td><td>Componentインターフェースを実装し、装飾対象のComponentへの参照を持つ</td><td>Componentを実装、Componentを参照</td></tr>
+<tr><td>ConcreteDecoratorA</td><td>クラス</td><td>Componentに追加機能や状態を加える具体的なデコレータA</td><td>Decoratorを継承</td></tr>
+<tr><td>ConcreteDecoratorB</td><td>クラス</td><td>Componentに追加機能や状態を加える具体的なデコレータB</td><td>Decoratorを継承</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Decoratorはコンポジション（Componentへの参照）を通じて機能拡張を行う</li>
+<li>クライアントはComponentインターフェースを通じてオブジェクトと相互作用する</li>
+<li>複数のデコレータを重ねることで機能の積み重ねが可能</li>
+<li>Decoratorクラスはインターフェースの順守と元のオブジェクトへの転送責任を持つ</li>
+<li>ConcreteDecoratorは独自の振る舞いを追加し、親クラスのメソッドを拡張する</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant ConcreteComponent
+    participant ConcreteDecoratorA
+    participant ConcreteDecoratorB
+    
+    Client-&gt;&gt;ConcreteComponent: 作成
+    Client-&gt;&gt;ConcreteDecoratorA: 作成(component)
+    Client-&gt;&gt;ConcreteDecoratorB: 作成(decoratorA)
+    Client-&gt;&gt;ConcreteDecoratorB: operation()
+    activate ConcreteDecoratorB
+    ConcreteDecoratorB-&gt;&gt;ConcreteDecoratorA: operation()
+    activate ConcreteDecoratorA
+    ConcreteDecoratorA-&gt;&gt;ConcreteComponent: operation()
+    activate ConcreteComponent
+    ConcreteComponent--&gt;&gt;ConcreteDecoratorA: 結果
+    deactivate ConcreteComponent
+    Note over ConcreteDecoratorA: 機能追加A
+    ConcreteDecoratorA--&gt;&gt;ConcreteDecoratorB: 拡張された結果
+    deactivate ConcreteDecoratorA
+    Note over ConcreteDecoratorB: 機能追加B
+    ConcreteDecoratorB--&gt;&gt;Client: さらに拡張された結果
+    deactivate ConcreteDecoratorB
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[基本オブジェクト\nConcreteComponentを作成]
+    B --&gt; C[第1のデコレータ\nConcreteDecoratorAを作成]
+    C --&gt; D[第2のデコレータ\nConcreteDecoratorBを作成]
+    D --&gt; E[クライアントが最上位の\nデコレータのoperationを呼び出す]
+    E --&gt; F[デコレータBのoperationが\nデコレータAのoperationを呼び出す]
+    F --&gt; G[デコレータAのoperationが\nComponentのoperationを呼び出す]
+    G --&gt; H[Componentは基本機能を実行]
+    H --&gt; I[呼び出し結果が\nデコレータAに返される]
+    I --&gt; J[デコレータAが追加機能を\n実行し結果を拡張]
+    J --&gt; K[拡張された結果が\nデコレータBに返される]
+    K --&gt; L[デコレータBが追加機能を\n実行しさらに結果を拡張]
+    L --&gt; M[最終結果がクライアントに返される]
+    M --&gt; N[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-カスタマイズされたコーヒーの注文"><a class="header" href="#シナリオ1-カスタマイズされたコーヒーの注文">シナリオ1: カスタマイズされたコーヒーの注文</a></h4>
+<ol>
+<li>カフェの注文システムが基本のコーヒー（SimpleCoffee）を作成する</li>
+<li>顧客がミルクを追加すると、システムはMilkDecoratorでコーヒーをデコレートする</li>
+<li>顧客が砂糖も追加すると、SugarDecoratorでさらにデコレートする</li>
+<li>顧客がホイップクリームも追加すると、WhipDecoratorでさらにデコレートする</li>
+<li>システムは最終的なコーヒーの説明と価格を計算し、顧客に表示する</li>
+<li>各デコレータは基本コーヒーの説明と価格を拡張し、最終的な製品情報を構成する</li>
+</ol>
+<h4 id="シナリオ2-テキスト処理フィルタの適用"><a class="header" href="#シナリオ2-テキスト処理フィルタの適用">シナリオ2: テキスト処理フィルタの適用</a></h4>
+<ol>
+<li>アプリケーションが基本的なテキスト（PlainText）を作成する</li>
+<li>ユーザーがボールド装飾を適用すると、BoldDecoratorでテキストをデコレートする</li>
+<li>ユーザーがイタリック装飾も適用すると、ItalicDecoratorでさらにデコレートする</li>
+<li>ユーザーがリンク装飾も適用すると、LinkDecoratorでさらにデコレートする</li>
+<li>アプリケーションは最終的なテキストの書式を計算し、表示する</li>
+<li>各デコレータは基本テキストの書式を拡張し、最終的な表示形式を構成する</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Component - コーヒーの共通インターフェース
+ * デコレータと被デコレータの共通インターフェースを定義
+ */
+interface Coffee {
+  /**
+   * コーヒーの説明を取得
+   * @returns 説明文字列
+   */
+  getDescription(): string;
+  
+  /**
+   * コーヒーの価格を取得
+   * @returns 価格
+   */
+  getCost(): number;
+}
+
+/**
+ * ConcreteComponent - 基本のコーヒー
+ * デコレータによって装飾される基本オブジェクト
+ */
+class SimpleCoffee implements Coffee {
+  /**
+   * 基本コーヒーの説明を取得
+   * @returns 説明文字列
+   */
+  getDescription(): string {
+    return "シンプルコーヒー";
+  }
+  
+  /**
+   * 基本コーヒーの価格を取得
+   * @returns 価格
+   */
+  getCost(): number {
+    return 300;
+  }
+}
+
+/**
+ * Decorator - コーヒーデコレータの抽象クラス
+ * Componentインターフェースを実装し、装飾対象のコーヒーへの参照を持つ
+ */
+abstract class CoffeeDecorator implements Coffee {
+  // 装飾対象のコーヒー
+  protected coffee: Coffee;
+  
+  /**
+   * コンストラクタ
+   * @param coffee 装飾対象のコーヒー
+   */
+  constructor(coffee: Coffee) {
+    this.coffee = coffee;
+  }
+  
+  /**
+   * コーヒーの説明を取得する（デフォルトでは装飾対象のコーヒーの説明を返す）
+   * サブクラスでオーバーライドすることを想定
+   * @returns 説明文字列
+   */
+  getDescription(): string {
+    return this.coffee.getDescription();
+  }
+  
+  /**
+   * コーヒーの価格を取得する（デフォルトでは装飾対象のコーヒーの価格を返す）
+   * サブクラスでオーバーライドすることを想定
+   * @returns 価格
+   */
+  getCost(): number {
+    return this.coffee.getCost();
+  }
+}
+
+/**
+ * ConcreteDecorator - ミルクを追加するデコレータ
+ */
+class MilkDecorator extends CoffeeDecorator {
+  /**
+   * ミルク追加後の説明を取得
+   * @returns 説明文字列
+   */
+  getDescription(): string {
+    return `${this.coffee.getDescription()} + ミルク`;
+  }
+  
+  /**
+   * ミルク追加後の価格を取得
+   * @returns 価格
+   */
+  getCost(): number {
+    return this.coffee.getCost() + 50;
+  }
+}
+
+/**
+ * ConcreteDecorator - 砂糖を追加するデコレータ
+ */
+class SugarDecorator extends CoffeeDecorator {
+  /**
+   * 砂糖追加後の説明を取得
+   * @returns 説明文字列
+   */
+  getDescription(): string {
+    return `${this.coffee.getDescription()} + 砂糖`;
+  }
+  
+  /**
+   * 砂糖追加後の価格を取得
+   * @returns 価格
+   */
+  getCost(): number {
+    return this.coffee.getCost() + 30;
+  }
+}
+
+/**
+ * ConcreteDecorator - ホイップクリームを追加するデコレータ
+ */
+class WhipDecorator extends CoffeeDecorator {
+  /**
+   * ホイップクリーム追加後の説明を取得
+   * @returns 説明文字列
+   */
+  getDescription(): string {
+    return `${this.coffee.getDescription()} + ホイップクリーム`;
+  }
+  
+  /**
+   * ホイップクリーム追加後の価格を取得
+   * @returns 価格
+   */
+  getCost(): number {
+    return this.coffee.getCost() + 100;
+  }
+}
+</code></pre>
+<h3 id="42-使用例"><a class="header" href="#42-使用例">4.2 使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * クライアントコード
+ */
+function clientCode() {
+  // 基本のコーヒーを作成
+  let coffee: Coffee = new SimpleCoffee();
+  console.log(`注文：${coffee.getDescription()}`);
+  console.log(`価格：${coffee.getCost()}円`);
+  
+  // ミルクを追加
+  coffee = new MilkDecorator(coffee);
+  console.log(`注文：${coffee.getDescription()}`);
+  console.log(`価格：${coffee.getCost()}円`);
+  
+  // 砂糖を追加
+  coffee = new SugarDecorator(coffee);
+  console.log(`注文：${coffee.getDescription()}`);
+  console.log(`価格：${coffee.getCost()}円`);
+  
+  // ホイップクリームを追加
+  coffee = new WhipDecorator(coffee);
+  console.log(`注文：${coffee.getDescription()}`);
+  console.log(`価格：${coffee.getCost()}円`);
+  
+  // 別のコーヒーの注文例（デコレータの組み合わせ順序を変えた例）
+  console.log("\n--- 別の注文 ---");
+  
+  // 基本のコーヒーを作成し、ホイップとミルクを追加
+  let specialCoffee: Coffee = new SimpleCoffee();
+  specialCoffee = new WhipDecorator(specialCoffee);
+  specialCoffee = new MilkDecorator(specialCoffee);
+  
+  console.log(`注文：${specialCoffee.getDescription()}`);
+  console.log(`価格：${specialCoffee.getCost()}円`);
+}
+
+// クライアントコードを実行
+clientCode();
+
+// 出力例:
+// 注文：シンプルコーヒー
+// 価格：300円
+// 注文：シンプルコーヒー + ミルク
+// 価格：350円
+// 注文：シンプルコーヒー + ミルク + 砂糖
+// 価格：380円
+// 注文：シンプルコーヒー + ミルク + 砂糖 + ホイップクリーム
+// 価格：480円
+//
+// --- 別の注文 ---
+// 注文：シンプルコーヒー + ホイップクリーム + ミルク
+// 価格：450円
+</code></pre>
+<h2 id="5-パターンのバリエーション"><a class="header" href="#5-パターンのバリエーション">5. パターンのバリエーション</a></h2>
+<h3 id="51-透過的デコレータ-transparent-decorator"><a class="header" href="#51-透過的デコレータ-transparent-decorator">5.1 透過的デコレータ (Transparent Decorator)</a></h3>
+<p>クライアントが追加された機能に直接アクセスできるようにするバリエーション。追加された機能にアクセスするには、デコレータの型へのキャストが必要になります。</p>
+<pre><code class="language-typescript">interface TextComponent {
+  render(): string;
+}
+
+class PlainText implements TextComponent {
+  private text: string;
+  
+  constructor(text: string) {
+    this.text = text;
+  }
+  
+  render(): string {
+    return this.text;
+  }
+}
+
+abstract class TextDecorator implements TextComponent {
+  protected component: TextComponent;
+  
+  constructor(component: TextComponent) {
+    this.component = component;
+  }
+  
+  render(): string {
+    return this.component.render();
+  }
+}
+
+class BoldDecorator extends TextDecorator {
+  render(): string {
+    return `&lt;b&gt;${this.component.render()}&lt;/b&gt;`;
+  }
+  
+  // 追加されたメソッド
+  makeBold(text: string): string {
+    return `&lt;b&gt;${text}&lt;/b&gt;`;
+  }
+}
+
+// 使用例
+const text = new PlainText("Hello");
+const boldText = new BoldDecorator(text);
+
+// 基本インターフェースのメソッド
+console.log(boldText.render()); // &lt;b&gt;Hello&lt;/b&gt;
+
+// 追加されたメソッドにアクセス（キャストが必要）
+if (boldText instanceof BoldDecorator) {
+  console.log(boldText.makeBold("World")); // &lt;b&gt;World&lt;/b&gt;
+}
+</code></pre>
+<h3 id="52-自己デコレート-self-decorating"><a class="header" href="#52-自己デコレート-self-decorating">5.2 自己デコレート (Self-Decorating)</a></h3>
+<p>同じデコレータを複数回適用できるようにするバリエーション。これにより、同じ機能を繰り返し追加することができます。</p>
+<pre><code class="language-typescript">class BorderDecorator extends TextDecorator {
+  private borderWidth: number;
+  
+  constructor(component: TextComponent, borderWidth: number = 1) {
+    super(component);
+    this.borderWidth = borderWidth;
+  }
+  
+  render(): string {
+    let border = "";
+    for (let i = 0; i &lt; this.borderWidth; i++) {
+      border += "*";
+    }
+    return `${border}${this.component.render()}${border}`;
+  }
+}
+
+// 使用例
+let text = new PlainText("Hello");
+text = new BorderDecorator(text, 1);      // *Hello*
+text = new BorderDecorator(text, 2);      // **Hello**
+console.log(text.render());               // **Hello**
+</code></pre>
+<h3 id="53-キャッシュデコレータ-caching-decorator"><a class="header" href="#53-キャッシュデコレータ-caching-decorator">5.3 キャッシュデコレータ (Caching Decorator)</a></h3>
+<p>パフォーマンス向上のために結果をキャッシュするデコレータ。繰り返し同じ操作が行われる場合に有効です。</p>
+<pre><code class="language-typescript">class CachingDecorator extends TextDecorator {
+  private cache: Map&lt;string, string&gt; = new Map();
+  
+  render(): string {
+    const key = this.component.render();
+    if (this.cache.has(key)) {
+      console.log("キャッシュから取得");
+      return this.cache.get(key)!;
+    }
+    
+    console.log("新規計算");
+    const result = `&lt;cached&gt;${key}&lt;/cached&gt;`;
+    this.cache.set(key, result);
+    return result;
+  }
+}
+</code></pre>
+<h2 id="6-評価"><a class="header" href="#6-評価">6. 評価</a></h2>
+<h3 id="61-メリット"><a class="header" href="#61-メリット">6.1 メリット</a></h3>
+<ul>
+<li><strong>オープン/クローズド原則</strong>: 既存のコードを変更せずに拡張できる</li>
+<li><strong>単一責任の原則</strong>: 各デコレータは特定の機能のみに責任を持つ</li>
+<li><strong>柔軟性</strong>: 実行時に動的に機能を追加・組み合わせられる</li>
+<li><strong>合成による拡張</strong>: 継承の代わりに合成（コンポジション）を使用</li>
+<li><strong>細かい粒度</strong>: 機能を小さなコンポーネントに分割できる</li>
+<li><strong>階層的機能追加</strong>: デコレータをスタックさせて機能を積み重ねることができる</li>
+<li><strong>独立性</strong>: 各デコレータは独立して開発・テストできる</li>
+</ul>
+<h3 id="62-デメリット"><a class="header" href="#62-デメリット">6.2 デメリット</a></h3>
+<ul>
+<li><strong>小さなオブジェクトの増加</strong>: 多数の小さなオブジェクトが作成され、デバッグが難しくなる可能性がある</li>
+<li><strong>デコレータの順序</strong>: デコレータの適用順序が結果に影響する場合がある</li>
+<li><strong>特定のデコレータの削除</strong>: スタックからの特定のデコレータの削除が難しい</li>
+<li><strong>一貫性の欠如</strong>: デコレータを追加した順序によって異なる結果が生じる可能性がある</li>
+<li><strong>複雑な設計</strong>: シンプルな機能拡張の場合、過度に複雑になる可能性がある</li>
+<li><strong>型の透過性</strong>: デコレータ固有の機能にアクセスするには型キャストが必要な場合がある</li>
+</ul>
+<h3 id="63-適用場面"><a class="header" href="#63-適用場面">6.3 適用場面</a></h3>
+<ul>
+<li>実行時に動的にオブジェクトの機能を追加/削除したい場合</li>
+<li>継承を使わずに機能拡張を行いたい場合</li>
+<li>様々な機能の組み合わせが多数あり、サブクラス爆発を避けたい場合</li>
+<li>オブジェクトの責任を分離し、単一責任の原則に従いたい場合</li>
+<li>以下のような具体的なアプリケーション:
+<ul>
+<li>GUIコンポーネントへの機能追加（ボーダー、スクロールバーなど）</li>
+<li>データストリームへのフィルタの適用（暗号化、圧縮、バッファリングなど）</li>
+<li>パーミッションに基づくアクセス制御の実装</li>
+<li>コーヒーショップのカスタムオーダーシステム</li>
+<li>テキスト処理での書式設定機能の追加</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-関連パターン"><a class="header" href="#7-関連パターン">7. 関連パターン</a></h2>
+<ul>
+<li><strong>Composite</strong>: Decoratorはしばしば複合オブジェクトと共に使用される</li>
+<li><strong>Strategy</strong>: 両方とも合成を使用するが、Strategyはオブジェクトの内部アルゴリズムを変更し、Decoratorはオブジェクトの外観を変更する</li>
+<li><strong>Adapter</strong>: 両方ともラッピングを使用するが、Adapterはインターフェースを変更し、Decoratorは機能を追加する</li>
+<li><strong>Chain of Responsibility</strong>: 両方とも複数のオブジェクトを連鎖させるが、目的が異なる</li>
+<li><strong>Proxy</strong>: 両方ともラッピングを使用するが、Proxyはアクセス制御に焦点を当て、Decoratorは機能追加に焦点を当てる</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/structural/decorator">ソースコードへのリンク</a></li>
+<li><a href="../../tests/structural/decorator">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/decorator">リファクタリング・グル - Decoratorパターン</a></li>
+<li><a href="https://sourcemaking.com/design_patterns/decorator">Design Patterns: Decorator Pattern</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/structural/composite.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/structural/facade.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/structural/composite.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/structural/facade.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

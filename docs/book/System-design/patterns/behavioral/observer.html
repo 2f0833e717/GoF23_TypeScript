@@ -1,0 +1,1151 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>observer - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/observer.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="observerパターン---オブジェクト状態変更通知実装"><a class="header" href="#observerパターン---オブジェクト状態変更通知実装">Observerパターン - オブジェクト状態変更通知実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Observerパターンは、オブジェクト間の1対多の依存関係を定義し、あるオブジェクト（Subject）の状態が変化した時に、それに依存するすべてのオブジェクト（Observer）に自動的に通知し更新を行うためのデザインパターンです。このパターンは「発行-購読モデル」とも呼ばれます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>オブジェクト間の疎結合な通知メカニズムの実現</li>
+<li>状態変更の自動的な伝播と同期</li>
+<li>イベント駆動型のシステム設計</li>
+<li>分散システムでのイベント通知</li>
+<li>コンポーネント間の依存性の低減</li>
+<li>動的なオブジェクト間関係の構築</li>
+<li>UI更新の効率化</li>
+<li>プッシュベースの情報配信</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>GUIアプリケーションでの表示更新</li>
+<li>イベント処理システム</li>
+<li>メッセージング・通知システム</li>
+<li>リアルタイムデータ監視</li>
+<li>MVC/MVVMアーキテクチャのモデル-ビュー間通信</li>
+<li>分散システムでのデータ同期</li>
+<li>サブスクリプションベースのサービス</li>
+<li>ロギングや監査システム</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Subject {
+        +attach(observer: Observer): void
+        +detach(observer: Observer): void
+        +notify(): void
+    }
+    
+    class Observer {
+        +update(subject: Subject): void
+    }
+    
+    class ConcreteSubject {
+        -observers: Observer[]
+        -state: any
+        +getState(): any
+        +setState(state: any): void
+    }
+    
+    class ConcreteObserver {
+        -subject: Subject
+        -observerState: any
+        +update(subject: Subject): void
+    }
+    
+    Subject &lt;|.. ConcreteSubject : implements
+    Observer &lt;|.. ConcreteObserver : implements
+    ConcreteSubject --&gt; Observer : notifies &gt;
+    ConcreteObserver --&gt; ConcreteSubject : observes &gt;
+    
+    note for Subject &quot;インターフェース&quot;
+    note for Observer &quot;インターフェース&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Subject</td><td>インターフェース</td><td>オブザーバーの登録・削除・通知を行うインターフェースを定義</td><td>Observer の参照を保持</td></tr>
+<tr><td>ConcreteSubject</td><td>クラス</td><td>Subjectを実装し、状態を保持、変更時にオブザーバーに通知</td><td>Subject を実装、Observer を通知</td></tr>
+<tr><td>Observer</td><td>インターフェース</td><td>通知を受け取るためのインターフェースを定義</td><td>Subject から通知を受け取る</td></tr>
+<tr><td>ConcreteObserver</td><td>クラス</td><td>Observerを実装し、Subjectの変更に対する具体的な処理を実装</td><td>Observer を実装、Subject を監視</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Subjectは複数のObserverへの参照を保持し、状態変更時にそれらに通知する</li>
+<li>Observerは通知を受け取り、必要に応じてSubjectの状態を取得して自身を更新する</li>
+<li>ObserverはSubjectに明示的に登録（購読）する必要がある</li>
+<li>Subjectは通知時に自身の参照を渡すことが多く、複数のSubjectを監視するObserverはどのSubjectからの通知かを識別できる</li>
+<li>通知は一方向であり、Subjectはオブザーバーの具体的な実装に依存しない（疎結合）</li>
+<li>ObserverはSubjectから登録解除（購読解除）することで通知を受け取らなくすることができる</li>
+</ul>
+<h2 id="3-シーケンス"><a class="header" href="#3-シーケンス">3. シーケンス</a></h2>
+<h3 id="31-基本フロー"><a class="header" href="#31-基本フロー">3.1 基本フロー</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Subject
+    participant Observer1
+    participant Observer2
+    
+    Note over Client,Observer2: オブザーバーの登録
+    Client-&gt;&gt;Observer1: 作成
+    Client-&gt;&gt;Observer2: 作成
+    Client-&gt;&gt;Subject: 作成
+    Observer1-&gt;&gt;Subject: attach(this)
+    Observer2-&gt;&gt;Subject: attach(this)
+    
+    Note over Client,Observer2: 状態の変更と通知
+    Client-&gt;&gt;Subject: setState(newState)
+    activate Subject
+    Subject-&gt;&gt;Subject: state = newState
+    Subject-&gt;&gt;Subject: notify()
+    Subject-&gt;&gt;Observer1: update(this)
+    activate Observer1
+    Observer1-&gt;&gt;Subject: getState()
+    Subject--&gt;&gt;Observer1: state
+    Observer1-&gt;&gt;Observer1: 内部状態を更新
+    deactivate Observer1
+    Subject-&gt;&gt;Observer2: update(this)
+    activate Observer2
+    Observer2-&gt;&gt;Subject: getState()
+    Subject--&gt;&gt;Observer2: state
+    Observer2-&gt;&gt;Observer2: 内部状態を更新
+    deactivate Observer2
+    deactivate Subject
+    
+    Note over Client,Observer2: オブザーバーの登録解除
+    Client-&gt;&gt;Subject: detach(observer1)
+    Subject-&gt;&gt;Subject: observers.remove(observer1)
+</pre>
+<h3 id="32-イベント処理フロー"><a class="header" href="#32-イベント処理フロー">3.2 イベント処理フロー</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant EventBus
+    participant Subscriber1
+    participant Subscriber2
+    
+    Client-&gt;&gt;Subscriber1: 作成
+    Client-&gt;&gt;Subscriber2: 作成
+    Client-&gt;&gt;EventBus: 作成
+    
+    Subscriber1-&gt;&gt;EventBus: on(&quot;event1&quot;, callback1)
+    Subscriber2-&gt;&gt;EventBus: on(&quot;event1&quot;, callback2)
+    Subscriber2-&gt;&gt;EventBus: on(&quot;event2&quot;, callback3)
+    
+    Client-&gt;&gt;EventBus: emit(&quot;event1&quot;, data)
+    activate EventBus
+    EventBus-&gt;&gt;Subscriber1: callback1(data)
+    EventBus-&gt;&gt;Subscriber2: callback2(data)
+    deactivate EventBus
+    
+    Client-&gt;&gt;EventBus: emit(&quot;event2&quot;, data)
+    activate EventBus
+    EventBus-&gt;&gt;Subscriber2: callback3(data)
+    deactivate EventBus
+    
+    Subscriber1-&gt;&gt;EventBus: off(&quot;event1&quot;, callback1)
+    
+    Client-&gt;&gt;EventBus: emit(&quot;event1&quot;, data)
+    activate EventBus
+    EventBus-&gt;&gt;Subscriber2: callback2(data)
+    deactivate EventBus
+</pre>
+<h3 id="33-プロセスフロー"><a class="header" href="#33-プロセスフロー">3.3 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[Subjectの作成]
+    B --&gt; C[Observerの作成]
+    C --&gt; D[ObserverをSubjectに登録]
+    D --&gt; E[Subjectの状態変更]
+    E --&gt; F[Subjectがすべての登録Observerに通知]
+    F --&gt; G[各Observerが自身の状態を更新]
+    G --&gt; H{継続監視?}
+    H --&gt;|はい| I[オブザーバーがSubjectを監視継続]
+    I --&gt; E
+    H --&gt;|いいえ| J[Observerの登録解除]
+    J --&gt; K[終了]
+</pre>
+<h3 id="34-重要なシナリオ"><a class="header" href="#34-重要なシナリオ">3.4 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-ニュース配信システム"><a class="header" href="#シナリオ1-ニュース配信システム">シナリオ1: ニュース配信システム</a></h4>
+<ol>
+<li>ニュースエージェンシー（Subject）が作成される</li>
+<li>複数のニュースチャンネル（Observer）が作成される</li>
+<li>各チャンネルがニュースエージェンシーに購読登録する</li>
+<li>ニュースエージェンシーが新しいニュース記事を受信する</li>
+<li>ニュースエージェンシーが登録されたすべてのチャンネルに記事を通知する</li>
+<li>各チャンネルが記事を受け取り、視聴者に表示する</li>
+</ol>
+<h4 id="シナリオ2-uiコンポーネントの同期"><a class="header" href="#シナリオ2-uiコンポーネントの同期">シナリオ2: UIコンポーネントの同期</a></h4>
+<ol>
+<li>データモデル（Subject）が作成される</li>
+<li>複数のUIコンポーネント（Observer）が作成される</li>
+<li>各UIコンポーネントがデータモデルに登録する</li>
+<li>ユーザーがUIを操作し、データモデルが更新される</li>
+<li>データモデルが変更を検出し、登録されたすべてのUIコンポーネントに通知する</li>
+<li>各UIコンポーネントがデータモデルから最新の状態を取得し、表示を更新する</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Subject（主体）インターフェース
+ * オブザーバーの管理と通知を行う
+ */
+interface Subject&lt;T&gt; {
+    /**
+     * オブザーバーを登録する
+     * @param observer 登録するオブザーバー
+     */
+    attach(observer: Observer&lt;T&gt;): void;
+    
+    /**
+     * オブザーバーの登録を解除する
+     * @param observer 登録解除するオブザーバー
+     */
+    detach(observer: Observer&lt;T&gt;): void;
+    
+    /**
+     * 登録されているすべてのオブザーバーに通知する
+     */
+    notify(): void;
+}
+
+/**
+ * Observer（観察者）インターフェース
+ * 通知を受け取り、処理する
+ */
+interface Observer&lt;T&gt; {
+    /**
+     * 状態が更新された時に呼び出される
+     * @param state 更新された状態
+     */
+    update(state: T): void;
+}
+
+/**
+ * 具体的なSubject実装
+ * 状態を保持し、変更時にオブザーバーに通知する
+ */
+class ConcreteSubject&lt;T&gt; implements Subject&lt;T&gt; {
+    /**
+     * 登録されたオブザーバーのコレクション
+     */
+    private observers: Set&lt;Observer&lt;T&gt;&gt; = new Set();
+    
+    /**
+     * 現在の状態
+     */
+    private state: T;
+    
+    /**
+     * 状態を取得する
+     * @returns 現在の状態
+     */
+    getState(): T {
+        return this.state;
+    }
+    
+    /**
+     * 状態を設定し、オブザーバーに通知する
+     * @param state 新しい状態
+     */
+    setState(state: T): void {
+        this.state = state;
+        this.notify();
+    }
+    
+    /**
+     * オブザーバーを登録する
+     * @param observer 登録するオブザーバー
+     */
+    attach(observer: Observer&lt;T&gt;): void {
+        this.observers.add(observer);
+        console.log('Observer added');
+    }
+    
+    /**
+     * オブザーバーの登録を解除する
+     * @param observer 登録解除するオブザーバー
+     */
+    detach(observer: Observer&lt;T&gt;): void {
+        this.observers.delete(observer);
+        console.log('Observer removed');
+    }
+    
+    /**
+     * 登録されているすべてのオブザーバーに通知する
+     */
+    notify(): void {
+        console.log('Notifying observers...');
+        this.observers.forEach(observer =&gt; {
+            observer.update(this.state);
+        });
+    }
+}
+
+/**
+ * 具体的なObserver実装
+ * 通知を受け取り、特定の処理を行う
+ */
+class ConcreteObserver&lt;T&gt; implements Observer&lt;T&gt; {
+    /**
+     * オブザーバーの名前（識別用）
+     */
+    private name: string;
+    
+    /**
+     * コンストラクタ
+     * @param name オブザーバーの名前
+     */
+    constructor(name: string) {
+        this.name = name;
+    }
+    
+    /**
+     * 状態が更新された時に呼び出される
+     * @param state 更新された状態
+     */
+    update(state: T): void {
+        console.log(`${this.name} received update with state:`, state);
+        // 状態に応じた具体的な処理を実装
+    }
+}
+</code></pre>
+<h3 id="42-イベントエミッターの実装"><a class="header" href="#42-イベントエミッターの実装">4.2 イベントエミッターの実装</a></h3>
+<pre><code class="language-typescript">/**
+ * イベントエミッターインターフェース
+ * イベントベースのオブザーバーパターン実装
+ */
+interface EventEmitter {
+    /**
+     * イベントリスナーを登録する
+     * @param event イベント名
+     * @param listener コールバック関数
+     */
+    on(event: string, listener: Function): void;
+    
+    /**
+     * イベントリスナーを解除する
+     * @param event イベント名
+     * @param listener 解除するコールバック関数
+     */
+    off(event: string, listener: Function): void;
+    
+    /**
+     * イベントを発行する
+     * @param event イベント名
+     * @param data イベントデータ
+     */
+    emit(event: string, data?: any): void;
+}
+
+/**
+ * イベントバスクラス
+ * 複数のイベントとリスナーを管理する
+ */
+class EventBus implements EventEmitter {
+    /**
+     * イベントとリスナーのマップ
+     */
+    private eventMap: Map&lt;string, Set&lt;Function&gt;&gt; = new Map();
+    
+    /**
+     * イベントリスナーを登録する
+     * @param event イベント名
+     * @param callback コールバック関数
+     */
+    on(event: string, callback: Function): void {
+        if (!this.eventMap.has(event)) {
+            this.eventMap.set(event, new Set());
+        }
+        this.eventMap.get(event)!.add(callback);
+        console.log(`Listener added for event: ${event}`);
+    }
+    
+    /**
+     * イベントリスナーを解除する
+     * @param event イベント名
+     * @param callback 解除するコールバック関数
+     */
+    off(event: string, callback: Function): void {
+        if (this.eventMap.has(event)) {
+            this.eventMap.get(event)!.delete(callback);
+            console.log(`Listener removed for event: ${event}`);
+        }
+    }
+    
+    /**
+     * イベントを発行する
+     * @param event イベント名
+     * @param data イベントデータ
+     */
+    emit(event: string, data?: any): void {
+        console.log(`Emitting event: ${event}`);
+        if (this.eventMap.has(event)) {
+            this.eventMap.get(event)!.forEach(callback =&gt; {
+                try {
+                    callback(data);
+                } catch (error) {
+                    console.error(`Error in event listener for ${event}:`, error);
+                }
+            });
+        }
+    }
+    
+    /**
+     * 特定のイベントのリスナー数を取得する
+     * @param event イベント名
+     * @returns リスナー数
+     */
+    listenerCount(event: string): number {
+        return this.eventMap.has(event) ? this.eventMap.get(event)!.size : 0;
+    }
+    
+    /**
+     * すべてのリスナーを解除する
+     * @param event 特定のイベント名（省略時はすべてのイベント）
+     */
+    removeAllListeners(event?: string): void {
+        if (event) {
+            this.eventMap.delete(event);
+        } else {
+            this.eventMap.clear();
+        }
+    }
+}
+</code></pre>
+<h3 id="43-実装のバリエーション"><a class="header" href="#43-実装のバリエーション">4.3 実装のバリエーション</a></h3>
+<ol>
+<li>
+<p><strong>プッシュモデル vs プルモデル</strong></p>
+<ul>
+<li>プッシュモデル: Subject が通知時に状態データを Observer に直接送信</li>
+<li>プルモデル: Subject が通知時に自身の参照のみを送り、Observer が必要に応じて状態を取得</li>
+</ul>
+</li>
+<li>
+<p><strong>変更検知メカニズム</strong></p>
+<ul>
+<li>手動通知: <code>setState</code> 時に明示的に <code>notify</code> を呼び出す</li>
+<li>自動通知: プロパティのセッター内で自動的に通知</li>
+<li>プロキシベース: JavaScript の Proxy を使用して変更を検知</li>
+</ul>
+</li>
+<li>
+<p><strong>イベントフィルタリング</strong></p>
+<ul>
+<li>特定の条件を満たす変更のみを通知</li>
+<li>各 Observer がイベントフィルターを提供</li>
+</ul>
+</li>
+<li>
+<p><strong>優先度付きオブザーバー</strong></p>
+<ul>
+<li>Observer に優先度を設定し、通知順序を制御</li>
+<li>重要度に基づいて通知をフィルタリング</li>
+</ul>
+</li>
+</ol>
+<h3 id="44-注意すべき実装ポイント"><a class="header" href="#44-注意すべき実装ポイント">4.4 注意すべき実装ポイント</a></h3>
+<ul>
+<li>循環参照の防止（A が B を監視し、B が A を監視するような状況）</li>
+<li>死んだ参照（弱参照の使用やリスナー解除の徹底）</li>
+<li>非同期通知と同期通知の選択と影響</li>
+<li>通知の頻度と負荷（バッチ処理や防弾の考慮）</li>
+<li>例外処理（一つのオブザーバーの例外が他に影響しないようにする）</li>
+<li>メモリリークの防止（特にイベントリスナー）</li>
+<li>コールバック関数内の <code>this</code> コンテキスト</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-ニュース配信システム"><a class="header" href="#51-ニュース配信システム">5.1 ニュース配信システム</a></h3>
+<pre><code class="language-typescript">/**
+ * ニュース記事の型定義
+ */
+interface NewsArticle {
+    id: string;
+    title: string;
+    content: string;
+    category: string;
+    timestamp: Date;
+}
+
+/**
+ * ニュースエージェンシー（Subject）
+ */
+class NewsAgency extends ConcreteSubject&lt;NewsArticle&gt; {
+    /**
+     * ニュースを発行する
+     * @param article 発行するニュース記事
+     */
+    publishNews(article: NewsArticle): void {
+        console.log(`Publishing news: ${article.title} [${article.category}]`);
+        this.setState(article);
+    }
+}
+
+/**
+ * ニュースチャンネル（Observer）
+ */
+class NewsChannel implements Observer&lt;NewsArticle&gt; {
+    /**
+     * チャンネル名
+     */
+    private name: string;
+    
+    /**
+     * 購読カテゴリ（フィルタリング用）
+     */
+    private categories: Set&lt;string&gt;;
+    
+    /**
+     * コンストラクタ
+     * @param name チャンネル名
+     * @param categories 購読するカテゴリ
+     */
+    constructor(name: string, categories: string[] = []) {
+        this.name = name;
+        this.categories = new Set(categories);
+    }
+    
+    /**
+     * ニュース記事の更新を受け取る
+     * @param article 更新されたニュース記事
+     */
+    update(article: NewsArticle): void {
+        // カテゴリフィルタリングがある場合は適用
+        if (this.categories.size === 0 || this.categories.has(article.category)) {
+            console.log(`${this.name} broadcasting: ${article.title}`);
+            // 実際の放送処理...
+        }
+    }
+}
+
+/**
+ * ニュースウェブサイト（Observer）
+ */
+class NewsWebsite implements Observer&lt;NewsArticle&gt; {
+    /**
+     * ウェブサイト名
+     */
+    private name: string;
+    
+    /**
+     * 最新記事リスト
+     */
+    private latestArticles: NewsArticle[] = [];
+    
+    /**
+     * コンストラクタ
+     * @param name ウェブサイト名
+     */
+    constructor(name: string) {
+        this.name = name;
+    }
+    
+    /**
+     * ニュース記事の更新を受け取る
+     * @param article 更新されたニュース記事
+     */
+    update(article: NewsArticle): void {
+        console.log(`${this.name} received: ${article.title}`);
+        this.latestArticles.unshift(article);
+        this.latestArticles = this.latestArticles.slice(0, 10); // 最新10件のみ保持
+        this.updateWebsite();
+    }
+    
+    /**
+     * ウェブサイトを更新する
+     */
+    private updateWebsite(): void {
+        console.log(`${this.name} updated with latest news`);
+        // 実際のウェブサイト更新処理...
+    }
+}
+</code></pre>
+<h3 id="52-uiデータバインディング"><a class="header" href="#52-uiデータバインディング">5.2 UIデータバインディング</a></h3>
+<pre><code class="language-typescript">/**
+ * データモデル（Subject）
+ */
+class UserModel extends ConcreteSubject&lt;{name: string, email: string, age: number}&gt; {
+    constructor() {
+        super();
+        this.setState({
+            name: '',
+            email: '',
+            age: 0
+        });
+    }
+    
+    setName(name: string): void {
+        const currentState = this.getState();
+        this.setState({...currentState, name});
+    }
+    
+    setEmail(email: string): void {
+        const currentState = this.getState();
+        this.setState({...currentState, email});
+    }
+    
+    setAge(age: number): void {
+        const currentState = this.getState();
+        this.setState({...currentState, age});
+    }
+}
+
+/**
+ * UI要素（Observer）
+ */
+class UserFormView implements Observer&lt;{name: string, email: string, age: number}&gt; {
+    private nameElement: HTMLInputElement;
+    private emailElement: HTMLInputElement;
+    private ageElement: HTMLInputElement;
+    private model: UserModel;
+    
+    constructor(model: UserModel) {
+        this.model = model;
+        
+        // DOM要素の作成（実際のアプリではすでに存在する要素を取得）
+        this.nameElement = document.createElement('input');
+        this.emailElement = document.createElement('input');
+        this.ageElement = document.createElement('input');
+        
+        // イベントリスナーの設定
+        this.nameElement.addEventListener('input', () =&gt; {
+            this.model.setName(this.nameElement.value);
+        });
+        
+        this.emailElement.addEventListener('input', () =&gt; {
+            this.model.setEmail(this.emailElement.value);
+        });
+        
+        this.ageElement.addEventListener('input', () =&gt; {
+            this.model.setAge(parseInt(this.ageElement.value) || 0);
+        });
+        
+        // モデルに登録
+        model.attach(this);
+    }
+    
+    update(data: {name: string, email: string, age: number}): void {
+        // UIを更新（モデルからの変更）
+        this.nameElement.value = data.name;
+        this.emailElement.value = data.email;
+        this.ageElement.value = data.age.toString();
+    }
+    
+    render(): void {
+        // DOMに要素を追加する処理
+        const container = document.createElement('div');
+        container.appendChild(this.createField('Name:', this.nameElement));
+        container.appendChild(this.createField('Email:', this.emailElement));
+        container.appendChild(this.createField('Age:', this.ageElement));
+        document.body.appendChild(container);
+    }
+    
+    private createField(label: string, input: HTMLInputElement): HTMLDivElement {
+        const div = document.createElement('div');
+        const labelElement = document.createElement('label');
+        labelElement.textContent = label;
+        div.appendChild(labelElement);
+        div.appendChild(input);
+        return div;
+    }
+}
+
+/**
+ * ユーザープレビュー（Observer）
+ */
+class UserPreview implements Observer&lt;{name: string, email: string, age: number}&gt; {
+    private element: HTMLDivElement;
+    
+    constructor() {
+        this.element = document.createElement('div');
+        document.body.appendChild(this.element);
+    }
+    
+    update(data: {name: string, email: string, age: number}): void {
+        this.element.innerHTML = `
+            &lt;h2&gt;User Preview&lt;/h2&gt;
+            &lt;p&gt;&lt;strong&gt;Name:&lt;/strong&gt; ${data.name}&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Email:&lt;/strong&gt; ${data.email}&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Age:&lt;/strong&gt; ${data.age}&lt;/p&gt;
+        `;
+    }
+}
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>主体（Subject）のオブザーバー管理機能のテスト</li>
+<li>変更通知メカニズムのテスト</li>
+<li>オブザーバーの登録と解除のテスト</li>
+<li>複数オブザーバーへの通知順序テスト</li>
+<li>エッジケース（0オブザーバー、通知中のオブザーバー追加/削除など）</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Observer Pattern Tests', () =&gt; {
+    describe('ConcreteSubject', () =&gt; {
+        let subject: ConcreteSubject&lt;string&gt;;
+    
+    beforeEach(() =&gt; {
+            subject = new ConcreteSubject&lt;string&gt;();
+    });
+    
+        test('should notify observers when state changes', () =&gt; {
+        // モックオブザーバーの作成
+            const observer1 = { update: jest.fn() };
+            const observer2 = { update: jest.fn() };
+            
+            // オブザーバーの登録
+            subject.attach(observer1);
+            subject.attach(observer2);
+            
+            // 状態変更
+            subject.setState('new state');
+            
+            // 検証
+            expect(observer1.update).toHaveBeenCalledWith('new state');
+            expect(observer2.update).toHaveBeenCalledWith('new state');
+        });
+        
+        test('should not notify detached observers', () =&gt; {
+            const observer = { update: jest.fn() };
+            
+            subject.attach(observer);
+            subject.detach(observer);
+            
+            subject.setState('new state');
+            
+            expect(observer.update).not.toHaveBeenCalled();
+        });
+        
+        test('should handle attaching the same observer multiple times', () =&gt; {
+            const observer = { update: jest.fn() };
+            
+            subject.attach(observer);
+            subject.attach(observer); // 重複登録
+            
+            subject.setState('new state');
+            
+            // Set を使用しているので、通知は1回だけ
+            expect(observer.update).toHaveBeenCalledTimes(1);
+        });
+        
+        test('should handle detaching an observer that is not attached', () =&gt; {
+            const observer = { update: jest.fn() };
+            
+            // 未登録のオブザーバーを削除
+            subject.detach(observer);
+            
+            // エラーが発生しないことを確認
+            expect(() =&gt; subject.detach(observer)).not.toThrow();
+        });
+    });
+    
+    describe('EventBus', () =&gt; {
+        let eventBus: EventBus;
+        
+        beforeEach(() =&gt; {
+            eventBus = new EventBus();
+        });
+        
+        test('should notify listeners when event is emitted', () =&gt; {
+            const listener1 = jest.fn();
+            const listener2 = jest.fn();
+            
+            eventBus.on('event1', listener1);
+            eventBus.on('event1', listener2);
+            eventBus.on('event2', listener2);
+            
+            eventBus.emit('event1', 'data1');
+            
+            expect(listener1).toHaveBeenCalledWith('data1');
+            expect(listener2).toHaveBeenCalledWith('data1');
+            
+            eventBus.emit('event2', 'data2');
+            
+            expect(listener1).not.toHaveBeenCalledWith('data2');
+            expect(listener2).toHaveBeenCalledWith('data2');
+        });
+        
+        test('should remove listener when off is called', () =&gt; {
+            const listener = jest.fn();
+            
+            eventBus.on('event1', listener);
+            eventBus.off('event1', listener);
+            
+            eventBus.emit('event1', 'data');
+            
+            expect(listener).not.toHaveBeenCalled();
+        });
+        
+        test('should handle errors in listeners', () =&gt; {
+            const errorListener = jest.fn().mockImplementation(() =&gt; {
+                throw new Error('Listener error');
+            });
+            const normalListener = jest.fn();
+            
+            // コンソールエラーをモック
+            const originalConsoleError = console.error;
+            console.error = jest.fn();
+            
+            eventBus.on('event', errorListener);
+            eventBus.on('event', normalListener);
+            
+            // エラーが発生しても処理は続行
+            eventBus.emit('event', 'data');
+            
+            expect(errorListener).toHaveBeenCalled();
+            expect(normalListener).toHaveBeenCalled();
+            expect(console.error).toHaveBeenCalled();
+            
+            // 元に戻す
+            console.error = originalConsoleError;
+        });
+        
+        test('should return correct listener count', () =&gt; {
+            const listener1 = jest.fn();
+            const listener2 = jest.fn();
+            
+            expect(eventBus.listenerCount('event')).toBe(0);
+            
+            eventBus.on('event', listener1);
+            expect(eventBus.listenerCount('event')).toBe(1);
+            
+            eventBus.on('event', listener2);
+            expect(eventBus.listenerCount('event')).toBe(2);
+            
+            eventBus.off('event', listener1);
+            expect(eventBus.listenerCount('event')).toBe(1);
+        });
+        
+        test('should remove all listeners when removeAllListeners is called', () =&gt; {
+            const listener1 = jest.fn();
+            const listener2 = jest.fn();
+            
+            eventBus.on('event1', listener1);
+            eventBus.on('event2', listener2);
+            
+            eventBus.removeAllListeners('event1');
+            
+            eventBus.emit('event1', 'data1');
+            eventBus.emit('event2', 'data2');
+            
+            expect(listener1).not.toHaveBeenCalled();
+            expect(listener2).toHaveBeenCalled();
+            
+            eventBus.removeAllListeners();
+            
+            eventBus.emit('event2', 'data3');
+            
+            expect(listener2).toHaveBeenCalledTimes(1); // 前回の呼び出しのみ
+        });
+    });
+    
+    describe('NewsAgency Integration', () =&gt; {
+        let newsAgency: NewsAgency;
+        let sportsChannel: NewsChannel;
+        let newsWebsite: NewsWebsite;
+        
+        beforeEach(() =&gt; {
+            newsAgency = new NewsAgency();
+            sportsChannel = new NewsChannel('Sports Channel', ['sports']);
+            newsWebsite = new NewsWebsite('News Portal');
+            
+            // スパイを設定
+            jest.spyOn(sportsChannel, 'update');
+            jest.spyOn(newsWebsite, 'update');
+            
+            newsAgency.attach(sportsChannel);
+            newsAgency.attach(newsWebsite);
+        });
+        
+        test('should deliver news to all observers', () =&gt; {
+            const article: NewsArticle = {
+            id: '1',
+            title: 'Breaking News',
+            content: 'Important content',
+                category: 'politics',
+            timestamp: new Date()
+        };
+        
+        newsAgency.publishNews(article);
+        
+            // カテゴリフィルタリングのあるチャンネルは更新されるが表示しない
+            expect(sportsChannel.update).toHaveBeenCalledWith(article);
+            expect(newsWebsite.update).toHaveBeenCalledWith(article);
+        });
+        
+        test('should deliver sports news to sports channel', () =&gt; {
+            const article: NewsArticle = {
+                id: '2',
+                title: 'Sports Event',
+                content: 'Sports content',
+                category: 'sports',
+                timestamp: new Date()
+            };
+            
+            // コンソールログをモック
+            const consoleSpy = jest.spyOn(console, 'log');
+            
+            newsAgency.publishNews(article);
+            
+            expect(sportsChannel.update).toHaveBeenCalledWith(article);
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Sports Channel broadcasting'));
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>疎結合な設計: Subjectの実装とObserverの実装が独立して変更可能</li>
+<li>オープン・クローズドの原則: 既存のコードを変更せずに新しいObserverを追加可能</li>
+<li>動的な関係: 実行時にSubjectとObserverの関係を確立・変更可能</li>
+<li>再利用性: 同じObserverを異なるSubjectで使用可能</li>
+<li>イベント処理: 非同期イベント処理に適している</li>
+<li>一方向のデータフロー: 状態変更の伝播方向が明確</li>
+<li>分散更新: 関連するすべてのコンポーネントに自動的に更新を伝播</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>予測不能な更新: オブザーバーへの通知順序が定義されていない場合がある</li>
+<li>メモリリーク: オブザーバーの登録解除が適切に行われないとリソースが解放されない</li>
+<li>デバッグの難しさ: 非同期通知の場合、デバッグが複雑になる</li>
+<li>パフォーマンス: 多数のオブザーバーがある場合、通知処理がボトルネックになる可能性</li>
+<li>循環参照: 相互に監視する場合、無限ループのリスク</li>
+<li>オーバーヘッド: 単純な状況では過剰な設計になる可能性</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Mediator（メディエーター）パターン</strong>: 多対多の通信を一元管理。複雑な通知ロジックがある場合に適している</li>
+<li><strong>Publish-Subscribe（発行-購読）パターン</strong>: Observerの拡張。イベントチャネルを介して通信するため、さらに疎結合</li>
+<li><strong>Command（コマンド）パターン</strong>: 状態変更操作をカプセル化。undo/redoなどの機能が必要な場合に組み合わせる</li>
+<li><strong>MVC/MVVM アーキテクチャ</strong>: モデルの変更をビューに通知するためにObserverパターンを使用</li>
+<li><strong>Reactive Programming</strong>: オブザーブルストリームとオペレータを使用した宣言的アプローチ</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/behavioral/observer">ソースコード</a></li>
+<li><a href="../../tests/behavioral/observer">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/observer">リファクタリング・グル - Observer パターン</a></li>
+<li><a href="https://www.amazon.co.jp/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+<li><a href="http://reactivex.io/documentation/observable.html">ReactiveX - Observer pattern</a></li>
+<li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/EventLoop">JavaScript イベントループと非同期プログラミング</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/memento.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/state.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/memento.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/state.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

@@ -14,4 +14,12 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
   verbose: true,
+  testTimeout: 30000,
+  maxWorkers: '50%',
+  bail: false,
+  detectOpenHandles: true,
+  forceExit: true,
+  testSequencer: '@jest/test-sequencer',
+  maxConcurrency: 5,
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
 }; 

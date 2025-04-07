@@ -111,4 +111,80 @@ describe('Decorator Pattern', () => {
             expect(encrypted.readData()).toBe(testData);
         });
     });
+
+    describe('Error Handling', () => {
+        test('should handle compression errors', () => {
+            const source = new FileDataSource('test.txt');
+            const compression = new CompressionDecorator(source);
+
+            // 無効なデータの圧縮
+            expect(() => compression.writeData(null as any)).toThrow('データが無効です');
+            expect(() => compression.writeData(undefined as any)).toThrow('データが無効です');
+            compression.writeData('');  // 空文字列は許可
+
+            // 無効なデータの解凍
+            compression.writeData('test data');
+            expect(() => compression.readData()).not.toThrow();
+            source.writeData('invalid compressed data');
+            expect(() => compression.readData()).toThrow();
+        });
+
+        test('should handle encryption errors', () => {
+            const source = new FileDataSource('test.txt');
+            const encryption = new EncryptionDecorator(source);
+
+            // 無効なデータの暗号化
+            expect(() => encryption.writeData(null as any)).toThrow('データが無効です');
+            expect(() => encryption.writeData(undefined as any)).toThrow('データが無効です');
+            encryption.writeData('');  // 空文字列は許可
+
+            // 無効なデータの復号
+            encryption.writeData('test data');
+            expect(() => encryption.readData()).not.toThrow();
+            source.writeData('invalid encrypted data');
+            expect(() => encryption.readData()).toThrow();
+        });
+
+        test('should handle file operation errors', () => {
+            const source = new FileDataSource('');
+            expect(() => source.writeData('test')).toThrow();
+            expect(() => source.readData()).toThrow();
+        });
+    });
+
+    describe('Edge Cases', () => {
+        test('should handle empty data with multiple decorators', () => {
+            const source = new FileDataSource('test.txt');
+            const compression = new CompressionDecorator(source);
+            const encryption = new EncryptionDecorator(compression);
+
+            // 空文字列の処理
+            encryption.writeData('');
+            expect(encryption.readData()).toBe('');
+
+            // nullとundefinedの処理
+            expect(() => encryption.writeData(null as any)).toThrow('データが無効です');
+            expect(() => encryption.writeData(undefined as any)).toThrow('データが無効です');
+        });
+
+        test('should handle special characters', () => {
+            const source = new FileDataSource('test.txt');
+            const compression = new CompressionDecorator(source);
+            const encryption = new EncryptionDecorator(compression);
+
+            const specialChars = '!@#$%^&*()_+{}[]|\\:;"\'<>,.?/~`';
+            encryption.writeData(specialChars);
+            expect(encryption.readData()).toBe(specialChars);
+        });
+
+        test('should handle large data', () => {
+            const source = new FileDataSource('test.txt');
+            const compression = new CompressionDecorator(source);
+            const encryption = new EncryptionDecorator(compression);
+
+            const largeData = 'x'.repeat(1000000);
+            encryption.writeData(largeData);
+            expect(encryption.readData()).toBe(largeData);
+        });
+    });
 }); 

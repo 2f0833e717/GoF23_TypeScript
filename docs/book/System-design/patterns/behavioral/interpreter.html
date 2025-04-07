@@ -1,0 +1,595 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>interpreter - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/interpreter.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="interpreterパターン---ドメイン固有言語実装"><a class="header" href="#interpreterパターン---ドメイン固有言語実装">Interpreterパターン - ドメイン固有言語実装</a></h1>
+<h2 id="1-パターン定義と目的"><a class="header" href="#1-パターン定義と目的">1. パターン定義と目的</a></h2>
+<h3 id="11-定義"><a class="header" href="#11-定義">1.1 定義</a></h3>
+<p>Interpreterパターンは、特定の言語の文法を定義し、その言語で書かれた文を解釈するための行動パターンです。このパターンは、各文法規則をクラスとして表現し、それらを組み合わせて文を解釈するメカニズムを提供します。</p>
+<h3 id="12-解決する問題"><a class="header" href="#12-解決する問題">1.2 解決する問題</a></h3>
+<ul>
+<li>特定のドメイン向けの簡易言語や文法の実装</li>
+<li>複雑な規則や表現を構造化された方法で評価</li>
+<li>繰り返し発生するパターンを文法として定式化</li>
+<li>テキストの解析と意味的な処理を分離</li>
+<li>構文木の構築と評価の体系化</li>
+</ul>
+<h3 id="13-パターンの適用コンテキスト"><a class="header" href="#13-パターンの適用コンテキスト">1.3 パターンの適用コンテキスト</a></h3>
+<ul>
+<li>ドメイン固有言語（DSL）の実装</li>
+<li>数式や論理式の評価</li>
+<li>SQL風のクエリ言語の実装</li>
+<li>設定ファイルの解析と評価</li>
+<li>テキストベースのゲームコマンド処理</li>
+<li>正規表現エンジンの実装</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-基本構成"><a class="header" href="#21-基本構成">2.1 基本構成</a></h3>
+<pre class="mermaid">classDiagram
+    class Expression {
+        +interpret(context: Context): number
+    }
+    
+    note for Expression &quot;インターフェース&quot;
+    
+    class TerminalExpression {
+        -value: number
+        +interpret(context: Context): number
+    }
+    
+    class NonTerminalExpression {
+        -left: Expression
+        -right: Expression
+        +interpret(context: Context): number
+    }
+    
+    class Context {
+        -variables: Map
+        +getValue(name: string): number
+        +setValue(name: string, value: number): void
+    }
+    
+    Expression &lt;|.. TerminalExpression : implements
+    Expression &lt;|.. NonTerminalExpression : implements
+    NonTerminalExpression --&gt; Expression : contains
+    Context --&gt; Expression : used by
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Expression</td><td>インターフェース</td><td>全ての式の共通インターフェースを定義する</td><td>TerminalExpressionとNonTerminalExpressionに実装される</td></tr>
+<tr><td>TerminalExpression</td><td>クラス</td><td>文法の終端記号を表現し、直接解釈を行う</td><td>Expressionを実装</td></tr>
+<tr><td>NonTerminalExpression</td><td>クラス</td><td>複数のExpressionを組み合わせた式を表現する</td><td>Expressionを実装、複数のExpressionを含む</td></tr>
+<tr><td>Context</td><td>クラス</td><td>解釈に必要な状態や情報を保持する</td><td>Expressionによって使用される</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>クライアントは言語構文を解析し、Expression型のオブジェクト構造（構文木）を構築する</li>
+<li>クライアントはContextオブジェクトを作成し、変数や状態情報を設定する</li>
+<li>クライアントはルート式に対してinterpretメソッドを呼び出し、Contextを渡す</li>
+<li>各Expressionはinterpretメソッドを実装し、自身の式の評価と部分式の評価を行う</li>
+<li>評価結果は必要に応じてContextを更新し、最終的に計算結果を返す</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-基本フロー"><a class="header" href="#31-基本フロー">3.1 基本フロー</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Parser
+    participant Expression
+    participant Context
+    
+    Client-&gt;&gt;Parser: parse(input)
+    activate Parser
+    Parser-&gt;&gt;Expression: new Expression()
+    Parser--&gt;&gt;Client: expression
+    deactivate Parser
+    
+    Client-&gt;&gt;Context: new Context()
+    Client-&gt;&gt;Context: setValue(&quot;x&quot;, 10)
+    
+    Client-&gt;&gt;Expression: interpret(context)
+    activate Expression
+    Expression-&gt;&gt;Context: getValue()
+    Context--&gt;&gt;Expression: value
+    Expression--&gt;&gt;Client: result
+    deactivate Expression
+</pre>
+<h3 id="32-数式の解釈例"><a class="header" href="#32-数式の解釈例">3.2 数式の解釈例</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant AddExpression
+    participant NumberExpression
+    participant Context
+    
+    Note over Client,Context: 式 &quot;5 + 3&quot; の解釈
+    Client-&gt;&gt;AddExpression: interpret(context)
+    activate AddExpression
+    AddExpression-&gt;&gt;NumberExpression: interpret(context)
+    activate NumberExpression
+    NumberExpression--&gt;&gt;AddExpression: 5
+    deactivate NumberExpression
+    AddExpression-&gt;&gt;NumberExpression: interpret(context)
+    activate NumberExpression
+    NumberExpression--&gt;&gt;AddExpression: 3
+    deactivate NumberExpression
+    AddExpression--&gt;&gt;Client: 8
+    deactivate AddExpression
+</pre>
+<h3 id="33-プロセスフロー"><a class="header" href="#33-プロセスフロー">3.3 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[入力文字列の解析]
+    B --&gt; C[構文木の構築]
+    C --&gt; D[Contextの初期化]
+    D --&gt; E[構文木のルートノードでinterpretを呼び出し]
+    E --&gt; F{ノードはTerminalExpression?}
+    F --&gt;|Yes| G[値を直接評価]
+    F --&gt;|No| H[子ノードのinterpretを呼び出し]
+    H --&gt; I[子ノードの結果を組み合わせて評価]
+    G --&gt; J[結果をContextに反映または返却]
+    I --&gt; J
+    J --&gt; K{全てのノードを評価?}
+    K --&gt;|No| F
+    K --&gt;|Yes| L[最終結果を返却]
+    L --&gt; M[終了]
+</pre>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-演算子の実装"><a class="header" href="#41-演算子の実装">4.1 演算子の実装</a></h3>
+<pre><code class="language-typescript">class AddExpression implements Expression {
+    constructor(
+        private left: Expression,
+        private right: Expression
+    ) {}
+    
+    interpret(context: Context): number {
+        return this.left.interpret(context) + 
+               this.right.interpret(context);
+    }
+}
+
+class SubtractExpression implements Expression {
+    constructor(
+        private left: Expression,
+        private right: Expression
+    ) {}
+    
+    interpret(context: Context): number {
+        return this.left.interpret(context) - 
+               this.right.interpret(context);
+    }
+}
+
+class MultiplyExpression implements Expression {
+    constructor(
+        private left: Expression,
+        private right: Expression
+    ) {}
+    
+    interpret(context: Context): number {
+        return this.left.interpret(context) * 
+               this.right.interpret(context);
+    }
+}
+
+class DivideExpression implements Expression {
+    constructor(
+        private left: Expression,
+        private right: Expression
+    ) {}
+    
+    interpret(context: Context): number {
+        const rightValue = this.right.interpret(context);
+        if (rightValue === 0) {
+            throw new Error('0による除算はできません');
+        }
+        return this.left.interpret(context) / rightValue;
+    }
+}
+</code></pre>
+<h3 id="42-構文解析器"><a class="header" href="#42-構文解析器">4.2 構文解析器</a></h3>
+<pre><code class="language-typescript">class Parser {
+    private tokens: string[];
+    private position: number = 0;
+    
+    constructor(input: string) {
+        this.tokens = input.split(' ');
+    }
+    
+    parse(): Expression {
+        return this.parseExpression();
+    }
+    
+    private parseExpression(): Expression {
+        const left = this.parseNumber();
+        
+        if (this.position &lt; this.tokens.length) {
+            const operator = this.tokens[this.position];
+            this.position++;
+            
+            const right = this.parseNumber();
+            
+            switch (operator) {
+                case '+':
+                    return new AddExpression(left, right);
+                case '-':
+                    return new SubtractExpression(left, right);
+                case '*':
+                    return new MultiplyExpression(left, right);
+                case '/':
+                    return new DivideExpression(left, right);
+                default:
+                    throw new Error(`不明な演算子: ${operator}`);
+            }
+        }
+        
+        return left;
+    }
+    
+    private parseNumber(): Expression {
+        const token = this.tokens[this.position];
+        this.position++;
+        
+        if (token.match(/^[0-9]+$/)) {
+            return new NumberExpression(parseInt(token));
+        } else {
+            return new VariableExpression(token);
+        }
+    }
+}
+</code></pre>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-数式の評価"><a class="header" href="#51-数式の評価">5.1 数式の評価</a></h3>
+<pre><code class="language-typescript">// コンテキストの作成
+const context = new Context();
+context.setValue('x', 10);
+context.setValue('y', 5);
+
+// 式のパースと評価
+const parser = new Parser('x + y * 2');
+const expression = parser.parse();
+const result = expression.interpret(context);
+console.log(result); // 出力: 20
+
+// 別の式の評価
+const parser2 = new Parser('100 / y');
+const expression2 = parser2.parse();
+const result2 = expression2.interpret(context);
+console.log(result2); // 出力: 20
+</code></pre>
+<h3 id="52-複雑な式の評価"><a class="header" href="#52-複雑な式の評価">5.2 複雑な式の評価</a></h3>
+<pre><code class="language-typescript">class Calculator {
+    private context: Context = new Context();
+    
+    setVariable(name: string, value: number): void {
+        this.context.setValue(name, value);
+    }
+    
+    evaluate(expression: string): number {
+        const parser = new Parser(expression);
+        const ast = parser.parse();
+        return ast.interpret(this.context);
+    }
+}
+
+// 使用例
+const calculator = new Calculator();
+calculator.setVariable('x', 10);
+calculator.setVariable('y', 5);
+
+console.log(calculator.evaluate('x + y')); // 15
+console.log(calculator.evaluate('x * y')); // 50
+console.log(calculator.evaluate('x / y')); // 2
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-単体テスト"><a class="header" href="#61-単体テスト">6.1 単体テスト</a></h3>
+<pre><code class="language-typescript">describe('Expression Interpreter', () =&gt; {
+    let context: Context;
+    
+    beforeEach(() =&gt; {
+        context = new Context();
+        context.setValue('x', 10);
+        context.setValue('y', 5);
+    });
+    
+    it('should evaluate number expressions', () =&gt; {
+        const expression = new NumberExpression(42);
+        expect(expression.interpret(context)).toBe(42);
+    });
+    
+    it('should evaluate variable expressions', () =&gt; {
+        const expression = new VariableExpression('x');
+        expect(expression.interpret(context)).toBe(10);
+    });
+    
+    it('should evaluate arithmetic expressions', () =&gt; {
+        const add = new AddExpression(
+            new NumberExpression(5),
+            new NumberExpression(3)
+        );
+        expect(add.interpret(context)).toBe(8);
+        
+        const multiply = new MultiplyExpression(
+            new VariableExpression('x'),
+            new VariableExpression('y')
+        );
+        expect(multiply.interpret(context)).toBe(50);
+    });
+});
+</code></pre>
+<h3 id="62-統合テスト"><a class="header" href="#62-統合テスト">6.2 統合テスト</a></h3>
+<pre><code class="language-typescript">describe('Calculator Integration', () =&gt; {
+    let calculator: Calculator;
+    
+    beforeEach(() =&gt; {
+        calculator = new Calculator();
+        calculator.setVariable('x', 10);
+        calculator.setVariable('y', 5);
+    });
+    
+    it('should evaluate complex expressions', () =&gt; {
+        expect(calculator.evaluate('x + y * 2')).toBe(20);
+        expect(calculator.evaluate('(x + y) * 2')).toBe(30);
+        expect(calculator.evaluate('x / y + 1')).toBe(3);
+    });
+    
+    it('should handle errors', () =&gt; {
+        expect(() =&gt; {
+            calculator.evaluate('x / 0');
+        }).toThrow('0による除算はできません');
+        
+        expect(() =&gt; {
+            calculator.evaluate('x @ y');
+        }).toThrow('不明な演算子: @');
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>文法規則の柔軟な拡張</li>
+<li>式の評価の分離</li>
+<li>ドメイン固有言語の実装に適している</li>
+<li>各文法ルールをカプセル化することで保守性が向上</li>
+<li>解釈器の機能を段階的に追加できる</li>
+<li>クライアントコードとインタープリタの分離</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>複雑な文法での実装の困難さ</li>
+<li>パフォーマンスの問題（再帰的な解釈に伴うオーバーヘッド）</li>
+<li>メンテナンスの複雑さ</li>
+<li>クラス数の増加</li>
+<li>デバッグの難しさ</li>
+<li>大規模な言語処理には不向き</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Compositeパターン</strong>: 構文木の構造を表現するために使用</li>
+<li><strong>Visitorパターン</strong>: 構文木を操作する異なる処理を追加する場合に使用</li>
+<li><strong>Flyweightパターン</strong>: 終端記号の共有に使用</li>
+<li><strong>Iteratorパターン</strong>: 構文木の走査に使用</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/behavioral/interpreter">ソースコード</a></li>
+<li><a href="../../tests/behavioral/interpreter">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/interpreter">リファクタリング・グル - Interpreterパターン</a></li>
+<li><a href="https://www.amazon.co.jp/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/command.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/iterator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/command.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/iterator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

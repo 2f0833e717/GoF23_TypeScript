@@ -1,0 +1,825 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>proxy - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/structural/proxy.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="proxy-パターン"><a class="header" href="#proxy-パターン">Proxy パターン</a></h1>
+<h1 id="proxyパターン---アクセス制御と遅延初期化"><a class="header" href="#proxyパターン---アクセス制御と遅延初期化">Proxyパターン - アクセス制御と遅延初期化</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Proxy パターン（プロキシ・パターン）は、あるオブジェクトへのアクセスを制御するために、そのオブジェクトの代理（プロキシ）となるオブジェクトを提供するデザインパターンです。プロキシは元のオブジェクト（サブジェクト）と同じインターフェースを持ち、クライアントからは透過的に利用できます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>リソースへのアクセスを制御する</li>
+<li>遅延初期化（レイジーローディング）を実現する</li>
+<li>リモートリソースへのアクセスを抽象化する</li>
+<li>オブジェクトへのアクセスをログ記録する</li>
+<li>オブジェクトの参照カウントを管理する</li>
+<li>実オブジェクトにかかる負荷を軽減する</li>
+<li>セキュリティチェックを実装する</li>
+<li>キャッシュ機構を提供する</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>リソースを消費する重いオブジェクトの生成を遅延させたい場合</li>
+<li>特定条件下でのみリソースへのアクセスを許可したい場合</li>
+<li>リモートサーバー上のオブジェクトにアクセスする必要がある場合</li>
+<li>オブジェクトの生成やアクセスにコストがかかる場合</li>
+<li>オブジェクトへのアクセスを監視・追跡したい場合</li>
+<li>アクセス制御とキャッシュを実装したい場合</li>
+<li>既存コードを変更せずに機能を追加したい場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Subject {
+        &lt;&lt;interface&gt;&gt;
+        +request()
+    }
+    
+    class RealSubject {
+        +request()
+    }
+    
+    class Proxy {
+        -realSubject: RealSubject
+        +request()
+    }
+    
+    class Client {
+        +executeRequest()
+    }
+    
+    Subject &lt;|.. RealSubject
+    Subject &lt;|.. Proxy
+    Proxy o-- RealSubject
+    Client --&gt; Subject
+    
+    note for Subject &quot;クライアントが利用する\n共通インターフェース&quot;
+    note for RealSubject &quot;実際の処理を実装する\n本来のオブジェクト&quot;
+    note for Proxy &quot;RealSubjectへのアクセスを制御し\n同じインターフェースを提供&quot;
+    note for Client &quot;Subjectインターフェースを通じて\n処理を行うクラス&quot;
+
+    note &quot;Proxy パターンの目的：\nオブジェクトへのアクセスを\n制御・管理する&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Subject</td><td>インターフェース</td><td>クライアントが利用する共通インターフェースを定義</td><td>RealSubject、Proxyに実装される</td></tr>
+<tr><td>RealSubject</td><td>クラス</td><td>実際の処理を実装する本来のオブジェクト</td><td>Subjectを実装</td></tr>
+<tr><td>Proxy</td><td>クラス</td><td>RealSubjectへのアクセスを制御し、同じインターフェースを提供</td><td>Subjectを実装、RealSubjectを使用</td></tr>
+<tr><td>Client</td><td>クラス</td><td>Subjectインターフェースを通じて処理を行う</td><td>Subjectを使用</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>ProxyはSubjectインターフェースを実装し、RealSubjectと同じインターフェースを提供する</li>
+<li>ProxyはRealSubjectへの参照を保持し、必要に応じてRealSubjectの操作に委譲する</li>
+<li>Proxyは委譲の前後に追加処理（アクセス制御、ログ記録など）を行うことができる</li>
+<li>ClientはSubjectインターフェースを通じて操作を行い、ProxyとRealSubjectの区別を意識しない</li>
+<li>Proxyは必要に応じてRealSubjectを生成・初期化する責任を持つ場合がある</li>
+<li>RealSubjectはProxyの存在を意識せず、単独でも機能する</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Proxy
+    participant RealSubject
+    
+    Client-&gt;&gt;Proxy: request()
+    activate Proxy
+    
+    alt アクセス許可が必要な場合
+        Note over Proxy: アクセス権のチェック
+    end
+    
+    alt 初回アクセスなど
+        Proxy-&gt;&gt;RealSubject: 初期化/作成
+        Note over Proxy: 遅延初期化
+    end
+    
+    Proxy-&gt;&gt;RealSubject: request()
+    activate RealSubject
+    RealSubject--&gt;&gt;Proxy: 結果
+    deactivate RealSubject
+    
+    Note over Proxy: 前処理/後処理
+    
+    Proxy--&gt;&gt;Client: 結果（または加工された結果）
+    deactivate Proxy
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[Clientがオブジェクトを要求]
+    B --&gt; C[Proxyオブジェクトが生成・取得される]
+    C --&gt; D[ClientがProxyのメソッドを呼び出す]
+    D --&gt; E{アクセス権は\nあるか?}
+    E --&gt;|No| F[例外をスロー/\nアクセス拒否]
+    F --&gt; N[終了]
+    E --&gt;|Yes| G{RealSubjectは\n既に存在するか?}
+    G --&gt;|No| H[RealSubjectを生成]
+    H --&gt; I[RealSubjectを初期化]
+    G --&gt;|Yes| J[既存のRealSubjectを使用]
+    I --&gt; J
+    J --&gt; K[RealSubjectのメソッドを呼び出す]
+    K --&gt; L[結果をProxyが受け取る]
+    L --&gt; M[前処理/後処理を行い結果をClientに返す]
+    M --&gt; N
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-重いリソースの遅延ロード"><a class="header" href="#シナリオ1-重いリソースの遅延ロード">シナリオ1: 重いリソースの遅延ロード</a></h4>
+<ol>
+<li>アプリケーションが起動し、クライアントがImageオブジェクトを要求</li>
+<li>ImageProxyが返されるが、実際の画像データはまだロードされていない</li>
+<li>クライアントがImageのサイズや情報にアクセスすると、Proxyが代わりに応答</li>
+<li>クライアントが画像の表示処理を呼び出したとき、ImageProxyが初めて実際の画像をロード</li>
+<li>以降の画像表示リクエストは、ロード済みの実画像オブジェクトを使用</li>
+<li>システムはメモリを効率的に使用し、必要なときだけ重いリソースをロード</li>
+</ol>
+<h4 id="シナリオ2-リモートサービスアクセス"><a class="header" href="#シナリオ2-リモートサービスアクセス">シナリオ2: リモートサービスアクセス</a></h4>
+<ol>
+<li>クライアントがリモートサービスのAPIを呼び出す必要がある</li>
+<li>クライアントはローカルのServiceProxyオブジェクトを使用</li>
+<li>クライアントが操作を呼び出すと、Proxyがネットワーク通信の詳細を隠蔽</li>
+<li>Proxyがリモートサーバーとの通信を処理し、結果を変換してクライアントに返す</li>
+<li>ネットワークエラーが発生した場合、Proxyがエラーハンドリングを実施</li>
+<li>クライアントはリモート通信の複雑さを意識せずに、ローカルオブジェクトのように扱える</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Subject インターフェース - クライアントが使用する共通インターフェース
+ */
+interface Image {
+  /**
+   * 画像を表示する
+   */
+  display(): void;
+
+  /**
+   * 画像の幅を取得する
+   * @returns 画像の幅
+   */
+  getWidth(): number;
+
+  /**
+   * 画像の高さを取得する
+   * @returns 画像の高さ
+   */
+  getHeight(): number;
+
+  /**
+   * 画像のファイル名を取得する
+   * @returns 画像のファイル名
+   */
+  getFilename(): string;
+}
+
+/**
+ * RealSubject - 実際の処理を実装する本来のオブジェクト
+ */
+class RealImage implements Image {
+  private filename: string;
+  private width: number;
+  private height: number;
+  
+  /**
+   * コンストラクタ - 画像をロードする
+   * @param filename 画像のファイル名
+   */
+  constructor(filename: string) {
+    this.filename = filename;
+    this.loadFromDisk();
+    // 実際のアプリケーションでは画像から幅と高さを取得
+    this.width = 1024;
+    this.height = 768;
+    
+    console.log(`RealImage: ${filename} の初期化が完了しました`);
+  }
+
+  /**
+   * 画像をディスクからロードする（重い処理）
+   */
+  private loadFromDisk(): void {
+    console.log(`RealImage: ${this.filename} をディスクからロード中...（時間のかかる処理）`);
+    // ディスクからの読み込み処理をシミュレート
+    for (let i = 0; i &lt; 3; i++) {
+      console.log(`RealImage: ロード中... ${(i + 1) * 33}%`);
+    }
+  }
+
+  /**
+   * 画像を表示する
+   */
+  display(): void {
+    console.log(`RealImage: ${this.filename} を表示します`);
+  }
+
+  /**
+   * 画像の幅を取得する
+   * @returns 画像の幅
+   */
+  getWidth(): number {
+    return this.width;
+  }
+
+  /**
+   * 画像の高さを取得する
+   * @returns 画像の高さ
+   */
+  getHeight(): number {
+    return this.height;
+  }
+
+  /**
+   * 画像のファイル名を取得する
+   * @returns 画像のファイル名
+   */
+  getFilename(): string {
+    return this.filename;
+  }
+}
+
+/**
+ * Proxy - RealSubjectへのアクセスを制御し、同じインターフェースを提供
+ */
+class ImageProxy implements Image {
+  private realImage: RealImage | null = null;
+  private filename: string;
+  
+  // メタデータを事前にProxyで保持（軽量な情報）
+  private width: number = 0;
+  private height: number = 0;
+  
+  /**
+   * コンストラクタ
+   * @param filename 画像のファイル名
+   */
+  constructor(filename: string) {
+    this.filename = filename;
+    console.log(`ImageProxy: ${filename} のプロキシを作成しました`);
+    
+    // メタデータだけを軽量に取得
+    // 実際のアプリケーションではファイルのヘッダだけを読むなどの方法がある
+    this.width = 1024;  // ヘッダーから取得したと仮定
+    this.height = 768;  // ヘッダーから取得したと仮定
+  }
+
+  /**
+   * 画像を表示する - 必要に応じてRealImageを初期化
+   */
+  display(): void {
+    // 遅延初期化 - 実際に必要になるまでRealImageを作成しない
+    if (this.realImage === null) {
+      console.log(`ImageProxy: 初回表示のため、実際の画像を初期化します`);
+      this.realImage = new RealImage(this.filename);
+    }
+    
+    // 表示処理をRealImageに委譲
+    this.realImage.display();
+  }
+
+  /**
+   * 画像の幅を取得する - RealImageを初期化せずに返せる
+   * @returns 画像の幅
+   */
+  getWidth(): number {
+    // 既にプロキシが持っている情報なので、RealImageを作成しない
+    console.log(`ImageProxy: 幅の情報をプロキシから直接提供: ${this.width}px`);
+    return this.width;
+  }
+
+  /**
+   * 画像の高さを取得する - RealImageを初期化せずに返せる
+   * @returns 画像の高さ
+   */
+  getHeight(): number {
+    // 既にプロキシが持っている情報なので、RealImageを作成しない
+    console.log(`ImageProxy: 高さの情報をプロキシから直接提供: ${this.height}px`);
+    return this.height;
+  }
+
+  /**
+   * 画像のファイル名を取得する
+   * @returns 画像のファイル名
+   */
+  getFilename(): string {
+    return this.filename;
+  }
+}
+
+/**
+ * 保護プロキシの例 - アクセス制御を実装
+ */
+class ProtectedImageProxy implements Image {
+  private realImage: RealImage | null = null;
+  private filename: string;
+  private accessLevel: number;
+  private requiredAccessLevel: number;
+  
+  /**
+   * コンストラクタ
+   * @param filename 画像のファイル名
+   * @param accessLevel 現在のアクセスレベル
+   * @param requiredAccessLevel 要求されるアクセスレベル
+   */
+  constructor(filename: string, accessLevel: number, requiredAccessLevel: number) {
+    this.filename = filename;
+    this.accessLevel = accessLevel;
+    this.requiredAccessLevel = requiredAccessLevel;
+  }
+  
+  /**
+   * アクセス権をチェック
+   * @returns アクセスが許可されるかどうか
+   */
+  private checkAccess(): boolean {
+    if (this.accessLevel &gt;= this.requiredAccessLevel) {
+      console.log(`ProtectedImageProxy: アクセスが許可されました`);
+      return true;
+    } else {
+      console.log(`ProtectedImageProxy: アクセスが拒否されました（レベル ${this.accessLevel} &lt; 必要レベル ${this.requiredAccessLevel}）`);
+      return false;
+    }
+  }
+  
+  /**
+   * 画像を表示する - アクセス権チェック後にRealImageを初期化
+   */
+  display(): void {
+    if (!this.checkAccess()) {
+      console.log(`ProtectedImageProxy: 画像 ${this.filename} の表示が拒否されました`);
+      return;
+    }
+    
+    if (this.realImage === null) {
+      this.realImage = new RealImage(this.filename);
+    }
+    
+    this.realImage.display();
+  }
+  
+  /**
+   * 画像の幅を取得する
+   * @returns 画像の幅
+   */
+  getWidth(): number {
+    if (!this.checkAccess()) {
+      return 0;
+    }
+    
+    if (this.realImage === null) {
+      this.realImage = new RealImage(this.filename);
+    }
+    
+    return this.realImage.getWidth();
+  }
+  
+  /**
+   * 画像の高さを取得する
+   * @returns 画像の高さ
+   */
+  getHeight(): number {
+    if (!this.checkAccess()) {
+      return 0;
+    }
+    
+    if (this.realImage === null) {
+      this.realImage = new RealImage(this.filename);
+    }
+    
+    return this.realImage.getHeight();
+  }
+  
+  /**
+   * 画像のファイル名を取得する
+   * @returns 画像のファイル名
+   */
+  getFilename(): string {
+    return this.filename;
+  }
+}
+</code></pre>
+<h3 id="42-使用例"><a class="header" href="#42-使用例">4.2 使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * クライアントコード
+ */
+function clientCode() {
+  console.log("クライアント: 仮想プロキシのデモ（遅延ロード）");
+  console.log("------------------------------------------------");
+  
+  // プロキシを作成（この時点では実際の画像はロードされない）
+  console.log("1. ImageProxyを作成");
+  const proxyImage: Image = new ImageProxy("sample_large_image.jpg");
+  
+  // メタデータアクセス（RealImageをロードしない）
+  console.log("\n2. 画像の情報を取得（実画像はまだロードされない）");
+  console.log(`ファイル名: ${proxyImage.getFilename()}`);
+  console.log(`サイズ: ${proxyImage.getWidth()} x ${proxyImage.getHeight()}`);
+  
+  // 画像を表示（初めてRealImageがロードされる）
+  console.log("\n3. 画像表示を要求（この時点で実画像がロードされる）");
+  proxyImage.display();
+  
+  // 2回目の表示（既存のRealImageを使用）
+  console.log("\n4. 再度表示を要求（既にロード済みの画像を使用）");
+  proxyImage.display();
+  
+  console.log("\n------------------------------------------------");
+  console.log("クライアント: 保護プロキシのデモ（アクセス制御）");
+  console.log("------------------------------------------------");
+  
+  // 許可されるケース
+  console.log("\n5. 十分なアクセス権を持つユーザー（レベル5）");
+  const allowedProxy: Image = new ProtectedImageProxy("confidential.jpg", 5, 3);
+  allowedProxy.display();
+  
+  // 拒否されるケース
+  console.log("\n6. 不十分なアクセス権のユーザー（レベル1）");
+  const deniedProxy: Image = new ProtectedImageProxy("confidential.jpg", 1, 3);
+  deniedProxy.display();
+}
+
+// クライアントコードを実行
+clientCode();
+
+// 出力結果例:
+// クライアント: 仮想プロキシのデモ（遅延ロード）
+// ------------------------------------------------
+// 1. ImageProxyを作成
+// ImageProxy: sample_large_image.jpg のプロキシを作成しました
+//
+// 2. 画像の情報を取得（実画像はまだロードされない）
+// ImageProxy: 幅の情報をプロキシから直接提供: 1024px
+// ImageProxy: 高さの情報をプロキシから直接提供: 768px
+//
+// 3. 画像表示を要求（この時点で実画像がロードされる）
+// ImageProxy: 初回表示のため、実際の画像を初期化します
+// RealImage: sample_large_image.jpg をディスクからロード中...（時間のかかる処理）
+// RealImage: ロード中... 33%
+// RealImage: ロード中... 66%
+// RealImage: ロード中... 99%
+// RealImage: sample_large_image.jpg の初期化が完了しました
+// RealImage: sample_large_image.jpg を表示します
+//
+// 4. 再度表示を要求（既にロード済みの画像を使用）
+// RealImage: sample_large_image.jpg を表示します
+//
+// ------------------------------------------------
+// クライアント: 保護プロキシのデモ（アクセス制御）
+// ------------------------------------------------
+//
+// 5. 十分なアクセス権を持つユーザー（レベル5）
+// ProtectedImageProxy: アクセスが許可されました
+// RealImage: confidential.jpg をディスクからロード中...（時間のかかる処理）
+// RealImage: ロード中... 33%
+// RealImage: ロード中... 66%
+// RealImage: ロード中... 99%
+// RealImage: confidential.jpg の初期化が完了しました
+// RealImage: confidential.jpg を表示します
+//
+// 6. 不十分なアクセス権のユーザー（レベル1）
+// ProtectedImageProxy: アクセスが拒否されました（レベル 1 &lt; 必要レベル 3）
+// ProtectedImageProxy: 画像 confidential.jpg の表示が拒否されました
+</code></pre>
+<h2 id="5-パターンのバリエーション"><a class="header" href="#5-パターンのバリエーション">5. パターンのバリエーション</a></h2>
+<h3 id="51-仮想プロキシvirtual-proxy"><a class="header" href="#51-仮想プロキシvirtual-proxy">5.1 仮想プロキシ（Virtual Proxy）</a></h3>
+<p>必要になるまで大きなリソースの初期化を遅延させるプロキシ。前述の<code>ImageProxy</code>は仮想プロキシの例です。</p>
+<pre><code class="language-typescript">class VirtualDocumentProxy implements Document {
+  private realDocument: Document | null = null;
+  private documentId: string;
+  
+  constructor(documentId: string) {
+    this.documentId = documentId;
+  }
+  
+  open(): void {
+    if (this.realDocument === null) {
+      this.realDocument = new RealDocument(this.documentId);
+    }
+    this.realDocument.open();
+  }
+  
+  // その他のメソッド...
+}
+</code></pre>
+<h3 id="52-保護プロキシprotection-proxy"><a class="header" href="#52-保護プロキシprotection-proxy">5.2 保護プロキシ（Protection Proxy）</a></h3>
+<p>リソースへのアクセス制御を実装するプロキシ。前述の<code>ProtectedImageProxy</code>はこの例です。</p>
+<h3 id="53-リモートプロキシremote-proxy"><a class="header" href="#53-リモートプロキシremote-proxy">5.3 リモートプロキシ（Remote Proxy）</a></h3>
+<p>リモートオブジェクトへのアクセスを抽象化するプロキシ。</p>
+<pre><code class="language-typescript">class RemoteServiceProxy implements Service {
+  private serverUrl: string;
+  
+  constructor(serverUrl: string) {
+    this.serverUrl = serverUrl;
+  }
+  
+  execute(command: string): string {
+    console.log(`RemoteServiceProxy: ${this.serverUrl} にリクエスト送信`);
+    // HTTPリクエストなどを実行
+    return `リモートサーバーからの応答: ${command}を実行しました`;
+  }
+}
+</code></pre>
+<h3 id="54-キャッシュプロキシcaching-proxy"><a class="header" href="#54-キャッシュプロキシcaching-proxy">5.4 キャッシュプロキシ（Caching Proxy）</a></h3>
+<p>結果をキャッシュし、同じリクエストに対してパフォーマンスを向上させるプロキシ。</p>
+<pre><code class="language-typescript">class CachingProxy implements DataFetcher {
+  private realFetcher: DataFetcher;
+  private cache: Map&lt;string, any&gt; = new Map();
+  
+  constructor(realFetcher: DataFetcher) {
+    this.realFetcher = realFetcher;
+  }
+  
+  fetchData(key: string): any {
+    if (this.cache.has(key)) {
+      console.log(`CachingProxy: キャッシュから ${key} のデータを返します`);
+      return this.cache.get(key);
+    }
+    
+    console.log(`CachingProxy: ${key} のデータをソースから取得します`);
+    const data = this.realFetcher.fetchData(key);
+    this.cache.set(key, data);
+    return data;
+  }
+}
+</code></pre>
+<h3 id="55-スマートリファレンスプロキシsmart-reference-proxy"><a class="header" href="#55-スマートリファレンスプロキシsmart-reference-proxy">5.5 スマートリファレンスプロキシ（Smart Reference Proxy）</a></h3>
+<p>追加のアクションを実行するプロキシ（リファレンスカウント、ロギングなど）。</p>
+<pre><code class="language-typescript">class LoggingProxy implements Service {
+  private service: Service;
+  
+  constructor(service: Service) {
+    this.service = service;
+  }
+  
+  execute(command: string): string {
+    console.log(`LoggingProxy: '${command}' の実行を記録`);
+    const startTime = Date.now();
+    const result = this.service.execute(command);
+    const endTime = Date.now();
+    console.log(`LoggingProxy: 操作の所要時間: ${endTime - startTime}ms`);
+    return result;
+  }
+}
+</code></pre>
+<h2 id="6-評価"><a class="header" href="#6-評価">6. 評価</a></h2>
+<h3 id="61-メリット"><a class="header" href="#61-メリット">6.1 メリット</a></h3>
+<ul>
+<li><strong>分離と制御</strong>: リソースへのアクセスが制御され、RealSubjectの詳細がクライアントから隠蔽される</li>
+<li><strong>遅延初期化</strong>: リソースを必要なタイミングで初期化することで、効率的なメモリ使用が可能</li>
+<li><strong>セキュリティ</strong>: アクセス制御ロジックをプロキシに集中させ、権限チェックを一元管理できる</li>
+<li><strong>キャッシング</strong>: 重い操作の結果をプロキシでキャッシュし、パフォーマンスを向上できる</li>
+<li><strong>透過性</strong>: クライアントコードを変更せずに、さまざまな機能を追加できる</li>
+<li><strong>単一責任の原則</strong>: RealSubjectは本来の機能に集中し、Proxyは他の横断的関心事を処理する</li>
+</ul>
+<h3 id="62-デメリット"><a class="header" href="#62-デメリット">6.2 デメリット</a></h3>
+<ul>
+<li><strong>複雑さの増加</strong>: 新たなクラスが追加されるため、システムが複雑になる</li>
+<li><strong>応答時間</strong>: プロキシ層を通じたアクセスにより、わずかな性能オーバーヘッドが発生する場合がある</li>
+<li><strong>実装の難しさ</strong>: 特にリモートプロキシでは、エラー処理などが複雑になる場合がある</li>
+<li><strong>メンテナンスコスト</strong>: RealSubjectとProxyのインターフェースを同期して維持する必要がある</li>
+<li><strong>デバッグの難しさ</strong>: プロキシが介在することで問題の追跡が複雑になることがある</li>
+</ul>
+<h3 id="63-適用場面"><a class="header" href="#63-適用場面">6.3 適用場面</a></h3>
+<ul>
+<li>リソースを消費する重いオブジェクトを遅延初期化したい場合</li>
+<li>リソースへのアクセスを制御したい場合</li>
+<li>分散システムでリモートリソースにアクセスする必要がある場合</li>
+<li>オブジェクトへのアクセスをログ記録や監視したい場合</li>
+<li>結果のキャッシュによるパフォーマンス最適化が必要な場合</li>
+<li>セキュリティ上の理由からオブジェクトへのアクセスを制限したい場合</li>
+</ul>
+<h2 id="7-関連パターン"><a class="header" href="#7-関連パターン">7. 関連パターン</a></h2>
+<ul>
+<li><strong>Adapter</strong>: アダプタはインターフェースを変換するのに対し、プロキシは同じインターフェースを保持する</li>
+<li><strong>Decorator</strong>: デコレータはオブジェクトに機能を追加するが、プロキシはアクセスを制御する</li>
+<li><strong>Facade</strong>: ファサードは複雑なサブシステムへのシンプルなインターフェースを提供するが、プロキシは既存のインターフェースを維持する</li>
+<li><strong>Mediator</strong>: プロキシは特定のオブジェクトへのアクセスを制御するが、メディエータは複数のオブジェクト間の相互作用を調整する</li>
+<li><strong>Chain of Responsibility</strong>: プロキシがアクセス制御の目的で使われる場合、責任連鎖パターンと組み合わせることがある</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/structural/proxy">ソースコードへのリンク</a></li>
+<li><a href="../../tests/structural/proxy">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/proxy">リファクタリング・グル - Proxyパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+<li><a href="https://www.amazon.co.jp/dp/0201633612">Gang of Four デザインパターン - Proxy</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/structural/flyweight.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../api/classes/behavioral_chain_of_responsibility_AbstractHandler.AbstractHandler.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/structural/flyweight.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../api/classes/behavioral_chain_of_responsibility_AbstractHandler.AbstractHandler.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

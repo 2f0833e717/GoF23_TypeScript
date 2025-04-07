@@ -1,0 +1,735 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>flyweight - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/structural/flyweight.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="flyweightパターン---オブジェクト共有による最適化"><a class="header" href="#flyweightパターン---オブジェクト共有による最適化">Flyweightパターン - オブジェクト共有による最適化</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Flyweightパターン（フライウェイト・パターン）は、多数の類似オブジェクトを効率的に扱うためのデザインパターンです。共有可能な状態（intrinsic state）を複数のオブジェクト間で共有し、メモリ使用量を削減します。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>大量の類似オブジェクトを効率的に管理する</li>
+<li>メモリ使用量を最小化する</li>
+<li>オブジェクトの生成コストを削減する</li>
+<li>共通データの重複を避ける</li>
+<li>システムのパフォーマンスを向上させる</li>
+<li>オブジェクトの状態を内部（共有）と外部（非共有）に分離する</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>アプリケーションが大量の類似オブジェクトを使用している場合</li>
+<li>オブジェクトの大部分の状態が共有可能で、少ない部分だけがインスタンス固有の場合</li>
+<li>メモリ効率が重要な場合</li>
+<li>オブジェクトのアイデンティティが重要でない場合</li>
+<li>テキストエディタ、グラフィックスアプリケーション、ゲームなど、多数の同様の視覚要素を扱う場合</li>
+<li>大規模なデータセットを扱うシステムで、メモリ最適化が必要な場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Flyweight {
+        &lt;&lt;interface&gt;&gt;
+        +operation(extrinsicState)
+    }
+    
+    class ConcreteFlyweight {
+        -intrinsicState
+        +operation(extrinsicState)
+    }
+    
+    class UnsharedConcreteFlyweight {
+        -allState
+        +operation(extrinsicState)
+    }
+    
+    class FlyweightFactory {
+        -flyweights: Map
+        +getFlyweight(key)
+        +createFlyweight(key)
+    }
+    
+    class Client {
+        +executeOperation()
+    }
+    
+    Flyweight &lt;|.. ConcreteFlyweight
+    Flyweight &lt;|.. UnsharedConcreteFlyweight
+    FlyweightFactory o-- Flyweight
+    Client --&gt; FlyweightFactory
+    Client --&gt; Flyweight
+    
+    note for Flyweight &quot;共有可能なオブジェクトの\nインターフェースを定義&quot;
+    note for ConcreteFlyweight &quot;共有される具象Flyweight\n内部状態を保持&quot;
+    note for UnsharedConcreteFlyweight &quot;共有されない具象Flyweight\n全状態を保持&quot;
+    note for FlyweightFactory &quot;Flyweightオブジェクトを\n作成・管理する&quot;
+    note for Client &quot;Flyweightを使用し\n外部状態を渡す&quot;
+
+    note &quot;Flyweight パターンの目的：\n多数の類似オブジェクトを\n効率的に管理する&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Flyweight</td><td>インターフェース</td><td>共有可能なオブジェクトのインターフェースを定義</td><td>ConcreteFlyweightに実装される</td></tr>
+<tr><td>ConcreteFlyweight</td><td>クラス</td><td>共有される具象Flyweight、内部状態を保持</td><td>Flyweightを実装</td></tr>
+<tr><td>UnsharedConcreteFlyweight</td><td>クラス</td><td>共有されない具象Flyweight、全状態を保持</td><td>Flyweightを実装</td></tr>
+<tr><td>FlyweightFactory</td><td>クラス</td><td>Flyweightオブジェクトを作成・管理する</td><td>Flyweightを生成・キャッシュ</td></tr>
+<tr><td>Client</td><td>クラス</td><td>Flyweightを使用し外部状態を渡す</td><td>FlyweightFactoryを使用</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Clientは必要なFlyweightをFlyweightFactoryから取得する</li>
+<li>FlyweightFactoryは既存のFlyweightを返すか、新しいFlyweightを作成する</li>
+<li>Clientは外部状態（extrinsicState）をFlyweightの操作に渡す</li>
+<li>Flyweightは内部状態（intrinsicState）と外部状態を組み合わせて操作を実行する</li>
+<li>同じ内部状態を持つオブジェクトは共有され、メモリを節約する</li>
+<li>Clientは共有されないFlyweightを直接扱うこともある</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant FlyweightFactory
+    participant Flyweight1 as &quot;ConcreteFlyweight A&quot;
+    participant Flyweight2 as &quot;ConcreteFlyweight B&quot;
+    
+    Client-&gt;&gt;FlyweightFactory: getFlyweight(&quot;A&quot;)
+    activate FlyweightFactory
+    alt &quot;A&quot;のFlyweightが存在する場合
+        FlyweightFactory--&gt;&gt;Client: 既存のFlyweight A
+    else &quot;A&quot;のFlyweightが存在しない場合
+        FlyweightFactory-&gt;&gt;Flyweight1: 新規作成
+        activate Flyweight1
+        Flyweight1--&gt;&gt;FlyweightFactory: Flyweight Aのインスタンス
+        deactivate Flyweight1
+        FlyweightFactory--&gt;&gt;Client: 新しいFlyweight A
+    end
+    deactivate FlyweightFactory
+    
+    Client-&gt;&gt;Flyweight1: operation(extrinsicState1)
+    activate Flyweight1
+    Flyweight1--&gt;&gt;Client: 結果
+    deactivate Flyweight1
+    
+    Client-&gt;&gt;FlyweightFactory: getFlyweight(&quot;B&quot;)
+    activate FlyweightFactory
+    alt &quot;B&quot;のFlyweightが存在する場合
+        FlyweightFactory--&gt;&gt;Client: 既存のFlyweight B
+    else &quot;B&quot;のFlyweightが存在しない場合
+        FlyweightFactory-&gt;&gt;Flyweight2: 新規作成
+        activate Flyweight2
+        Flyweight2--&gt;&gt;FlyweightFactory: Flyweight Bのインスタンス
+        deactivate Flyweight2
+        FlyweightFactory--&gt;&gt;Client: 新しいFlyweight B
+    end
+    deactivate FlyweightFactory
+    
+    Client-&gt;&gt;Flyweight2: operation(extrinsicState2)
+    activate Flyweight2
+    Flyweight2--&gt;&gt;Client: 結果
+    deactivate Flyweight2
+    
+    Client-&gt;&gt;FlyweightFactory: getFlyweight(&quot;A&quot;)
+    activate FlyweightFactory
+    FlyweightFactory--&gt;&gt;Client: 既存のFlyweight A（再利用）
+    deactivate FlyweightFactory
+    
+    Client-&gt;&gt;Flyweight1: operation(extrinsicState3)
+    activate Flyweight1
+    Flyweight1--&gt;&gt;Client: 結果
+    deactivate Flyweight1
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[Clientが生成される]
+    B --&gt; C[FlyweightFactoryが生成される]
+    C --&gt; D[Clientが特定のキーのFlyweightを要求]
+    D --&gt; E{Flyweightは\n既に存在するか?}
+    E --&gt;|Yes| F[既存のFlyweightを返す]
+    E --&gt;|No| G[新しいFlyweightを作成]
+    G --&gt; H[新しいFlyweightをプールに追加]
+    H --&gt; F
+    F --&gt; I[ClientがFlyweightのoperationを\n外部状態とともに呼び出す]
+    I --&gt; J[Flyweightが内部状態と\n外部状態を組み合わせて処理]
+    J --&gt; K[処理結果がClientに返される]
+    K --&gt; L{さらにFlyweightが\n必要か?}
+    L --&gt;|Yes| D
+    L --&gt;|No| M[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-テキストエディタの文字描画"><a class="header" href="#シナリオ1-テキストエディタの文字描画">シナリオ1: テキストエディタの文字描画</a></h4>
+<ol>
+<li>テキストエディタがドキュメントの文字を描画する必要がある</li>
+<li>各文字に対してCharacterFlyweightFactoryからFlyweightを取得</li>
+<li>ファクトリーは既存の文字Flyweightを返すか、存在しない場合は新規作成</li>
+<li>同じ文字（同じフォント、サイズ、スタイル）は単一のFlyweightとして共有</li>
+<li>各文字の位置、色などの外部状態は呼び出し時にFlyweightに渡される</li>
+<li>Flyweightは内部状態（フォント情報、字形）と外部状態を使用して文字を描画</li>
+<li>同じ文字が何千回も出現する長いドキュメントでもメモリ使用量は効率的</li>
+</ol>
+<h4 id="シナリオ2-ゲームの粒子効果システム"><a class="header" href="#シナリオ2-ゲームの粒子効果システム">シナリオ2: ゲームの粒子効果システム</a></h4>
+<ol>
+<li>ゲームエンジンが多数の粒子効果を描画する必要がある</li>
+<li>ParticleFlyweightFactoryから各タイプの粒子Flyweightを取得</li>
+<li>煙、火、水滴などの基本パターンは共有Flyweightとして実装</li>
+<li>各粒子の位置、速度、透明度、寿命などは外部状態として管理</li>
+<li>何千もの粒子が同時に存在する場合でも、実際のFlyweightオブジェクトは数種類のみ</li>
+<li>ゲームの各フレームで、ClientはFlyweightの描画メソッドを各粒子の外部状態と共に呼び出す</li>
+<li>システムは大量の視覚効果を最小限のメモリで実現</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Flyweight インターフェース
+ * 共有可能なオブジェクトのインターフェースを定義
+ */
+interface TreeType {
+  /**
+   * 木を描画する操作
+   * @param canvas 描画対象のキャンバス
+   * @param x X座標
+   * @param y Y座標
+   */
+  render(canvas: any, x: number, y: number): void;
+}
+
+/**
+ * ConcreteFlyweight - 共有されるFlyweight実装
+ * 内部状態（共有される状態）を保持
+ */
+class TreeTypeImpl implements TreeType {
+  /**
+   * 内部状態 - 木の名前
+   */
+  private name: string;
+  
+  /**
+   * 内部状態 - 木の色
+   */
+  private color: string;
+  
+  /**
+   * 内部状態 - テクスチャデータ
+   */
+  private texture: any;
+  
+  /**
+   * コンストラクタ
+   * @param name 木の名前
+   * @param color 木の色
+   * @param texture テクスチャデータ
+   */
+  constructor(name: string, color: string, texture: any) {
+    this.name = name;
+    this.color = color;
+    this.texture = texture;
+    console.log(`TreeType作成: ${name}, 色: ${color} (メモリ確保)`);
+  }
+  
+  /**
+   * 木を描画する - 内部状態と外部状態を組み合わせる
+   * @param canvas 描画対象のキャンバス
+   * @param x X座標（外部状態）
+   * @param y Y座標（外部状態）
+   */
+  render(canvas: any, x: number, y: number): void {
+    console.log(`${this.name}の木を (${x}, ${y}) に描画 - 色: ${this.color}`);
+    // テクスチャを使って実際の描画処理
+    // canvas.drawImage(this.texture, x, y);
+  }
+}
+
+/**
+ * FlyweightFactory - Flyweightオブジェクトを作成・管理
+ */
+class TreeFactory {
+  /**
+   * 共有Flyweightオブジェクトのプール
+   */
+  private static treeTypes: Map&lt;string, TreeType&gt; = new Map();
+  
+  /**
+   * 指定された特性を持つTreeTypeを取得または作成
+   * @param name 木の名前
+   * @param color 木の色
+   * @param texture テクスチャデータ
+   * @returns TreeTypeオブジェクト
+   */
+  static getTreeType(name: string, color: string, texture: any): TreeType {
+    // キャッシュキーの作成
+    const key = `${name}_${color}`;
+    
+    // キャッシュをチェック
+    if (!this.treeTypes.has(key)) {
+      // 存在しない場合、新しいインスタンスを作成してキャッシュ
+      this.treeTypes.set(key, new TreeTypeImpl(name, color, texture));
+      console.log(`新しいツリータイプを作成: ${key}`);
+    } else {
+      console.log(`既存のツリータイプを再利用: ${key}`);
+    }
+    
+    return this.treeTypes.get(key)!;
+  }
+  
+  /**
+   * キャッシュされたツリータイプの数を取得
+   * @returns キャッシュされたタイプの数
+   */
+  static getTreeTypesCount(): number {
+    return this.treeTypes.size;
+  }
+}
+
+/**
+ * Client - 外部状態を管理し、Flyweightを使用
+ */
+class Tree {
+  /**
+   * 外部状態 - X座標
+   */
+  private x: number;
+  
+  /**
+   * 外部状態 - Y座標
+   */
+  private y: number;
+  
+  /**
+   * 共有Flyweight参照
+   */
+  private type: TreeType;
+  
+  /**
+   * コンストラクタ
+   * @param x X座標
+   * @param y Y座標
+   * @param type 木のタイプ（Flyweight）
+   */
+  constructor(x: number, y: number, type: TreeType) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+  }
+  
+  /**
+   * 木を描画
+   * @param canvas 描画対象のキャンバス
+   */
+  draw(canvas: any): void {
+    // Flyweightに描画を委譲し、外部状態を渡す
+    this.type.render(canvas, this.x, this.y);
+  }
+}
+
+/**
+ * Forest - Treeオブジェクトの集合を管理するクラス
+ */
+class Forest {
+  /**
+   * 森に含まれる木の配列
+   */
+  private trees: Tree[] = [];
+  
+  /**
+   * 森に木を追加
+   * @param x X座標
+   * @param y Y座標
+   * @param name 木の名前
+   * @param color 木の色
+   * @param texture テクスチャデータ
+   */
+  plantTree(x: number, y: number, name: string, color: string, texture: any): void {
+    // ファクトリーから適切なTreeTypeを取得
+    const type = TreeFactory.getTreeType(name, color, texture);
+    
+    // 新しい木のインスタンスを作成して追加
+    const tree = new Tree(x, y, type);
+    this.trees.push(tree);
+  }
+  
+  /**
+   * 森の木をすべて描画
+   * @param canvas 描画対象のキャンバス
+   */
+  draw(canvas: any): void {
+    for (const tree of this.trees) {
+      tree.draw(canvas);
+    }
+  }
+  
+  /**
+   * 森の木の数を取得
+   * @returns 木の数
+   */
+  getTreeCount(): number {
+    return this.trees.length;
+  }
+}
+</code></pre>
+<h3 id="42-使用例"><a class="header" href="#42-使用例">4.2 使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * クライアントコード
+ */
+function clientCode() {
+  // 1. 森を作成
+  const forest = new Forest();
+  
+  // 2. 仮想キャンバス（実際の描画先）
+  const canvas = {}; // 実際のアプリケーションでは描画コンテキスト
+  
+  // 3. 多数の木を植える（様々な位置に異なる種類の木）
+  console.log("1000本の木を森に追加しています...");
+  
+  // 3.1. かえでの木（赤）を500本植える
+  for (let i = 0; i &lt; 500; i++) {
+    const x = Math.floor(Math.random() * 1000);
+    const y = Math.floor(Math.random() * 1000);
+    forest.plantTree(x, y, "かえで", "赤", "maple_texture");
+  }
+  
+  // 3.2. 松の木（緑）を300本植える
+  for (let i = 0; i &lt; 300; i++) {
+    const x = Math.floor(Math.random() * 1000);
+    const y = Math.floor(Math.random() * 1000);
+    forest.plantTree(x, y, "松", "緑", "pine_texture");
+  }
+  
+  // 3.3. 桜の木（ピンク）を200本植える
+  for (let i = 0; i &lt; 200; i++) {
+    const x = Math.floor(Math.random() * 1000);
+    const y = Math.floor(Math.random() * 1000);
+    forest.plantTree(x, y, "桜", "ピンク", "cherry_blossom_texture");
+  }
+  
+  // 4. 統計情報を表示
+  console.log(`森の中の木の総数: ${forest.getTreeCount()}`);
+  console.log(`実際に作成されたツリータイプオブジェクト数: ${TreeFactory.getTreeTypesCount()}`);
+  console.log(`メモリ効率: ${forest.getTreeCount() / TreeFactory.getTreeTypesCount()}倍`);
+  
+  // 5. 森を描画
+  console.log("\n森を描画しています（最初の10本のみ表示）...");
+  forest.draw(canvas);
+}
+
+// クライアントコードを実行
+clientCode();
+
+// 出力結果例:
+// 1000本の木を森に追加しています...
+// TreeType作成: かえで, 色: 赤 (メモリ確保)
+// 新しいツリータイプを作成: かえで_赤
+// 既存のツリータイプを再利用: かえで_赤
+// ... (省略) ...
+// TreeType作成: 松, 色: 緑 (メモリ確保)
+// 新しいツリータイプを作成: 松_緑
+// 既存のツリータイプを再利用: 松_緑
+// ... (省略) ...
+// TreeType作成: 桜, 色: ピンク (メモリ確保)
+// 新しいツリータイプを作成: 桜_ピンク
+// 既存のツリータイプを再利用: 桜_ピンク
+// ... (省略) ...
+// 森の中の木の総数: 1000
+// 実際に作成されたツリータイプオブジェクト数: 3
+// メモリ効率: 333.3倍
+//
+// 森を描画しています（最初の10本のみ表示）...
+// かえでの木を (123, 456) に描画 - 色: 赤
+// ... (省略) ...
+</code></pre>
+<h2 id="5-パターンのバリエーション"><a class="header" href="#5-パターンのバリエーション">5. パターンのバリエーション</a></h2>
+<h3 id="51-複合flyweight"><a class="header" href="#51-複合flyweight">5.1 複合Flyweight</a></h3>
+<p>複合オブジェクト全体をFlyweightとして扱うバリエーション。複合パターンと組み合わせることで、ツリー構造全体を効率的に管理できます。</p>
+<pre><code class="language-typescript">/**
+ * 複合Flyweightの例
+ */
+class CompositeFlyweight implements Flyweight {
+  private flyweights: Map&lt;string, Flyweight&gt; = new Map();
+  
+  add(key: string, flyweight: Flyweight): void {
+    this.flyweights.set(key, flyweight);
+  }
+  
+  operation(extrinsicState: any): void {
+    for (const [key, flyweight] of this.flyweights.entries()) {
+      flyweight.operation(extrinsicState);
+    }
+  }
+}
+</code></pre>
+<h3 id="52-非共有コンクリートflyweight"><a class="header" href="#52-非共有コンクリートflyweight">5.2 非共有コンクリートFlyweight</a></h3>
+<p>メモリ最適化が不要で、操作インターフェースの一貫性だけが必要な場合に使用する特殊なFlyweightです。</p>
+<pre><code class="language-typescript">/**
+ * 共有されないFlyweightの例
+ */
+class UnsharedConcreteFlyweight implements TreeType {
+  private uniqueState: any;
+  
+  constructor(uniqueState: any) {
+    this.uniqueState = uniqueState;
+  }
+  
+  render(canvas: any, x: number, y: number): void {
+    // 全ての状態が内部に含まれるため、外部状態との結合は最小限
+    console.log(`特殊な木を (${x}, ${y}) に描画 - 状態: ${this.uniqueState}`);
+  }
+}
+</code></pre>
+<h2 id="6-評価"><a class="header" href="#6-評価">6. 評価</a></h2>
+<h3 id="61-メリット"><a class="header" href="#61-メリット">6.1 メリット</a></h3>
+<ul>
+<li><strong>メモリ効率</strong>: 共有可能なオブジェクトを再利用することでメモリ使用量を大幅に削減</li>
+<li><strong>パフォーマンス向上</strong>: オブジェクト生成コストの削減と効率的なメモリ利用によるパフォーマンス向上</li>
+<li><strong>多数のオブジェクト管理</strong>: 大量の類似オブジェクトを効率的に管理可能</li>
+<li><strong>状態の明確な分離</strong>: 内部（共有）状態と外部（非共有）状態の分離による設計の明確化</li>
+<li><strong>拡張性</strong>: 新しいFlyweight型の追加が容易</li>
+</ul>
+<h3 id="62-デメリット"><a class="header" href="#62-デメリット">6.2 デメリット</a></h3>
+<ul>
+<li><strong>複雑性の増加</strong>: 内部状態と外部状態の分離により、コードが複雑になる可能性がある</li>
+<li><strong>コンテキスト依存</strong>: 外部状態の管理が不適切だと問題が発生する可能性がある</li>
+<li><strong>同期の問題</strong>: 並行環境でのFlyweightFactory管理に注意が必要</li>
+<li><strong>デバッグの難しさ</strong>: 共有オブジェクトの状態変更の追跡が難しくなる場合がある</li>
+<li><strong>過剰最適化のリスク</strong>: 小規模なアプリケーションでは複雑さの増加がメリットを上回る可能性</li>
+</ul>
+<h3 id="63-適用場面"><a class="header" href="#63-適用場面">6.3 適用場面</a></h3>
+<ul>
+<li>アプリケーションが多数の類似オブジェクトを使用し、メモリ消費が懸念される場合</li>
+<li>オブジェクトの状態の大部分が共有可能で、外部状態として分離できる場合</li>
+<li>オブジェクトの同一性が重要でない場合</li>
+<li>グラフィックスアプリケーション、ゲームエンジン、テキストエディタなど</li>
+<li>モバイルデバイスや制約のあるシステムでの最適化が必要な場合</li>
+<li>大規模なデータセットを扱うビジネスアプリケーション</li>
+</ul>
+<h2 id="7-関連パターン"><a class="header" href="#7-関連パターン">7. 関連パターン</a></h2>
+<ul>
+<li><strong>Composite</strong>: FlyweightパターンはCompositeパターンと組み合わせて使用され、効率的なツリー構造を実現</li>
+<li><strong>Factory Method/Abstract Factory</strong>: Flyweightオブジェクトの作成にはしばしばこれらのパターンが使用される</li>
+<li><strong>Singleton</strong>: FlyweightFactoryは通常Singletonとして実装される</li>
+<li><strong>State/Strategy</strong>: 共有可能な状態や戦略オブジェクトとしてFlyweightを使用できる</li>
+<li><strong>Proxy</strong>: Flyweightは時にProxyと組み合わせて使用され、共有オブジェクトへのアクセスを制御する</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/structural/flyweight">ソースコードへのリンク</a></li>
+<li><a href="../../tests/structural/flyweight">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/flyweight">リファクタリング・グル - Flyweightパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+<li><a href="https://www.amazon.co.jp/dp/0201633612">Gang of Four デザインパターン - Flyweight</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/structural/facade.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/structural/proxy.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/structural/facade.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/structural/proxy.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

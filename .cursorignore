@@ -2,9 +2,6 @@
 # git
 .git
 
-# cursor
-.cursor/
-
 # vscode
 .vscode/
 

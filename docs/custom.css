@@ -1,0 +1,122 @@
+/* 日本語フォントを優先 */
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+}
+
+/* コードブロックのスタイル調整 */
+pre > code {
+  font-family: "Source Code Pro", "Consolas", "Menlo", monospace;
+}
+
+/* 見出しのスタイル */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 1.8em;
+  border-bottom: 2px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+/* テーブルの調整 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+table th, table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+}
+
+table th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+/* リンクの色調整 */
+a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ナビゲーションメニューの調整 */
+.sidebar .chapter {
+  padding: 5px 10px;
+}
+
+.sidebar .chapter a {
+  display: block;
+  padding: 5px 0;
+}
+
+/* 検索ボックスの調整 */
+#searchbar {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* モバイル表示の調整 */
+@media (max-width: 768px) {
+  .sidebar {
+    padding: 10px;
+  }
+  
+  .content {
+    padding: 10px;
+  }
+}
+
+/* コードフォントサイズ調整 */
+code {
+  font-size: 0.9em;
+}
+
+/* 図表のキャプション */
+figcaption {
+  text-align: center;
+  font-style: italic;
+  margin-top: 5px;
+  color: #666;
+}
+
+/* 注釈ブロック */
+blockquote {
+  border-left: 4px solid #ddd;
+  padding: 0 15px;
+  color: #777;
+  margin: 15px 0;
+}
+
+/* 重要な注意事項のブロック */
+.warning {
+  background-color: #fff8f8;
+  border-left: 4px solid #ff6b6b;
+  padding: 10px 15px;
+  margin: 15px 0;
+}
+
+/* 補足情報のブロック */
+.info {
+  background-color: #f8f8ff;
+  border-left: 4px solid #6b8eff;
+  padding: 10px 15px;
+  margin: 15px 0;
+} 

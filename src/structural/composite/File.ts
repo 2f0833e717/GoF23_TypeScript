@@ -4,12 +4,17 @@
  * FileSystemComponentインターフェースを実装する具象クラスです。
  * ファイルシステムの末端要素（リーフ）として機能します。
  */
-import { FileSystemComponent } from './FileSystemComponent';
+import { FileSystemComponent } from '../../common/interfaces/FileSystemComponent';
 import { FileSystemVisitor } from '../../behavioral/visitor/FileSystemVisitor';
+import { Directory } from './Directory';
+import { FileSystemUtils } from './FileSystemUtils';
+import { FileSystemElement } from '../../common/interfaces/FileSystemElement';
 
-export class File implements FileSystemComponent {
-    private parent: FileSystemComponent | null = null;
-    private readonly createdAt: Date;
+export class File implements FileSystemComponent, FileSystemElement {
+    private name: string;
+    private size: number;
+    private parent: FileSystemComponent | null;
+    private createdAt: Date;
     private modifiedAt: Date;
 
     /**
@@ -17,10 +22,13 @@ export class File implements FileSystemComponent {
      * @param name ファイル名
      * @param size ファイルサイズ（バイト）
      */
-    constructor(
-        private readonly name: string,
-        private size: number
-    ) {
+    constructor(name: string, size: number) {
+        if (size < 0) {
+            throw new Error('ファイルサイズは0以上である必要があります');
+        }
+        this.name = name;
+        this.size = size;
+        this.parent = null;
         this.createdAt = new Date();
         this.modifiedAt = new Date();
     }
@@ -50,48 +58,44 @@ export class File implements FileSystemComponent {
     }
 
     setParent(parent: FileSystemComponent | null): void {
+        if (parent && !(parent instanceof Directory)) {
+            throw new Error('親ディレクトリが不正です');
+        }
         this.parent = parent;
     }
 
     getPath(): string {
-        const parentPath = this.parent ? this.parent.getPath() : '';
-        return parentPath ? `${parentPath}/${this.name}` : this.name;
+        return this.parent ? `${this.parent.getPath()}/${this.name}` : this.name;
     }
 
     /**
      * ファイルの内容を更新します
-     * @param newSize 新しいファイルサイズ（バイト）
+     * @param size 新しいファイルサイズ（バイト）
      */
-    updateContent(newSize: number): void {
-        this.size = newSize;
+    updateContent(size: number): void {
+        if (size < 0) {
+            throw new Error('ファイルサイズは0以上である必要があります');
+        }
+        this.size = size;
         this.modifiedAt = new Date();
     }
 
     /**
      * ファイルの表示文字列を取得します
-     * @param indent インデントレベル
      * @returns フォーマットされた文字列
      */
-    display(indent: number = 0): string {
-        const indentation = ' '.repeat(indent * 2);
-        return `${indentation}📄 ${this.name} (${this.formatSize(this.size)})`;
+    display(): string {
+        const sizeStr = FileSystemUtils.formatSize(this.size);
+        const dateStr = this.modifiedAt.toLocaleString();
+        return `${sizeStr} ${dateStr} ${this.name}`;
     }
 
     /**
-     * ファイルサイズを適切な単位に変換して表示します
+     * サイズをフォーマットして表示します
      * @param bytes バイト数
      * @returns フォーマットされたサイズ文字列
      */
     formatSize(bytes: number): string {
-        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        let size = bytes;
-        let unitIndex = 0;
-
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
+        return FileSystemUtils.formatSize(bytes);
     }
 } 

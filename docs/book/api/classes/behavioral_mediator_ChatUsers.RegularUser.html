@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>behavioral_mediator_ChatUsers.RegularUser - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./api/classes/behavioral_mediator_ChatUsers.RegularUser.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p><a href="../README.html">GoF23 TypeScript Design Patterns - v1.0.0</a> / <a href="../modules/behavioral_mediator_ChatUsers.html">behavioral/mediator/ChatUsers</a> / RegularUser</p>
+<h1 id="class-regularuser"><a class="header" href="#class-regularuser">Class: RegularUser</a></h1>
+<p><a href="../modules/behavioral_mediator_ChatUsers.html">behavioral/mediator/ChatUsers</a>.RegularUser</p>
+<p>一般ユーザー</p>
+<h2 id="hierarchy"><a class="header" href="#hierarchy">Hierarchy</a></h2>
+<ul>
+<li>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html"><code>ChatUser</code></a></p>
+<p>↳ <strong><code>RegularUser</code></strong></p>
+</li>
+</ul>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h2>
+<h3 id="constructors"><a class="header" href="#constructors">Constructors</a></h3>
+<ul>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#constructor">constructor</a></li>
+</ul>
+<h3 id="properties"><a class="header" href="#properties">Properties</a></h3>
+<ul>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#status">status</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#mediator">mediator</a></li>
+</ul>
+<h3 id="methods"><a class="header" href="#methods">Methods</a></h3>
+<ul>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#send">send</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#setstatus">setStatus</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#getid">getId</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#getname">getName</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#getstatus">getStatus</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#receive">receive</a></li>
+<li><a href="behavioral_mediator_ChatUsers.RegularUser.html#getmessagehistory">getMessageHistory</a></li>
+</ul>
+<h2 id="constructors-1"><a class="header" href="#constructors-1">Constructors</a></h2>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<p>• <strong>new RegularUser</strong>(<code>id</code>, <code>name</code>, <code>mediator</code>): <a href="behavioral_mediator_ChatUsers.RegularUser.html"><code>RegularUser</code></a></p>
+<p>コンストラクタ</p>
+<h4 id="parameters"><a class="header" href="#parameters">Parameters</a></h4>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Type</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>id</code></td><td style="text-align: left"><code>string</code></td><td style="text-align: left">ユーザーID</td></tr>
+<tr><td style="text-align: left"><code>name</code></td><td style="text-align: left"><code>string</code></td><td style="text-align: left">ユーザー名</td></tr>
+<tr><td style="text-align: left"><code>mediator</code></td><td style="text-align: left"><a href="../interfaces/behavioral_mediator_ChatMediator.ChatMediator.html"><code>ChatMediator</code></a></td><td style="text-align: left">チャットメディエーター</td></tr>
+</tbody></table>
+</div>
+<h4 id="returns"><a class="header" href="#returns">Returns</a></h4>
+<p><a href="behavioral_mediator_ChatUsers.RegularUser.html"><code>RegularUser</code></a></p>
+<h4 id="inherited-from"><a class="header" href="#inherited-from">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#constructor">constructor</a></p>
+<h4 id="defined-in"><a class="header" href="#defined-in">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:74</p>
+<h2 id="properties-1"><a class="header" href="#properties-1">Properties</a></h2>
+<h3 id="status"><a class="header" href="#status">status</a></h3>
+<p>• <code>Protected</code> <strong>status</strong>: <code>string</code> = <code>'online'</code></p>
+<h4 id="inherited-from-1"><a class="header" href="#inherited-from-1">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#status">status</a></p>
+<h4 id="defined-in-1"><a class="header" href="#defined-in-1">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:66</p>
+<hr />
+<h3 id="mediator"><a class="header" href="#mediator">mediator</a></h3>
+<p>• <code>Protected</code> <strong>mediator</strong>: <a href="../interfaces/behavioral_mediator_ChatMediator.ChatMediator.html"><code>ChatMediator</code></a></p>
+<p>チャットメディエーター</p>
+<h4 id="inherited-from-2"><a class="header" href="#inherited-from-2">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#mediator">mediator</a></p>
+<h4 id="defined-in-2"><a class="header" href="#defined-in-2">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:77</p>
+<h2 id="methods-1"><a class="header" href="#methods-1">Methods</a></h2>
+<h3 id="send"><a class="header" href="#send">send</a></h3>
+<p>▸ <strong>send</strong>(<code>content</code>, <code>to?</code>): <code>void</code></p>
+<p>メッセージを送信します</p>
+<h4 id="parameters-1"><a class="header" href="#parameters-1">Parameters</a></h4>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Type</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>content</code></td><td style="text-align: left"><code>string</code></td><td style="text-align: left">メッセージ内容</td></tr>
+<tr><td style="text-align: left"><code>to?</code></td><td style="text-align: left"><code>string</code></td><td style="text-align: left">宛先ユーザーID（省略可）</td></tr>
+</tbody></table>
+</div>
+<h4 id="returns-1"><a class="header" href="#returns-1">Returns</a></h4>
+<p><code>void</code></p>
+<h4 id="inherited-from-3"><a class="header" href="#inherited-from-3">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#send">send</a></p>
+<h4 id="defined-in-3"><a class="header" href="#defined-in-3">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:85</p>
+<hr />
+<h3 id="setstatus"><a class="header" href="#setstatus">setStatus</a></h3>
+<p>▸ <strong>setStatus</strong>(<code>status</code>): <code>void</code></p>
+<p>ステータスを設定します</p>
+<h4 id="parameters-2"><a class="header" href="#parameters-2">Parameters</a></h4>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Type</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>status</code></td><td style="text-align: left"><code>string</code></td><td style="text-align: left">新しいステータス</td></tr>
+</tbody></table>
+</div>
+<h4 id="returns-2"><a class="header" href="#returns-2">Returns</a></h4>
+<p><code>void</code></p>
+<h4 id="inherited-from-4"><a class="header" href="#inherited-from-4">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#setstatus">setStatus</a></p>
+<h4 id="defined-in-4"><a class="header" href="#defined-in-4">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:106</p>
+<hr />
+<h3 id="getid"><a class="header" href="#getid">getId</a></h3>
+<p>▸ <strong>getId</strong>(): <code>string</code></p>
+<p>ユーザーIDを取得します</p>
+<h4 id="returns-3"><a class="header" href="#returns-3">Returns</a></h4>
+<p><code>string</code></p>
+<h4 id="inherited-from-5"><a class="header" href="#inherited-from-5">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#getid">getId</a></p>
+<h4 id="defined-in-5"><a class="header" href="#defined-in-5">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:114</p>
+<hr />
+<h3 id="getname"><a class="header" href="#getname">getName</a></h3>
+<p>▸ <strong>getName</strong>(): <code>string</code></p>
+<p>ユーザー名を取得します</p>
+<h4 id="returns-4"><a class="header" href="#returns-4">Returns</a></h4>
+<p><code>string</code></p>
+<h4 id="inherited-from-6"><a class="header" href="#inherited-from-6">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#getname">getName</a></p>
+<h4 id="defined-in-6"><a class="header" href="#defined-in-6">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:121</p>
+<hr />
+<h3 id="getstatus"><a class="header" href="#getstatus">getStatus</a></h3>
+<p>▸ <strong>getStatus</strong>(): <code>string</code></p>
+<p>ステータスを取得します</p>
+<h4 id="returns-5"><a class="header" href="#returns-5">Returns</a></h4>
+<p><code>string</code></p>
+<h4 id="inherited-from-7"><a class="header" href="#inherited-from-7">Inherited from</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#getstatus">getStatus</a></p>
+<h4 id="defined-in-7"><a class="header" href="#defined-in-7">Defined in</a></h4>
+<p>behavioral/mediator/ChatMediator.ts:128</p>
+<hr />
+<h3 id="receive"><a class="header" href="#receive">receive</a></h3>
+<p>▸ <strong>receive</strong>(<code>message</code>): <code>void</code></p>
+<p>メッセージを受信します</p>
+<h4 id="parameters-3"><a class="header" href="#parameters-3">Parameters</a></h4>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Type</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>message</code></td><td style="text-align: left"><a href="../interfaces/behavioral_mediator_ChatMediator.Message.html"><code>Message</code></a></td><td style="text-align: left">受信したメッセージ</td></tr>
+</tbody></table>
+</div>
+<h4 id="returns-6"><a class="header" href="#returns-6">Returns</a></h4>
+<p><code>void</code></p>
+<h4 id="overrides"><a class="header" href="#overrides">Overrides</a></h4>
+<p><a href="behavioral_mediator_ChatMediator.ChatUser.html">ChatUser</a>.<a href="behavioral_mediator_ChatMediator.ChatUser.html#receive">receive</a></p>
+<h4 id="defined-in-8"><a class="header" href="#defined-in-8">Defined in</a></h4>
+<p>behavioral/mediator/ChatUsers.ts:12</p>
+<hr />
+<h3 id="getmessagehistory"><a class="header" href="#getmessagehistory">getMessageHistory</a></h3>
+<p>▸ <strong>getMessageHistory</strong>(): <a href="../interfaces/behavioral_mediator_ChatMediator.Message.html"><code>Message</code></a>[]</p>
+<p>メッセージ履歴を取得します</p>
+<h4 id="returns-7"><a class="header" href="#returns-7">Returns</a></h4>
+<p><a href="../interfaces/behavioral_mediator_ChatMediator.Message.html"><code>Message</code></a>[]</p>
+<h4 id="defined-in-9"><a class="header" href="#defined-in-9">Defined in</a></h4>
+<p>behavioral/mediator/ChatUsers.ts:43</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../api/classes/behavioral_mediator_ChatUsers.AdminUser.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../api/classes/behavioral_memento_EditorHistory.EditorHistory.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../api/classes/behavioral_mediator_ChatUsers.AdminUser.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../api/classes/behavioral_memento_EditorHistory.EditorHistory.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../mermaid.min.js"></script>
+        <script src="../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

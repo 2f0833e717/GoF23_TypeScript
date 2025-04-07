@@ -58,15 +58,10 @@ export class SizeCalculator implements FileSystemVisitor {
 
     /**
      * 計算結果を取得します
-     * @returns 合計サイズとパスごとの詳細情報
+     * @returns 合計サイズ
      */
-    getResult(): { totalSize: number; details: Map<string, number> } {
-        return {
-            /** 全要素の合計サイズ（バイト） */
-            totalSize: this.totalSize,
-            /** パスごとのサイズ詳細 */
-            details: new Map(this.details)
-        };
+    getResult(): number {
+        return this.totalSize;
     }
 
     /**

@@ -1,0 +1,1548 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>visitor - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/visitor.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="visitorパターン---ファイルシステム操作の実装"><a class="header" href="#visitorパターン---ファイルシステム操作の実装">Visitorパターン - ファイルシステム操作の実装</a></h1>
+<h2 id="概要"><a class="header" href="#概要">概要</a></h2>
+<p>Visitorパターンは、データ構造とそのデータに対する操作を分離するデザインパターンです。このプロジェクトでは、ファイルシステムの操作（検索、サイズ計算、構造視覚化）を実装しています。</p>
+<p>このパターンの主な目的は以下の通りです：</p>
+<ul>
+<li>データ構造と操作の分離</li>
+<li>新しい操作の容易な追加</li>
+<li>データ構造の変更を最小限に抑制</li>
+</ul>
+<h3 id="主な用途"><a class="header" href="#主な用途">主な用途</a></h3>
+<ul>
+<li>ファイルシステムの探索と操作</li>
+<li>複雑なデータ構造の処理</li>
+<li>レポート生成</li>
+<li>データ解析</li>
+</ul>
+<h2 id="システム設計"><a class="header" href="#システム設計">システム設計</a></h2>
+<h3 id="1-基本構成"><a class="header" href="#1-基本構成">1. 基本構成</a></h3>
+<p>ファイルシステム操作のためのVisitorパターン実装は、以下のコンポーネントで構成されます：</p>
+<ul>
+<li><strong>FileSystemVisitor</strong>：ファイルシステム要素を訪問するVisitorのインターフェース</li>
+<li><strong>FileSystemElement</strong>：基本的なファイルシステム要素のインターフェース</li>
+<li><strong>FileSystemComponent</strong>：Visitorを受け入れる機能を持つファイルシステム要素のインターフェース</li>
+<li><strong>具象要素クラス</strong>：File、Directory、SymbolicLinkなどの具体的なファイルシステム要素</li>
+<li><strong>具象Visitorクラス</strong>：FileSearcher、SizeCalculator、FileStructureVisualizerなどの特定の処理を行うVisitor</li>
+</ul>
+<h3 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h3>
+<p>以下のクラス図は、Visitorパターンを使用したファイルシステム操作の構造を示しています：</p>
+<pre class="mermaid">classDiagram
+    class FileSystemElement {
+        &lt;&lt;interface&gt;&gt;
+        +getName() string
+        +getPath() string
+        +getSize() number
+        +getCreatedAt() Date
+        +getModifiedAt() Date
+    }
+    
+    class FileSystemComponent {
+        &lt;&lt;interface&gt;&gt;
+        +accept(visitor: FileSystemVisitor) void
+        +getParent() FileSystemComponent
+        +setParent(parent: FileSystemComponent) void
+    }
+    
+    class FileSystemVisitor {
+        &lt;&lt;interface&gt;&gt;
+        +visitFile(file: File) void
+        +visitDirectory(directory: Directory) void
+        +visitSymbolicLink(symlink: SymbolicLink) void
+        +getResult() any
+    }
+    
+    class File {
+        -name: string
+        -path: string
+        -size: number
+        -createdAt: Date
+        -modifiedAt: Date
+        -parent: FileSystemComponent
+        +accept(visitor: FileSystemVisitor) void
+        +getName() string
+        +getPath() string
+        +getSize() number
+        +getCreatedAt() Date
+        +getModifiedAt() Date
+        +getParent() FileSystemComponent
+        +setParent(parent: FileSystemComponent) void
+    }
+    
+    class Directory {
+        -name: string
+        -path: string
+        -createdAt: Date
+        -modifiedAt: Date
+        -children: FileSystemComponent[]
+        -parent: FileSystemComponent
+        +accept(visitor: FileSystemVisitor) void
+        +getName() string
+        +getPath() string
+        +getSize() number
+        +getCreatedAt() Date
+        +getModifiedAt() Date
+        +getParent() FileSystemComponent
+        +setParent(parent: FileSystemComponent) void
+        +add(element: FileSystemComponent) void
+        +remove(element: FileSystemComponent) boolean
+        +getChildren() FileSystemComponent[]
+        +isEmpty() boolean
+    }
+    
+    class SymbolicLink {
+        -name: string
+        -path: string
+        -target: FileSystemComponent
+        -createdAt: Date
+        -modifiedAt: Date
+        -parent: FileSystemComponent
+        +accept(visitor: FileSystemVisitor) void
+        +getName() string
+        +getPath() string
+        +getSize() number
+        +getCreatedAt() Date
+        +getModifiedAt() Date
+        +getParent() FileSystemComponent
+        +setParent(parent: FileSystemComponent) void
+        +getTarget() FileSystemComponent
+        +getTargetPath() string
+        +isValid() boolean
+    }
+    
+    class FileSearcher {
+        -searchCriteria: SearchCriteria
+        -foundFiles: File[]
+        +visitFile(file: File) void
+        +visitDirectory(directory: Directory) void
+        +visitSymbolicLink(symlink: SymbolicLink) void
+        +getResult() File[]
+        +setSearchCriteria(criteria: SearchCriteria) void
+        +resetResults() void
+    }
+    
+    class SizeCalculator {
+        -totalSize: number
+        -sizeFormat: SizeFormat
+        +visitFile(file: File) void
+        +visitDirectory(directory: Directory) void
+        +visitSymbolicLink(symlink: SymbolicLink) void
+        +getResult() string
+        +setSizeFormat(format: SizeFormat) void
+        +resetTotalSize() void
+    }
+    
+    class FileStructureVisualizer {
+        -structure: string
+        -indentLevel: number
+        -indentSize: number
+        +visitFile(file: File) void
+        +visitDirectory(directory: Directory) void
+        +visitSymbolicLink(symlink: SymbolicLink) void
+        +getResult() string
+        +setIndentSize(size: number) void
+        +resetStructure() void
+    }
+    
+    FileSystemElement &lt;|-- FileSystemComponent
+    FileSystemComponent &lt;|.. File
+    FileSystemComponent &lt;|.. Directory
+    FileSystemComponent &lt;|.. SymbolicLink
+    
+    FileSystemVisitor &lt;|.. FileSearcher
+    FileSystemVisitor &lt;|.. SizeCalculator
+    FileSystemVisitor &lt;|.. FileStructureVisualizer
+    
+    FileSystemVisitor ..&gt; File : visits
+    FileSystemVisitor ..&gt; Directory : visits
+    FileSystemVisitor ..&gt; SymbolicLink : visits
+    
+    File ..&gt; FileSystemVisitor : accepts
+    Directory ..&gt; FileSystemVisitor : accepts
+    SymbolicLink ..&gt; FileSystemVisitor : accepts
+    
+    Directory o-- FileSystemComponent : contains
+    SymbolicLink --&gt; FileSystemComponent : references
+</pre>
+<p>このクラス図は以下のような関係を示しています：</p>
+<ol>
+<li><strong>FileSystemElement</strong>は基本的なファイルシステム要素のインターフェースです。</li>
+<li><strong>FileSystemComponent</strong>はFileSystemElementを継承し、Visitorパターンを実装するためのacceptメソッドを追加します。</li>
+<li><strong>File</strong>、<strong>Directory</strong>、<strong>SymbolicLink</strong>はFileSystemComponentインターフェースを実装した具象クラスです。</li>
+<li><strong>FileSystemVisitor</strong>はVisitorのインターフェースで、各要素タイプに対する訪問メソッドを定義します。</li>
+<li><strong>FileSearcher</strong>、<strong>SizeCalculator</strong>、<strong>FileStructureVisualizer</strong>はFileSystemVisitorを実装した具象クラスで、特定の操作を行います。</li>
+<li><strong>Directory</strong>は子要素としてFileSystemComponentのコレクションを持ちます（Compositeパターン）。</li>
+<li><strong>SymbolicLink</strong>は他のFileSystemComponentへの参照を持ちます。</li>
+</ol>
+<h3 id="3-処理フロー"><a class="header" href="#3-処理フロー">3. 処理フロー</a></h3>
+<h4 id="31-ファイル検索フロー"><a class="header" href="#31-ファイル検索フロー">3.1 ファイル検索フロー</a></h4>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B{検索条件の検証}
+    B --&gt;|有効| C[FileSearcher生成]
+    B --&gt;|無効| D[エラー処理]
+    C --&gt; E[ルートディレクトリ探索開始]
+    E --&gt; F{要素の種類判定}
+    F --&gt;|ファイル| G[ファイル条件チェック]
+    F --&gt;|ディレクトリ| H[ディレクトリ条件チェック]
+    F --&gt;|シンボリックリンク| I[リンク条件チェック]
+    G --&gt; J{条件一致?}
+    H --&gt; J
+    I --&gt; J
+    J --&gt;|はい| K[結果に追加]
+    J --&gt;|いいえ| L[次の要素へ]
+    K --&gt; L
+    L --&gt; M{すべての要素を処理?}
+    M --&gt;|いいえ| F
+    M --&gt;|はい| N[結果を返却]
+    N --&gt; O[終了]
+    D --&gt; O
+</pre>
+<p>このフロー図は、ファイル検索の処理手順を示しています：</p>
+<ol>
+<li>
+<p><strong>前処理フェーズ</strong></p>
+<ul>
+<li>検索条件の妥当性を検証
+<ul>
+<li>名前パターンの有効性</li>
+<li>サイズ範囲の整合性</li>
+<li>日時範囲の整合性</li>
+</ul>
+</li>
+<li>無効な条件の場合はエラー処理</li>
+</ul>
+</li>
+<li>
+<p><strong>初期化フェーズ</strong></p>
+<ul>
+<li>FileSearcherインスタンスの生成</li>
+<li>内部状態の初期化</li>
+<li>探索準備の完了</li>
+</ul>
+</li>
+<li>
+<p><strong>探索フェーズ</strong></p>
+<ul>
+<li>要素の種類に応じた処理分岐
+<ul>
+<li>ファイル：名前、サイズ、日時の条件チェック</li>
+<li>ディレクトリ：名前と属性の条件チェック</li>
+<li>シンボリックリンク：リンク名と参照先の条件チェック</li>
+</ul>
+</li>
+<li>条件一致時の結果追加</li>
+<li>次の要素への移動</li>
+</ul>
+</li>
+<li>
+<p><strong>終了フェーズ</strong></p>
+<ul>
+<li>すべての要素の処理完了確認</li>
+<li>結果の返却</li>
+<li>リソースの解放</li>
+</ul>
+</li>
+</ol>
+<h4 id="32-サイズ計算フロー"><a class="header" href="#32-サイズ計算フロー">3.2 サイズ計算フロー</a></h4>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[SizeCalculator生成]
+    B --&gt; C[ルートディレクトリ処理開始]
+    C --&gt; D{要素の種類判定}
+    D --&gt;|ファイル| E[ファイルサイズ取得]
+    D --&gt;|ディレクトリ| F[ディレクトリ処理開始]
+    D --&gt;|シンボリックリンク| G[リンクサイズ取得]
+    E --&gt; H[合計に加算]
+    G --&gt; H
+    F --&gt; I[子要素の列挙]
+    I --&gt; J{子要素あり?}
+    J --&gt;|はい| K[子要素を処理]
+    J --&gt;|いいえ| L[ディレクトリサイズ計算]
+    K --&gt; D
+    L --&gt; H
+    H --&gt; M{すべての要素を処理?}
+    M --&gt;|いいえ| D
+    M --&gt;|はい| N[合計サイズを返却]
+    N --&gt; O[終了]
+</pre>
+<p>このフロー図は、サイズ計算の処理手順を示しています：</p>
+<ol>
+<li>
+<p><strong>初期化フェーズ</strong></p>
+<ul>
+<li>SizeCalculatorインスタンスの生成</li>
+<li>合計サイズの初期化</li>
+<li>サイズ詳細マップの準備</li>
+</ul>
+</li>
+<li>
+<p><strong>計算フェーズ</strong></p>
+<ul>
+<li>要素の種類に応じた処理
+<ul>
+<li>ファイル：直接サイズを取得して加算</li>
+<li>ディレクトリ：子要素を再帰的に処理</li>
+<li>シンボリックリンク：リンク自体のサイズを加算</li>
+</ul>
+</li>
+<li>各要素のサイズを詳細マップに記録</li>
+</ul>
+</li>
+<li>
+<p><strong>集計フェーズ</strong></p>
+<ul>
+<li>ディレクトリの場合は子要素のサイズを合算</li>
+<li>合計サイズの更新</li>
+<li>パスごとのサイズ情報の管理</li>
+</ul>
+</li>
+<li>
+<p><strong>終了フェーズ</strong></p>
+<ul>
+<li>すべての要素の処理完了確認</li>
+<li>最終的な合計サイズの計算</li>
+<li>結果の返却</li>
+</ul>
+</li>
+</ol>
+<h4 id="33-構造視覚化フロー"><a class="header" href="#33-構造視覚化フロー">3.3 構造視覚化フロー</a></h4>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[FileStructureVisualizer生成]
+    B --&gt; C[インデントサイズ設定]
+    C --&gt; D[ルートディレクトリ処理開始]
+    D --&gt; E{要素の種類判定}
+    E --&gt;|ファイル| F[ファイル情報フォーマット]
+    E --&gt;|ディレクトリ| G[ディレクトリ処理開始]
+    E --&gt;|シンボリックリンク| H[リンク情報フォーマット]
+    F --&gt; I[インデント付与]
+    H --&gt; I
+    G --&gt; J[ディレクトリ情報追加]
+    J --&gt; K{空ディレクトリ?}
+    K --&gt;|はい| L[空ディレクトリ表示]
+    K --&gt;|いいえ| M[子要素の列挙]
+    L --&gt; I
+    M --&gt; N{子要素あり?}
+    N --&gt;|はい| O[インデントレベル増加]
+    N --&gt;|いいえ| P[結果文字列の整形]
+    O --&gt; Q[子要素を処理]
+    Q --&gt; E
+    I --&gt; R{すべての要素を処理?}
+    R --&gt;|いいえ| E
+    R --&gt;|はい| P
+    P --&gt; S[終了]
+</pre>
+<p>このフロー図は、構造視覚化の処理手順を示しています：</p>
+<ol>
+<li>
+<p><strong>初期化フェーズ</strong></p>
+<ul>
+<li>クライアントがFileStructureVisualizerインスタンスを生成</li>
+<li>インデントサイズを設定</li>
+<li>結果文字列バッファを初期化</li>
+</ul>
+</li>
+<li>
+<p><strong>視覚化フェーズ</strong></p>
+<ul>
+<li>要素の種類に応じた処理
+<ul>
+<li>ファイル：📄アイコンと情報を追加</li>
+<li>ディレクトリ：📁アイコンと情報を追加</li>
+<li>シンボリックリンク：🔗アイコンと情報を追加</li>
+</ul>
+</li>
+<li>インデントレベルの管理</li>
+<li>空ディレクトリの特別処理</li>
+</ul>
+</li>
+<li>
+<p><strong>フォーマットフェーズ</strong></p>
+<ul>
+<li>適切なインデントの付与</li>
+<li>アイコンと情報の配置</li>
+<li>改行の挿入</li>
+</ul>
+</li>
+<li>
+<p><strong>終了フェーズ</strong></p>
+<ul>
+<li>すべての要素の処理完了確認</li>
+<li>結果文字列の最終整形</li>
+<li>余分な改行の削除</li>
+</ul>
+</li>
+</ol>
+<h3 id="4-シーケンス図"><a class="header" href="#4-シーケンス図">4. シーケンス図</a></h3>
+<h4 id="41-ファイル検索プロセス"><a class="header" href="#41-ファイル検索プロセス">4.1 ファイル検索プロセス</a></h4>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant FileSearcher
+    participant Directory
+    participant File
+    participant SymbolicLink
+    
+    Note over Client,SymbolicLink: 初期化フェーズ
+    Client-&gt;&gt;FileSearcher: new FileSearcher(criteria)
+    
+    Note over Client,SymbolicLink: 探索フェーズ
+    Client-&gt;&gt;Directory: accept(searcher)
+    activate Directory
+    Directory-&gt;&gt;FileSearcher: visitDirectory(this)
+    activate FileSearcher
+    FileSearcher-&gt;&gt;FileSearcher: ディレクトリ情報を記録
+    FileSearcher--&gt;&gt;Directory: 子要素の処理を要求
+    deactivate FileSearcher
+    
+    Note over Directory,SymbolicLink: 子要素の探索
+    Directory-&gt;&gt;File: accept(searcher)
+    activate File
+    File-&gt;&gt;FileSearcher: visitFile(this)
+    activate FileSearcher
+    FileSearcher-&gt;&gt;FileSearcher: matchesCriteria(file)
+    Note right of FileSearcher: 条件に一致したら結果に追加
+    FileSearcher--&gt;&gt;File: 処理完了
+    deactivate FileSearcher
+    File--&gt;&gt;Directory: 処理完了
+    deactivate File
+    
+    Directory-&gt;&gt;SymbolicLink: accept(searcher)
+    activate SymbolicLink
+    SymbolicLink-&gt;&gt;FileSearcher: visitSymbolicLink(this)
+    activate FileSearcher
+    FileSearcher-&gt;&gt;FileSearcher: matchesCriteria(link)
+    Note right of FileSearcher: 条件に一致したら結果に追加
+    FileSearcher--&gt;&gt;SymbolicLink: 処理完了
+    deactivate FileSearcher
+    SymbolicLink--&gt;&gt;Directory: 処理完了
+    deactivate SymbolicLink
+    
+    Note over Directory,File: 再帰的探索
+    Directory-&gt;&gt;Directory: 子ディレクトリを取得
+    Directory-&gt;&gt;Directory: accept(searcher) [子ディレクトリに対して]
+    Note right of Directory: 再帰的に子ディレクトリを探索
+    
+    Directory--&gt;&gt;Client: 探索完了
+    deactivate Directory
+    
+    Note over Client,SymbolicLink: 結果取得フェーズ
+    Client-&gt;&gt;FileSearcher: getResult()
+    activate FileSearcher
+    FileSearcher--&gt;&gt;Client: 検索結果の配列
+    deactivate FileSearcher
+</pre>
+<h4 id="42-サイズ計算プロセス"><a class="header" href="#42-サイズ計算プロセス">4.2 サイズ計算プロセス</a></h4>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant SizeCalculator
+    participant Directory
+    participant File
+    participant SymbolicLink
+    
+    Note over Client,SymbolicLink: 初期化フェーズ
+    Client-&gt;&gt;SizeCalculator: new SizeCalculator()
+    
+    Note over Client,SymbolicLink: 計算フェーズ
+    Client-&gt;&gt;Directory: accept(calculator)
+    activate Directory
+    Directory-&gt;&gt;SizeCalculator: visitDirectory(this)
+    activate SizeCalculator
+    SizeCalculator-&gt;&gt;SizeCalculator: ディレクトリサイズを初期化
+    SizeCalculator--&gt;&gt;Directory: 子要素の処理を要求
+    deactivate SizeCalculator
+    
+    Note over Directory,SymbolicLink: 子要素のサイズ計算
+    Directory-&gt;&gt;File: accept(calculator)
+    activate File
+    File-&gt;&gt;SizeCalculator: visitFile(this)
+    activate SizeCalculator
+    SizeCalculator-&gt;&gt;SizeCalculator: totalSize += file.size
+    Note right of SizeCalculator: ファイルサイズを合計に加算
+    SizeCalculator--&gt;&gt;File: 処理完了
+    deactivate SizeCalculator
+    File--&gt;&gt;Directory: 処理完了
+    deactivate File
+    
+    Directory-&gt;&gt;SymbolicLink: accept(calculator)
+    activate SymbolicLink
+    SymbolicLink-&gt;&gt;SizeCalculator: visitSymbolicLink(this)
+    activate SizeCalculator
+    SizeCalculator-&gt;&gt;SizeCalculator: totalSize += link.size
+    Note right of SizeCalculator: リンクサイズを合計に加算
+    SizeCalculator--&gt;&gt;SymbolicLink: 処理完了
+    deactivate SizeCalculator
+    SymbolicLink--&gt;&gt;Directory: 処理完了
+    deactivate SymbolicLink
+    
+    Note over Directory,File: 再帰的計算
+    Directory-&gt;&gt;Directory: 子ディレクトリを取得
+    Directory-&gt;&gt;Directory: accept(calculator) [子ディレクトリに対して]
+    Note right of Directory: 再帰的に子ディレクトリのサイズを計算
+    
+    Directory--&gt;&gt;Client: 計算完了
+    deactivate Directory
+    
+    Note over Client,SymbolicLink: 結果取得フェーズ
+    Client-&gt;&gt;SizeCalculator: getResult()
+    activate SizeCalculator
+    SizeCalculator--&gt;&gt;Client: 合計サイズ
+    deactivate SizeCalculator
+</pre>
+<h4 id="43-構造視覚化プロセス"><a class="header" href="#43-構造視覚化プロセス">4.3 構造視覚化プロセス</a></h4>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant FileVisualizer
+    participant Directory
+    participant File
+    participant SymbolicLink
+    
+    Note over Client,SymbolicLink: 初期化フェーズ
+    Client-&gt;&gt;FileVisualizer: new FileStructureVisualizer()
+    Client-&gt;&gt;FileVisualizer: setIndentSize(2)
+    
+    Note over Client,SymbolicLink: 視覚化フェーズ
+    Client-&gt;&gt;Directory: accept(visualizer)
+    activate Directory
+    Directory-&gt;&gt;FileVisualizer: visitDirectory(this)
+    activate FileVisualizer
+    FileVisualizer-&gt;&gt;FileVisualizer: result += &quot;📁 &quot; + directory.getName()
+    Note right of FileVisualizer: ディレクトリ情報の追加
+    FileVisualizer--&gt;&gt;Directory: 子要素の処理を要求
+    deactivate FileVisualizer
+    
+    Note over Directory,SymbolicLink: 子要素の視覚化
+    FileVisualizer-&gt;&gt;FileVisualizer: indentLevel++
+    Directory-&gt;&gt;File: accept(visualizer)
+    activate File
+    File-&gt;&gt;FileVisualizer: visitFile(this)
+    activate FileVisualizer
+    FileVisualizer-&gt;&gt;FileVisualizer: result += indent + &quot;📄 &quot; + file.getName()
+    Note right of FileVisualizer: インデント付きでファイル情報を追加
+    FileVisualizer--&gt;&gt;File: 処理完了
+    deactivate FileVisualizer
+    File--&gt;&gt;Directory: 処理完了
+    deactivate File
+    
+    Directory-&gt;&gt;SymbolicLink: accept(visualizer)
+    activate SymbolicLink
+    SymbolicLink-&gt;&gt;FileVisualizer: visitSymbolicLink(this)
+    activate FileVisualizer
+    FileVisualizer-&gt;&gt;FileVisualizer: result += indent + &quot;🔗 &quot; + link.getName()
+    Note right of FileVisualizer: インデント付きでリンク情報を追加
+    FileVisualizer--&gt;&gt;SymbolicLink: 処理完了
+    deactivate FileVisualizer
+    SymbolicLink--&gt;&gt;Directory: 処理完了
+    deactivate SymbolicLink
+    
+    Note over Directory,File: 再帰的視覚化
+    Directory-&gt;&gt;Directory: 子ディレクトリを取得
+    Directory-&gt;&gt;Directory: accept(visualizer) [子ディレクトリに対して]
+    Note right of Directory: 再帰的に子ディレクトリを視覚化
+    FileVisualizer-&gt;&gt;FileVisualizer: indentLevel--
+    
+    Directory--&gt;&gt;Client: 視覚化完了
+    deactivate Directory
+    
+    Note over Client,SymbolicLink: 結果取得フェーズ
+    Client-&gt;&gt;FileVisualizer: getResult()
+    activate FileVisualizer
+    FileVisualizer--&gt;&gt;Client: フォーマット済み階層テキスト
+    deactivate FileVisualizer
+</pre>
+<h2 id="実装"><a class="header" href="#実装">実装</a></h2>
+<h3 id="1-基本インターフェース"><a class="header" href="#1-基本インターフェース">1. 基本インターフェース</a></h3>
+<pre><code class="language-typescript">/**
+ * ファイルシステム要素のインターフェース
+ * 
+ * ファイル、ディレクトリ、シンボリックリンクなどの共通インターフェースを定義します。
+ * 基本的な属性へのアクセス機能を提供します。
+ */
+export interface FileSystemElement {
+    /**
+     * 要素の名前を取得します
+     * @returns 要素の名前
+     */
+    getName(): string;
+    
+    /**
+     * 要素の絶対パスを取得します
+     * @returns 要素の絶対パス
+     */
+    getPath(): string;
+    
+    /**
+     * 要素のサイズを取得します（バイト単位）
+     * @returns サイズ（バイト）
+     */
+    getSize(): number;
+    
+    /**
+     * 要素の作成日時を取得します
+     * @returns 作成日時
+     */
+    getCreatedAt(): Date;
+    
+    /**
+     * 要素の最終更新日時を取得します
+     * @returns 最終更新日時
+     */
+    getModifiedAt(): Date;
+}
+
+/**
+ * ファイルシステムVisitorのインターフェース
+ * 
+ * ファイルシステム要素を訪問し、それぞれの要素に対して特定の操作を実行します。
+ * 新しい操作を追加する際は、このインターフェースを実装する新しいVisitorを作成します。
+ */
+export interface FileSystemVisitor {
+    /**
+     * ファイルを訪問します
+     * @param file 訪問するファイル
+     */
+    visitFile(file: File): void;
+
+    /**
+     * ディレクトリを訪問します
+     * @param directory 訪問するディレクトリ
+     */
+    visitDirectory(directory: Directory): void;
+
+    /**
+     * シンボリックリンクを訪問します
+     * @param symlink 訪問するシンボリックリンク
+     */
+    visitSymbolicLink(symlink: SymbolicLink): void;
+
+    /**
+     * 訪問結果を取得します
+     * @returns 訪問結果
+     */
+    getResult(): any;
+}
+
+/**
+ * ファイルシステムコンポーネントのインターフェース
+ * 
+ * Visitorパターンと連携するための拡張インターフェースです。
+ * FileSystemElementを継承し、visitorを受け入れるacceptメソッドを追加します。
+ */
+export interface FileSystemComponent extends FileSystemElement {
+    /**
+     * Visitorを受け入れます
+     * @param visitor 訪問者
+     */
+    accept(visitor: FileSystemVisitor): void;
+}
+</code></pre>
+<h3 id="2-ファイル検索の実装"><a class="header" href="#2-ファイル検索の実装">2. ファイル検索の実装</a></h3>
+<pre><code class="language-typescript">/**
+ * 検索条件を定義するインターフェース
+ */
+export interface SearchCriteria {
+    name?: RegExp;           // ファイル名のパターン
+    minSize?: number;        // 最小サイズ（バイト）
+    maxSize?: number;        // 最大サイズ（バイト）
+    createdAfter?: Date;     // この日時以降に作成
+    createdBefore?: Date;    // この日時以前に作成
+    modifiedAfter?: Date;    // この日時以降に更新
+    modifiedBefore?: Date;   // この日時以前に更新
+}
+
+/**
+ * ファイル検索を実行するVisitorクラス
+ */
+export class FileSearcher implements FileSystemVisitor {
+    private results: FileSystemElement[] = [];
+    private criteria: SearchCriteria;
+
+    constructor(criteria: SearchCriteria) {
+        this.criteria = criteria;
+        this.reset();
+    }
+
+    visitFile(file: File): void {
+        if (this.matchesCriteria(file)) {
+            this.results.push(file);
+        }
+    }
+
+    visitDirectory(directory: Directory): void {
+        if (this.matchesCriteria(directory)) {
+            this.results.push(directory);
+        }
+        for (const child of directory.getChildren()) {
+            child.accept(this);
+        }
+    }
+
+    visitSymbolicLink(symlink: SymbolicLink): void {
+        if (this.matchesCriteria(symlink)) {
+            this.results.push(symlink);
+        }
+        const target = symlink.getTarget();
+        if (target) {
+            target.accept(this);
+        }
+    }
+
+    getResult(): FileSystemElement[] {
+        return [...this.results];
+    }
+
+    private matchesCriteria(element: FileSystemElement): boolean {
+        const { name, minSize, maxSize, createdAfter, createdBefore, 
+                modifiedAfter, modifiedBefore } = this.criteria;
+
+        if (name &amp;&amp; !name.test(element.getName())) return false;
+        
+        const size = element.getSize();
+        if (minSize !== undefined &amp;&amp; size &lt; minSize) return false;
+        if (maxSize !== undefined &amp;&amp; size &gt; maxSize) return false;
+
+        const createdAt = element.getCreatedAt();
+        if (createdAfter &amp;&amp; createdAt &lt; createdAfter) return false;
+        if (createdBefore &amp;&amp; createdAt &gt; createdBefore) return false;
+
+        const modifiedAt = element.getModifiedAt();
+        if (modifiedAfter &amp;&amp; modifiedAt &lt; modifiedAfter) return false;
+        if (modifiedBefore &amp;&amp; modifiedAt &gt; modifiedBefore) return false;
+
+        return true;
+    }
+
+    reset(): void {
+        this.results = [];
+    }
+}
+</code></pre>
+<h3 id="3-サイズ計算の実装"><a class="header" href="#3-サイズ計算の実装">3. サイズ計算の実装</a></h3>
+<pre><code class="language-typescript">/**
+ * ファイルシステム要素のサイズを計算するVisitorクラス
+ */
+export class SizeCalculator implements FileSystemVisitor {
+    private totalSize: number = 0;
+    private details: Map&lt;string, number&gt; = new Map();
+
+    visitFile(file: File): void {
+        const size = file.getSize();
+        this.totalSize += size;
+        this.details.set(file.getPath(), size);
+    }
+
+    visitDirectory(directory: Directory): void {
+        let dirSize = 0;
+        for (const child of directory.getChildren()) {
+            const prevSize = this.totalSize;
+            child.accept(this);
+            dirSize += this.totalSize - prevSize;
+        }
+        this.details.set(directory.getPath(), dirSize);
+    }
+
+    visitSymbolicLink(symlink: SymbolicLink): void {
+        const size = symlink.getSize();
+        this.totalSize += size;
+        this.details.set(symlink.getPath(), size);
+    }
+
+    getResult(): number {
+        return this.totalSize;
+    }
+
+    reset(): void {
+        this.totalSize = 0;
+        this.details.clear();
+    }
+
+    static formatSize(bytes: number): string {
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        let size = bytes;
+        let unitIndex = 0;
+
+        while (size &gt;= 1024 &amp;&amp; unitIndex &lt; units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return `${size.toFixed(1)} ${units[unitIndex]}`;
+    }
+}
+</code></pre>
+<h3 id="4-構造視覚化の実装"><a class="header" href="#4-構造視覚化の実装">4. 構造視覚化の実装</a></h3>
+<pre><code class="language-typescript">/**
+ * ファイルシステムの階層構造を視覚化するVisitorクラス
+ */
+export class FileStructureVisualizer implements FileSystemVisitor {
+    private result: string = '';
+    private currentIndent: number = 0;
+    private indentSize: number = 2;
+
+    setIndentSize(size: number): void {
+        if (size &lt; 1) {
+            throw new Error('インデントサイズは1以上の整数である必要があります');
+        }
+        this.indentSize = size;
+    }
+
+    visitFile(file: File): void {
+        this.result += this.getIndentation();
+        this.result += `📄 ${file.getName()} (${this.formatSize(file.getSize())})`;
+        this.result += '\n';
+    }
+
+    visitDirectory(directory: Directory): void {
+        this.result += this.getIndentation();
+        this.result += `📁 ${directory.getName()} (${this.formatSize(directory.getSize())})`;
+        this.result += '\n';
+
+        if (directory.isEmpty()) {
+            this.currentIndent++;
+            this.result += this.getIndentation();
+            this.result += '(空のディレクトリ)';
+            this.result += '\n';
+            this.currentIndent--;
+            return;
+        }
+
+        this.currentIndent++;
+        for (const child of directory.getChildren()) {
+            child.accept(this);
+        }
+        this.currentIndent--;
+    }
+
+    visitSymbolicLink(symlink: SymbolicLink): void {
+        this.result += this.getIndentation();
+        this.result += `🔗 ${symlink.getName()} -&gt; ${symlink.getTargetPath()} `;
+        this.result += `(${this.formatSize(symlink.getSize())})`;
+        this.result += '\n';
+    }
+
+    getResult(): string {
+        return this.result.trim();
+    }
+
+    private getIndentation(): string {
+        return ' '.repeat(this.currentIndent * this.indentSize);
+    }
+
+    private formatSize(bytes: number): string {
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        let size = bytes;
+        let unitIndex = 0;
+
+        while (size &gt;= 1024 &amp;&amp; unitIndex &lt; units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return `${size.toFixed(1)} ${units[unitIndex]}`;
+    }
+
+    reset(): void {
+        this.result = '';
+        this.currentIndent = 0;
+    }
+}
+</code></pre>
+<h3 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h3>
+<pre><code class="language-typescript">// ファイルシステム構造の構築
+const root = new Directory("root", "/");
+
+// ディレクトリの作成
+const home = new Directory("home", "/home");
+const user = new Directory("user", "/home/user");
+const documents = new Directory("documents", "/home/user/documents");
+const pictures = new Directory("pictures", "/home/user/pictures");
+
+// ファイルの作成
+const resume = new File("resume.pdf", 1024 * 1024, "/home/user/documents/resume.pdf");
+const report = new File("report.docx", 2.5 * 1024 * 1024, "/home/user/documents/report.docx");
+const photo1 = new File("vacation.jpg", 5 * 1024 * 1024, "/home/user/pictures/vacation.jpg");
+const photo2 = new File("family.jpg", 3.2 * 1024 * 1024, "/home/user/pictures/family.jpg");
+const config = new File(".config", 2048, "/home/user/.config");
+
+// シンボリックリンクの作成
+const resumeLink = new SymbolicLink("resume-link", resume, "/home/user/resume-link");
+
+// ディレクトリ構造の構築
+root.add(home);
+home.add(user);
+user.add(documents);
+user.add(pictures);
+user.add(config);
+documents.add(resume);
+documents.add(report);
+pictures.add(photo1);
+pictures.add(photo2);
+user.add(resumeLink);
+
+// ファイル検索の使用例
+const criteria: SearchCriteria = {
+  name: /\.jpg$/,
+  minSize: 1024 * 1024,
+  maxSize: 10 * 1024 * 1024
+};
+const fileSearcher = new FileSearcher(criteria);
+
+// ルートディレクトリから検索を開始
+root.accept(fileSearcher);
+
+// 検索結果の取得と表示
+const foundFiles = fileSearcher.getResult();
+console.log("JPG画像ファイル検索結果:");
+foundFiles.forEach(file =&gt; {
+  console.log(`- ${file.getName()}: ${file.getSize()} bytes (${file.getPath()})`);
+});
+
+// サイズ計算の使用例
+const sizeCalculator = new SizeCalculator();
+
+// picturesディレクトリのサイズを計算
+pictures.accept(sizeCalculator);
+console.log(`写真ディレクトリのサイズ: ${SizeCalculator.formatSize(sizeCalculator.getResult())}`);
+
+// rootディレクトリのサイズを計算
+sizeCalculator.reset();
+root.accept(sizeCalculator);
+console.log(`総合ディレクトリサイズ: ${SizeCalculator.formatSize(sizeCalculator.getResult())}`);
+
+// ファイル構造の視覚化の使用例
+const visualizer = new FileStructureVisualizer();
+visualizer.setIndentSize(2); // インデントサイズの設定
+
+// ルートディレクトリの構造を視覚化
+root.accept(visualizer);
+console.log("ファイル構造:");
+console.log(visualizer.getResult());
+</code></pre>
+<p>出力例：</p>
+<pre><code>JPG画像ファイル検索結果:
+- vacation.jpg: 5242880 bytes (/home/user/pictures/vacation.jpg)
+- family.jpg: 3355443 bytes (/home/user/pictures/family.jpg)
+写真ディレクトリのサイズ: 8.2 MB
+総合ディレクトリサイズ: 12.1 MB
+ファイル構造:
+/
+└─ home/
+   └─ user/
+      ├─ documents/
+      │  ├─ resume.pdf (1.0 MB)
+      │  └─ report.docx (2.5 MB)
+      ├─ pictures/
+      │  ├─ vacation.jpg (5.0 MB)
+      │  └─ family.jpg (3.2 MB)
+      ├─ .config (2.0 KB)
+      └─ resume-link -&gt; /home/user/documents/resume.pdf (1.0 MB)
+</code></pre>
+<h2 id="テスト戦略"><a class="header" href="#テスト戦略">テスト戦略</a></h2>
+<h3 id="1-テストの種類と目的"><a class="header" href="#1-テストの種類と目的">1. テストの種類と目的</a></h3>
+<p>ファイルシステムのVisitorパターン実装をテストするために、以下のテストを実施します：</p>
+<ol>
+<li>
+<p><strong>単体テスト</strong>：</p>
+<ul>
+<li>各Visitorクラスが個別に正しく動作することを確認</li>
+<li>各ファイルシステム要素クラスが正しく状態を管理していることを確認</li>
+<li>エラーケースや境界条件のハンドリングを検証</li>
+</ul>
+</li>
+<li>
+<p><strong>統合テスト</strong>：</p>
+<ul>
+<li>複数のVisitorが同じファイルシステム構造に対して連続して動作することを確認</li>
+<li>実際のユースケースを模擬したシナリオテスト</li>
+</ul>
+</li>
+<li>
+<p><strong>パフォーマンステスト</strong>：</p>
+<ul>
+<li>大規模なファイルシステム構造に対する効率性の検証</li>
+<li>メモリ使用量の監視</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-テストケース例"><a class="header" href="#2-テストケース例">2. テストケース例</a></h3>
+<h4 id="filesearcherのテスト"><a class="header" href="#filesearcherのテスト">FileSearcherのテスト</a></h4>
+<pre><code class="language-typescript">describe('FileSearcher', () =&gt; {
+  let root: Directory;
+  let documents: Directory;
+  let pictures: Directory;
+  let textFile1: File;
+  let textFile2: File;
+  let imageFile1: File;
+  let imageFile2: File;
+    let searcher: FileSearcher;
+
+    beforeEach(() =&gt; {
+    // テスト用のファイルシステム構造を構築
+    root = new Directory('root');
+    documents = new Directory('documents', '/documents');
+    pictures = new Directory('pictures', '/pictures');
+    
+    textFile1 = new File('report.txt', 1024, '/documents/report.txt');
+    textFile2 = new File('notes.txt', 512, '/documents/notes.txt');
+    imageFile1 = new File('photo.jpg', 2048, '/pictures/photo.jpg');
+    imageFile2 = new File('screenshot.png', 4096, '/pictures/screenshot.png');
+    
+    root.add(documents);
+    root.add(pictures);
+    documents.add(textFile1);
+    documents.add(textFile2);
+    pictures.add(imageFile1);
+    pictures.add(imageFile2);
+    
+    searcher = new FileSearcher();
+  });
+  
+  test('名前パターンによるファイル検索', () =&gt; {
+    searcher.setSearchCriteria({ namePattern: /\.txt$/ });
+    root.accept(searcher);
+    const result = searcher.getResult();
+    
+    expect(result.length).toBe(2);
+    expect(result).toContain(textFile1);
+    expect(result).toContain(textFile2);
+    expect(result).not.toContain(imageFile1);
+    expect(result).not.toContain(imageFile2);
+  });
+  
+  test('サイズ範囲によるファイル検索', () =&gt; {
+    searcher.setSearchCriteria({ minSize: 1000, maxSize: 3000 });
+    root.accept(searcher);
+    const result = searcher.getResult();
+    
+    expect(result.length).toBe(2);
+    expect(result).toContain(textFile1);
+    expect(result).toContain(imageFile1);
+    expect(result).not.toContain(textFile2); // 512バイトは範囲外
+    expect(result).not.toContain(imageFile2); // 4096バイトは範囲外
+  });
+  
+  test('複合条件によるファイル検索', () =&gt; {
+    searcher.setSearchCriteria({
+      namePattern: /\.(jpg|png)$/,
+      minSize: 3000
+    });
+    root.accept(searcher);
+    const result = searcher.getResult();
+    
+    expect(result.length).toBe(1);
+    expect(result).toContain(imageFile2);
+  });
+  
+  test('不正な検索条件の処理', () =&gt; {
+    // 不正な正規表現パターン
+    expect(() =&gt; {
+      searcher.setSearchCriteria({ namePattern: /[/ });
+    }).toThrow();
+    
+    // 負のサイズ値
+    expect(() =&gt; {
+      searcher.setSearchCriteria({ minSize: -100 });
+    }).toThrow();
+  });
+});
+</code></pre>
+<h4 id="sizecalculatorのテスト"><a class="header" href="#sizecalculatorのテスト">SizeCalculatorのテスト</a></h4>
+<pre><code class="language-typescript">describe('SizeCalculator', () =&gt; {
+  let root: Directory;
+  let file1: File;
+  let file2: File;
+  let emptyDir: Directory;
+  let calculator: SizeCalculator;
+  
+  beforeEach(() =&gt; {
+    root = new Directory('root', '/');
+    file1 = new File('file1.txt', 1024, '/file1.txt');
+    file2 = new File('file2.txt', 2048, '/file2.txt');
+    emptyDir = new Directory('empty', '/empty');
+    
+    root.add(file1);
+    root.add(file2);
+    root.add(emptyDir);
+    
+    calculator = new SizeCalculator();
+  });
+  
+  test('ファイルシステム全体のサイズ計算', () =&gt; {
+    root.accept(calculator);
+    
+    // ファイル合計: 1024 + 2048 = 3072
+    // ディレクトリメタデータサイズ: root: 4096, empty: 4096 = 8192
+    // 合計: 11264バイト
+    
+    calculator.setSizeFormat('bytes');
+    expect(calculator.getResult()).toBe('11264 bytes');
+    
+    calculator.setSizeFormat('human');
+    expect(calculator.getResult()).toBe('11.0 KB');
+  });
+  
+  test('空のディレクトリサイズ計算', () =&gt; {
+    emptyDir.accept(calculator);
+    
+    calculator.setSizeFormat('bytes');
+    expect(calculator.getResult()).toBe('4096 bytes'); // ディレクトリメタデータのみ
+  });
+  
+  test('計算リセット機能', () =&gt; {
+    root.accept(calculator);
+    expect(parseInt(calculator.getResult())).toBeGreaterThan(0);
+    
+    calculator.resetTotalSize();
+    calculator.setSizeFormat('bytes');
+    expect(calculator.getResult()).toBe('0 bytes');
+  });
+});
+</code></pre>
+<h4 id="filestructurevisualizerのテスト"><a class="header" href="#filestructurevisualizerのテスト">FileStructureVisualizerのテスト</a></h4>
+<pre><code class="language-typescript">describe('FileStructureVisualizer', () =&gt; {
+  let root: Directory;
+  let documents: Directory;
+  let imageFile: File;
+  let visualizer: FileStructureVisualizer;
+  
+  beforeEach(() =&gt; {
+    root = new Directory('root', '/');
+    documents = new Directory('documents', '/documents');
+    imageFile = new File('photo.jpg', 1024 * 1024, '/documents/photo.jpg');
+    
+    root.add(documents);
+    documents.add(imageFile);
+    
+    visualizer = new FileStructureVisualizer();
+  });
+  
+  test('ファイル構造の視覚化', () =&gt; {
+    root.accept(visualizer);
+    const result = visualizer.getResult();
+    
+    // 結果に特定の構造が含まれていることを確認
+    expect(result).toContain('/');
+    expect(result).toContain('documents/');
+    expect(result).toContain('photo.jpg');
+    expect(result).toContain('1.0 MB'); // サイズ表示
+  });
+  
+  test('インデントサイズの設定', () =&gt; {
+    visualizer.setIndentSize(4);
+    root.accept(visualizer);
+    const result = visualizer.getResult();
+    
+    // 4スペースのインデントが使用されていることを確認
+    expect(result).toContain('\n    ');
+  });
+  
+  test('不正なインデントサイズの処理', () =&gt; {
+    expect(() =&gt; {
+      visualizer.setIndentSize(-1);
+    }).toThrow();
+    
+    expect(() =&gt; {
+      visualizer.setIndentSize(0);
+    }).toThrow();
+  });
+});
+</code></pre>
+<h4 id="統合テスト"><a class="header" href="#統合テスト">統合テスト</a></h4>
+<pre><code class="language-typescript">describe('Visitor統合テスト', () =&gt; {
+  let fileSystem: Directory;
+  
+  beforeEach(() =&gt; {
+    // 複雑なファイルシステム構造を構築
+    fileSystem = createTestFileSystem();
+  });
+  
+  test('複数のVisitorの連続適用', () =&gt; {
+    // ファイル検索
+    const searcher = new FileSearcher();
+    searcher.setSearchCriteria({ namePattern: /\.txt$/ });
+    fileSystem.accept(searcher);
+    const searchResults = searcher.getResult();
+    
+    // サイズ計算
+    const calculator = new SizeCalculator();
+    fileSystem.accept(calculator);
+    const totalSize = calculator.getResult();
+    
+    // 構造視覚化
+    const visualizer = new FileStructureVisualizer();
+    fileSystem.accept(visualizer);
+    const structure = visualizer.getResult();
+    
+    // 検証
+    expect(searchResults.length).toBe(3); // .tsファイルは3つ
+    expect(totalSize).toBeGreaterThan(15000); // 合計サイズは15KB以上
+    expect(structure).toContain('project');
+    expect(structure).toContain('src');
+    expect(structure).toContain('tests');
+    expect(structure).toContain('docs');
+  });
+});
+</code></pre>
+<h3 id="3-カバレッジ目標"><a class="header" href="#3-カバレッジ目標">3. カバレッジ目標</a></h3>
+<p>以下のカバレッジ目標を設定します：</p>
+<ul>
+<li><strong>ステートメントカバレッジ</strong>: 90%以上</li>
+<li><strong>分岐カバレッジ</strong>: 85%以上</li>
+<li><strong>関数カバレッジ</strong>: 95%以上</li>
+<li><strong>行カバレッジ</strong>: 90%以上</li>
+</ul>
+<h3 id="4-テスト実行方法"><a class="header" href="#4-テスト実行方法">4. テスト実行方法</a></h3>
+<p>テストはJestフレームワークを使用して実行します：</p>
+<pre><code class="language-bash"># すべてのテストを実行
+npm test
+
+# 特定のテストファイルのみ実行
+npm test -- FileSearcher.test.ts
+
+# カバレッジレポートの生成
+npm test -- --coverage
+</code></pre>
+<h3 id="5-セキュリティ考慮事項"><a class="header" href="#5-セキュリティ考慮事項">5. セキュリティ考慮事項</a></h3>
+<p>ファイルシステム操作に関連するセキュリティ考慮事項として、以下の点に注意します：</p>
+<ol>
+<li>
+<p><strong>無限再帰の防止</strong>:</p>
+<ul>
+<li>シンボリックリンクが循環参照を作成している場合の無限再帰を防止するメカニズム</li>
+<li>訪問した要素を追跡する訪問履歴の管理</li>
+</ul>
+<pre><code class="language-typescript">class SafeFileSystemVisitor implements FileSystemVisitor {
+  private visitedPaths = new Set&lt;string&gt;();
+  
+  visitDirectory(directory: Directory): void {
+    const path = directory.getPath();
+    if (this.visitedPaths.has(path)) {
+      // 循環検出、処理をスキップ
+      return;
+    }
+    
+    this.visitedPaths.add(path);
+    // 通常の処理...
+  }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>リソース消費の制限</strong>:</p>
+<ul>
+<li>大きなファイルシステム構造を処理する際のメモリ使用量の制限</li>
+<li>処理時間の制限と定期的な進捗報告</li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-typescript">   class ResourceAwareVisitor implements FileSystemVisitor {
+     private processedCount = 0;
+     private readonly maxItems = 10000;
+     
+     visitFile(file: File): void {
+       if (this.processedCount &gt;= this.maxItems) {
+         throw new Error("処理項目数の上限に達しました");
+       }
+       
+       this.processedCount++;
+       // 通常の処理...
+     }
+   }
+</code></pre>
+<ol start="3">
+<li>
+<p><strong>入力検証</strong>:</p>
+<ul>
+<li>ファイル名やパスに含まれる特殊文字の適切な処理</li>
+<li>検索パターンなどのユーザー入力の検証</li>
+</ul>
+<pre><code class="language-typescript">class ValidatingFileSearcher extends FileSearcher {
+  setSearchCriteria(criteria: SearchCriteria): void {
+    // namePatternの検証
+    if (criteria.namePattern &amp;&amp; !(criteria.namePattern instanceof RegExp)) {
+      throw new Error("namePatternは有効な正規表現である必要があります");
+    }
+    
+    // サイズ範囲の検証
+     if (criteria.minSize !== undefined &amp;&amp; criteria.minSize &lt; 0) {
+      throw new Error("minSizeは0以上である必要があります");
+    }
+    
+    if (criteria.maxSize !== undefined &amp;&amp; criteria.maxSize &lt; 0) {
+      throw new Error("maxSizeは0以上である必要があります");
+    }
+    
+    if (criteria.minSize !== undefined &amp;&amp; 
+        criteria.maxSize !== undefined &amp;&amp; 
+        criteria.minSize &gt; criteria.maxSize) {
+      throw new Error("minSizeはmaxSize以下である必要があります");
+    }
+    
+    super.setSearchCriteria(criteria);
+ }
+</code></pre>
+</li>
+</ol>
+<p>}</p>
+<pre><code>
+## 実装の評価
+
+Visitorパターンは、データ構造と操作を分離することで、新しい機能を容易に追加できるようにするための強力なデザインパターンです。このドキュメントでは、ファイルシステム操作の文脈でVisitorパターンの実装例を示しました。
+
+### 主要なポイント
+
+1. **分離の原則**
+   - データ構造（ファイル、ディレクトリ）と操作（検索、計算、視覚化）を明確に分離
+   - 新しい操作を追加する際にデータ構造を変更する必要がない
+
+2. **拡張性**
+   - 新しいビジターを追加するだけで、新機能を実装可能
+   - データ構造の変更に強い設計
+
+3. **クリーンな実装**
+   - インターフェースを通じた明確な責任分担
+   - 型安全なポリモーフィックな操作
+
+4. **実践的な応用**
+   - ファイルシステム
+   - 抽象構文木
+   - UI要素
+   - データ構造
+
+### 注意点
+
+1. **複雑性**
+   - クラス数が増加する可能性
+   - 関連するインターフェースと実装の理解が必要
+
+2. **パフォーマンス考慮**
+   - 再帰処理の最適化
+   - メモリ使用量の管理
+
+3. **適用範囲**
+   - 安定したデータ構造に対して最も効果的
+   - 頻繁に変更されるデータ構造には不向き
+
+Visitorパターンは、「操作」と「データ」の分離を重視する状況で特に価値を発揮します。このパターンを適切に活用することで、保守性、拡張性、そして再利用性の高いコードを実現することができます。
+
+## 参考資料
+
+1. Gamma, E., Helm, R., Johnson, R., &amp; Vlissides, J. (1994). Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley.
+2. Martin, R. C. (2017). Clean Architecture: A Craftsman's Guide to Software Structure and Design. Prentice Hall.
+3. Fowler, M. (2002). Patterns of Enterprise Application Architecture. Addison-Wesley.
+4. [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+5. [リファクタリング・グル - Visitorパターン](https://refactoring.guru/ja/design-patterns/visitor) </code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/template-method.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/creational/abstract-factory.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/template-method.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/creational/abstract-factory.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

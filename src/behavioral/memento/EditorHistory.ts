@@ -1,74 +1,65 @@
 /**
- * エディタの履歴を管理するクラス
+ * エディタの履歴管理システム
  * 
- * 複数の状態を保存し、元に戻す（Undo）や再実行（Redo）機能を提供します。
+ * テキストエディタの状態履歴を管理し、Undo/Redo機能を提供します。
+ * - 状態の保存
+ * - 状態の復元
+ * - Undo/Redo操作
+ * - 履歴の分岐管理
  */
 
-import { EditorMemento } from './TextEditor';
+import { EditorMemento } from './EditorMemento';
 
+/**
+ * エディタの履歴を管理するクラス
+ */
 export class EditorHistory {
     private history: EditorMemento[] = [];
     private currentIndex: number = -1;
 
     /**
-     * 新しい状態を保存します
-     * @param memento 保存する状態
+     * 現在の状態を保存します
      */
-    push(memento: EditorMemento): void {
-        // 現在位置より後の履歴を削除
+    save(memento: EditorMemento): void {
+        // 現在の位置より後の履歴を削除
         if (this.currentIndex < this.history.length - 1) {
             this.history = this.history.slice(0, this.currentIndex + 1);
         }
-
         this.history.push(memento);
-        this.currentIndex++;
+        this.currentIndex = this.history.length - 1;
     }
 
     /**
-     * 一つ前の状態を取得します（Undo）
+     * 前の状態に戻ります
      */
     undo(): EditorMemento | null {
-        if (this.currentIndex <= 0) {
-            return null;
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            return this.history[this.currentIndex];
         }
-        this.currentIndex--;
-        return this.history[this.currentIndex];
+        return null;
     }
 
     /**
-     * 一つ後の状態を取得します（Redo）
+     * 次の状態に進みます
      */
     redo(): EditorMemento | null {
-        if (this.currentIndex >= this.history.length - 1) {
-            return null;
+        if (this.currentIndex < this.history.length - 1) {
+            this.currentIndex++;
+            return this.history[this.currentIndex];
         }
-        this.currentIndex++;
-        return this.history[this.currentIndex];
+        return null;
     }
 
     /**
-     * 現在の履歴の位置を取得します
+     * 指定された位置の状態を取得します
      */
-    getCurrentIndex(): number {
-        return this.currentIndex;
-    }
-
-    /**
-     * 履歴の総数を取得します
-     */
-    getHistorySize(): number {
-        return this.history.length;
-    }
-
-    /**
-     * 特定の時点の状態を取得します
-     * @param index インデックス
-     */
-    getStateAt(index: number): EditorMemento | null {
-        if (index < 0 || index >= this.history.length) {
-            return null;
+    getState(index: number): EditorMemento | null {
+        if (index >= 0 && index < this.history.length) {
+            this.currentIndex = index;
+            return this.history[index];
         }
-        return this.history[index];
+        return null;
     }
 
     /**
@@ -77,5 +68,19 @@ export class EditorHistory {
     clear(): void {
         this.history = [];
         this.currentIndex = -1;
+    }
+
+    /**
+     * 履歴のサイズを取得します
+     */
+    getHistorySize(): number {
+        return this.history.length;
+    }
+
+    /**
+     * 現在の履歴インデックスを取得します
+     */
+    getCurrentIndex(): number {
+        return this.currentIndex;
     }
 } 

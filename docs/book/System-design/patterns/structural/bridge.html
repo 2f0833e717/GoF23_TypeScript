@@ -1,0 +1,855 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>bridge - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/structural/bridge.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="bridgeパターン---抽象と実装の分離"><a class="header" href="#bridgeパターン---抽象と実装の分離">Bridgeパターン - 抽象と実装の分離</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Bridgeパターン（ブリッジ・パターン）は、抽象部分と実装部分を分離し、それぞれを独立に変更できるようにするデザインパターンです。これにより、実装の詳細を抽象から切り離し、両者を独立に進化させることができます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>抽象と実装の結合度を下げる</li>
+<li>抽象と実装をそれぞれ独立に拡張できるようにする</li>
+<li>実装の詳細を抽象から隠蔽する</li>
+<li>クライアントに実装の詳細を見せずに機能を提供する</li>
+<li>クラス階層の爆発的増加を防ぐ</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>抽象と実装の両方に対して独立した拡張が必要な場合</li>
+<li>実装の詳細を完全にクライアントから隠蔽したい場合</li>
+<li>複数のプラットフォームで動作するアプリケーション</li>
+<li>複数のデータベースをサポートするシステム</li>
+<li>異なるGUIフレームワークをサポートするアプリケーション</li>
+<li>ドライバやレンダラーを切り替え可能にしたい場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Abstraction {
+        -implementor: Implementor
+        +operation()
+    }
+    
+    class RefinedAbstraction {
+        +operation()
+        +additionalOperation()
+    }
+    
+    class Implementor {
+        +operationImpl()
+    }
+    
+    class ConcreteImplementorA {
+        +operationImpl()
+    }
+    
+    class ConcreteImplementorB {
+        +operationImpl()
+    }
+    
+    class Client {
+        +executeOperation()
+    }
+    
+    Abstraction &lt;|-- RefinedAbstraction
+    Abstraction o-- Implementor
+    Implementor &lt;|.. ConcreteImplementorA
+    Implementor &lt;|.. ConcreteImplementorB
+    Client --&gt; Abstraction
+    
+    note for Abstraction &quot;抽象部分のインターフェース\n実装部分への参照を保持&quot;
+    note for RefinedAbstraction &quot;抽象部分の拡張\n基本インターフェースを拡張&quot;
+    note for Implementor &quot;実装部分のインターフェース\n抽象部分から独立&quot;
+    note for ConcreteImplementorA &quot;実装Aの具体クラス&quot;
+    note for ConcreteImplementorB &quot;実装Bの具体クラス&quot;
+    note for Client &quot;抽象部分を使用\n実装部分を意識しない&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Abstraction</td><td>クラス</td><td>抽象部分のインターフェースを定義、実装部分への参照を保持</td><td>Implementorを使用、RefinedAbstractionの親</td></tr>
+<tr><td>RefinedAbstraction</td><td>クラス</td><td>Abstractionのインターフェースを拡張</td><td>Abstractionを継承</td></tr>
+<tr><td>Implementor</td><td>インターフェース</td><td>実装部分のインターフェースを定義</td><td>ConcreteImplementorの親インターフェース</td></tr>
+<tr><td>ConcreteImplementor</td><td>クラス</td><td>Implementorインターフェースの具体的な実装</td><td>Implementorを実装</td></tr>
+<tr><td>Client</td><td>クラス</td><td>Abstractionを使用して操作を実行</td><td>Abstractionを使用</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Abstractionはクライアントからの要求をImplementorの操作に変換する</li>
+<li>Implementorはプラットフォーム固有の操作を提供する</li>
+<li>AbstractionとImplementorは独立して変更・拡張が可能</li>
+<li>RefinedAbstractionはAbstractionのインターフェースを拡張して追加機能を提供</li>
+<li>クライアントはAbstractionのみと対話し、Implementorを直接扱わない</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant RefinedAbstraction
+    participant ConcreteImplementor
+    
+    Client-&gt;&gt;RefinedAbstraction: operation()
+    activate RefinedAbstraction
+    
+    Note over RefinedAbstraction: 前処理
+    
+    RefinedAbstraction-&gt;&gt;ConcreteImplementor: operationImpl()
+    activate ConcreteImplementor
+    ConcreteImplementor--&gt;&gt;RefinedAbstraction: 結果
+    deactivate ConcreteImplementor
+    
+    Note over RefinedAbstraction: 後処理
+    
+    RefinedAbstraction--&gt;&gt;Client: 最終結果
+    deactivate RefinedAbstraction
+    
+    Client-&gt;&gt;RefinedAbstraction: additionalOperation()
+    activate RefinedAbstraction
+    
+    RefinedAbstraction-&gt;&gt;ConcreteImplementor: operationImpl()
+    activate ConcreteImplementor
+    ConcreteImplementor--&gt;&gt;RefinedAbstraction: 結果
+    deactivate ConcreteImplementor
+    
+    Note over RefinedAbstraction: 拡張処理
+    
+    RefinedAbstraction--&gt;&gt;Client: 拡張結果
+    deactivate RefinedAbstraction
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[Clientが実行される]
+    B --&gt; C[ConcreteImplementorの選択・作成]
+    C --&gt; D[Implementorを使ってAbstractionを作成]
+    D --&gt; E[ClientがAbstractionのoperationを呼び出す]
+    E --&gt; F[Abstractionが必要な前処理を実行]
+    F --&gt; G[Abstractionが実装部分のoperationImplを呼び出す]
+    G --&gt; H[ConcreteImplementorが実際の処理を実行]
+    H --&gt; I[結果がAbstractionに返される]
+    I --&gt; J[Abstractionが必要な後処理を適用]
+    J --&gt; K[最終結果がClientに返される]
+    K --&gt; L[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-異なるプラットフォームでの描画"><a class="header" href="#シナリオ1-異なるプラットフォームでの描画">シナリオ1: 異なるプラットフォームでの描画</a></h4>
+<ol>
+<li>アプリケーションが起動し、現在のプラットフォーム（Windows、MacOS、Linux）を検出</li>
+<li>適切なレンダリングエンジン（ConcreteImplementor）が選択される</li>
+<li>様々な形状（Circle、Rectangle）のRefinedAbstractionオブジェクトが作成される</li>
+<li>各形状オブジェクトはプラットフォーム固有のレンダリングエンジンを使用</li>
+<li>ユーザーがアプリケーション上で形状を描画</li>
+<li>形状はレンダリングエンジンの適切なメソッドを呼び出して描画を行う</li>
+<li>形状の表示はプラットフォームに適した方法で行われる</li>
+</ol>
+<h4 id="シナリオ2-データベース接続の抽象化"><a class="header" href="#シナリオ2-データベース接続の抽象化">シナリオ2: データベース接続の抽象化</a></h4>
+<ol>
+<li>システムがデータベース設定をロードし、必要なデータベース（MySQL、PostgreSQL、MongoDB）を特定</li>
+<li>対応するデータベースドライバ（ConcreteImplementor）がインスタンス化される</li>
+<li>様々なデータアクセスオブジェクト（RefinedAbstraction）が作成される</li>
+<li>各DAOは特定のデータベースドライバを使用するが、共通のインターフェースを提供</li>
+<li>アプリケーションがデータアクセス操作（検索、保存、更新）を要求</li>
+<li>DAOは操作をデータベース固有の実装に変換</li>
+<li>操作結果がアプリケーションに返される</li>
+<li>将来的にデータベースが変更された場合も、アプリケーションコードは変更不要</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Implementor - 描画エンジンのインターフェース
+ * プラットフォーム固有の描画操作を定義
+ */
+interface DrawingAPI {
+  /**
+   * 線を描画する
+   * @param x1 開始点のX座標
+   * @param y1 開始点のY座標
+   * @param x2 終了点のX座標
+   * @param y2 終了点のY座標
+   */
+  drawLine(x1: number, y1: number, x2: number, y2: number): void;
+  
+  /**
+   * 円を描画する
+   * @param x 中心点のX座標
+   * @param y 中心点のY座標
+   * @param radius 半径
+   */
+  drawCircle(x: number, y: number, radius: number): void;
+  
+  /**
+   * テキストを描画する
+   * @param x X座標
+   * @param y Y座標
+   * @param text 描画するテキスト
+   */
+  drawText(x: number, y: number, text: string): void;
+  
+  /**
+   * 描画APIの名前を取得する
+   * @returns 描画APIの名前
+   */
+  getAPIName(): string;
+}
+
+/**
+ * ConcreteImplementorA - Windows用描画API実装
+ */
+class WindowsDrawingAPI implements DrawingAPI {
+  /**
+   * 線を描画する
+   * @param x1 開始点のX座標
+   * @param y1 開始点のY座標
+   * @param x2 終了点のX座標
+   * @param y2 終了点のY座標
+   */
+  drawLine(x1: number, y1: number, x2: number, y2: number): void {
+    console.log(`WindowsAPI: 線描画 (${x1},${y1}) から (${x2},${y2})`);
+  }
+  
+  /**
+   * 円を描画する
+   * @param x 中心点のX座標
+   * @param y 中心点のY座標
+   * @param radius 半径
+   */
+  drawCircle(x: number, y: number, radius: number): void {
+    console.log(`WindowsAPI: 円描画 中心(${x},${y}), 半径${radius}`);
+  }
+  
+  /**
+   * テキストを描画する
+   * @param x X座標
+   * @param y Y座標
+   * @param text 描画するテキスト
+   */
+  drawText(x: number, y: number, text: string): void {
+    console.log(`WindowsAPI: テキスト描画 (${x},${y}): "${text}"`);
+  }
+  
+  /**
+   * 描画APIの名前を取得する
+   * @returns 描画APIの名前
+   */
+  getAPIName(): string {
+    return "Windows GDI";
+  }
+}
+
+/**
+ * ConcreteImplementorB - MacOS用描画API実装
+ */
+class MacDrawingAPI implements DrawingAPI {
+  /**
+   * 線を描画する
+   * @param x1 開始点のX座標
+   * @param y1 開始点のY座標
+   * @param x2 終了点のX座標
+   * @param y2 終了点のY座標
+   */
+  drawLine(x1: number, y1: number, x2: number, y2: number): void {
+    console.log(`MacAPI: 線描画 (${x1},${y1}) から (${x2},${y2})`);
+  }
+  
+  /**
+   * 円を描画する
+   * @param x 中心点のX座標
+   * @param y 中心点のY座標
+   * @param radius 半径
+   */
+  drawCircle(x: number, y: number, radius: number): void {
+    console.log(`MacAPI: 円描画 中心(${x},${y}), 半径${radius}`);
+  }
+  
+  /**
+   * テキストを描画する
+   * @param x X座標
+   * @param y Y座標
+   * @param text 描画するテキスト
+   */
+  drawText(x: number, y: number, text: string): void {
+    console.log(`MacAPI: テキスト描画 (${x},${y}): "${text}"`);
+  }
+  
+  /**
+   * 描画APIの名前を取得する
+   * @returns 描画APIの名前
+   */
+  getAPIName(): string {
+    return "Mac Quartz";
+  }
+}
+
+/**
+ * Abstraction - 図形の抽象基底クラス
+ */
+abstract class Shape {
+  protected drawingAPI: DrawingAPI;
+  
+  /**
+   * コンストラクタ
+   * @param drawingAPI 描画APIの実装
+   */
+  constructor(drawingAPI: DrawingAPI) {
+    this.drawingAPI = drawingAPI;
+  }
+  
+  /**
+   * 図形を描画する（サブクラスで実装）
+   */
+  abstract draw(): void;
+  
+  /**
+   * 図形の情報を文字列として取得する（サブクラスで実装）
+   * @returns 図形の情報
+   */
+  abstract toString(): string;
+  
+  /**
+   * 使用しているAPIの名前を取得する
+   * @returns 使用中のAPIの名前
+   */
+  getAPIName(): string {
+    return this.drawingAPI.getAPIName();
+  }
+}
+
+/**
+ * RefinedAbstraction A - 円の図形クラス
+ */
+class Circle extends Shape {
+  private x: number;
+  private y: number;
+  private radius: number;
+  
+  /**
+   * コンストラクタ
+   * @param x 中心点のX座標
+   * @param y 中心点のY座標
+   * @param radius 半径
+   * @param drawingAPI 描画APIの実装
+   */
+  constructor(x: number, y: number, radius: number, drawingAPI: DrawingAPI) {
+    super(drawingAPI);
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+  }
+  
+  /**
+   * 円を描画する
+   */
+  draw(): void {
+    this.drawingAPI.drawCircle(this.x, this.y, this.radius);
+  }
+  
+  /**
+   * 円の情報を取得する
+   * @returns 円の情報文字列
+   */
+  toString(): string {
+    return `円 [中心点(${this.x},${this.y}), 半径${this.radius}]`;
+  }
+  
+  /**
+   * 円の面積を計算する（拡張された操作）
+   * @returns 円の面積
+   */
+  getArea(): number {
+    return Math.PI * this.radius * this.radius;
+  }
+}
+
+/**
+ * RefinedAbstraction B - 四角形の図形クラス
+ */
+class Rectangle extends Shape {
+  private x1: number;
+  private y1: number;
+  private x2: number;
+  private y2: number;
+  
+  /**
+   * コンストラクタ
+   * @param x1 左上のX座標
+   * @param y1 左上のY座標
+   * @param x2 右下のX座標
+   * @param y2 右下のY座標
+   * @param drawingAPI 描画APIの実装
+   */
+  constructor(x1: number, y1: number, x2: number, y2: number, drawingAPI: DrawingAPI) {
+    super(drawingAPI);
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+  }
+  
+  /**
+   * 四角形を描画する
+   */
+  draw(): void {
+    // 四角形を4本の線で描画
+    this.drawingAPI.drawLine(this.x1, this.y1, this.x2, this.y1); // 上辺
+    this.drawingAPI.drawLine(this.x2, this.y1, this.x2, this.y2); // 右辺
+    this.drawingAPI.drawLine(this.x2, this.y2, this.x1, this.y2); // 下辺
+    this.drawingAPI.drawLine(this.x1, this.y2, this.x1, this.y1); // 左辺
+  }
+  
+  /**
+   * 四角形の情報を取得する
+   * @returns 四角形の情報文字列
+   */
+  toString(): string {
+    return `四角形 [左上(${this.x1},${this.y1}), 右下(${this.x2},${this.y2})]`;
+  }
+  
+  /**
+   * 四角形の面積を計算する（拡張された操作）
+   * @returns 四角形の面積
+   */
+  getArea(): number {
+    return Math.abs((this.x2 - this.x1) * (this.y2 - this.y1));
+  }
+  
+  /**
+   * 四角形にラベルを描画する（拡張された操作）
+   * @param text ラベルテキスト
+   */
+  drawLabel(text: string): void {
+    const centerX = (this.x1 + this.x2) / 2;
+    const centerY = (this.y1 + this.y2) / 2;
+    this.drawingAPI.drawText(centerX, centerY, text);
+  }
+}
+</code></pre>
+<h3 id="42-使用例"><a class="header" href="#42-使用例">4.2 使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * クライアントコード
+ */
+function clientCode() {
+  // 異なる実装を用意
+  const windowsAPI = new WindowsDrawingAPI();
+  const macAPI = new MacDrawingAPI();
+  
+  console.log("Bridgeパターンのデモ - プラットフォーム固有の描画API");
+  console.log("----------------------------------------------------");
+  
+  // 円を作成（Windows実装と連携）
+  const circleOnWindows = new Circle(100, 100, 50, windowsAPI);
+  console.log(`作成した図形: ${circleOnWindows.toString()}`);
+  console.log(`使用しているAPI: ${circleOnWindows.getAPIName()}`);
+  console.log("描画実行:");
+  circleOnWindows.draw();
+  console.log(`円の面積: ${circleOnWindows.getArea().toFixed(2)}`);
+  
+  console.log("\n");
+  
+  // 同じ円をMac実装で描画
+  const circleOnMac = new Circle(100, 100, 50, macAPI);
+  console.log(`作成した図形: ${circleOnMac.toString()}`);
+  console.log(`使用しているAPI: ${circleOnMac.getAPIName()}`);
+  console.log("描画実行:");
+  circleOnMac.draw();
+  console.log(`円の面積: ${circleOnMac.getArea().toFixed(2)}`);
+  
+  console.log("\n");
+  
+  // 四角形をWindows実装で描画
+  const rectangleOnWindows = new Rectangle(10, 10, 110, 60, windowsAPI);
+  console.log(`作成した図形: ${rectangleOnWindows.toString()}`);
+  console.log(`使用しているAPI: ${rectangleOnWindows.getAPIName()}`);
+  console.log("描画実行:");
+  rectangleOnWindows.draw();
+  console.log(`四角形の面積: ${rectangleOnWindows.getArea()}`);
+  console.log("ラベル追加:");
+  rectangleOnWindows.drawLabel("Windowsの四角形");
+  
+  console.log("\n");
+  
+  // 同じ四角形をMac実装で描画
+  const rectangleOnMac = new Rectangle(10, 10, 110, 60, macAPI);
+  console.log(`作成した図形: ${rectangleOnMac.toString()}`);
+  console.log(`使用しているAPI: ${rectangleOnMac.getAPIName()}`);
+  console.log("描画実行:");
+  rectangleOnMac.draw();
+  console.log(`四角形の面積: ${rectangleOnMac.getArea()}`);
+  console.log("ラベル追加:");
+  rectangleOnMac.drawLabel("Macの四角形");
+}
+
+// クライアントコードを実行
+clientCode();
+
+// 出力例:
+// Bridgeパターンのデモ - プラットフォーム固有の描画API
+// ----------------------------------------------------
+// 作成した図形: 円 [中心点(100,100), 半径50]
+// 使用しているAPI: Windows GDI
+// 描画実行:
+// WindowsAPI: 円描画 中心(100,100), 半径50
+// 円の面積: 7853.98
+// 
+// 作成した図形: 円 [中心点(100,100), 半径50]
+// 使用しているAPI: Mac Quartz
+// 描画実行:
+// MacAPI: 円描画 中心(100,100), 半径50
+// 円の面積: 7853.98
+// 
+// 作成した図形: 四角形 [左上(10,10), 右下(110,60)]
+// 使用しているAPI: Windows GDI
+// 描画実行:
+// WindowsAPI: 線描画 (10,10) から (110,10)
+// WindowsAPI: 線描画 (110,10) から (110,60)
+// WindowsAPI: 線描画 (110,60) から (10,60)
+// WindowsAPI: 線描画 (10,60) から (10,10)
+// 四角形の面積: 5000
+// ラベル追加:
+// WindowsAPI: テキスト描画 (60,35): "Windowsの四角形"
+// 
+// 作成した図形: 四角形 [左上(10,10), 右下(110,60)]
+// 使用しているAPI: Mac Quartz
+// 描画実行:
+// MacAPI: 線描画 (10,10) から (110,10)
+// MacAPI: 線描画 (110,10) から (110,60)
+// MacAPI: 線描画 (110,60) から (10,60)
+// MacAPI: 線描画 (10,60) から (10,10)
+// 四角形の面積: 5000
+// ラベル追加:
+// MacAPI: テキスト描画 (60,35): "Macの四角形"
+</code></pre>
+<h2 id="5-パターンのバリエーション"><a class="header" href="#5-パターンのバリエーション">5. パターンのバリエーション</a></h2>
+<h3 id="51-実装共有ブリッジ"><a class="header" href="#51-実装共有ブリッジ">5.1 実装共有ブリッジ</a></h3>
+<p>実装部分の共通機能を基底クラスに抽出し、具体的な実装クラスはそれを拡張するバリエーション。</p>
+<pre><code class="language-typescript">abstract class AbstractDrawingAPI implements DrawingAPI {
+  // 共通機能の実装
+  getAPIName(): string {
+    return "Generic API";
+  }
+  
+  // 抽象メソッドは子クラスで実装
+  abstract drawLine(x1: number, y1: number, x2: number, y2: number): void;
+  abstract drawCircle(x: number, y: number, radius: number): void;
+  abstract drawText(x: number, y: number, text: string): void;
+}
+
+class EnhancedWindowsAPI extends AbstractDrawingAPI {
+  // Windowsに特化した実装
+  getAPIName(): string {
+    return "Enhanced Windows GDI";
+  }
+  
+  // その他のメソッド実装
+}
+</code></pre>
+<h3 id="52-イベント処理ブリッジ"><a class="header" href="#52-イベント処理ブリッジ">5.2 イベント処理ブリッジ</a></h3>
+<p>抽象部分と実装部分の間でイベントベースの通信を行うバリエーション。</p>
+<pre><code class="language-typescript">interface DrawingAPIListener {
+  onDrawCompleted(shapeName: string): void;
+}
+
+class EventAwareShape extends Shape implements DrawingAPIListener {
+  onDrawCompleted(shapeName: string): void {
+    console.log(`描画完了イベント: ${shapeName}`);
+  }
+  
+  // 描画後にイベントを発火
+  draw(): void {
+    // 具体的な描画処理
+    this.onDrawCompleted(this.toString());
+  }
+}
+</code></pre>
+<h3 id="53-階層型ブリッジ"><a class="header" href="#53-階層型ブリッジ">5.3 階層型ブリッジ</a></h3>
+<p>抽象部分と実装部分の両方に階層を持つバリエーション。</p>
+<pre><code class="language-typescript">// 実装階層
+interface BaseAPI {
+  basicOperation(): void;
+}
+
+interface ExtendedAPI extends BaseAPI {
+  extendedOperation(): void;
+}
+
+// 抽象階層
+abstract class BasicShape {
+  protected api: BaseAPI;
+  
+  constructor(api: BaseAPI) {
+    this.api = api;
+  }
+  
+  abstract draw(): void;
+}
+
+abstract class AdvancedShape extends BasicShape {
+  protected extendedApi: ExtendedAPI;
+  
+  constructor(api: ExtendedAPI) {
+    super(api);
+    this.extendedApi = api;
+  }
+  
+  abstract drawWithEffects(): void;
+}
+</code></pre>
+<h2 id="6-評価"><a class="header" href="#6-評価">6. 評価</a></h2>
+<h3 id="61-メリット"><a class="header" href="#61-メリット">6.1 メリット</a></h3>
+<ul>
+<li><strong>インターフェースと実装の分離</strong>: 抽象部分と実装部分が独立して変更可能</li>
+<li><strong>拡張性の向上</strong>: 両方の階層が独立して拡張できる</li>
+<li><strong>実装の詳細の隠蔽</strong>: クライアントは抽象インターフェースのみを使用</li>
+<li><strong>単一責任の原則</strong>: 抽象と実装の責務が明確に分離される</li>
+<li><strong>プラットフォーム独立性</strong>: 実装を切り替えることで異なるプラットフォームをサポート</li>
+<li><strong>継承爆発の回避</strong>: 2つの直交する次元を単一の継承階層にすると、クラス数が指数関数的に増加する問題を回避</li>
+</ul>
+<h3 id="62-デメリット"><a class="header" href="#62-デメリット">6.2 デメリット</a></h3>
+<ul>
+<li><strong>複雑さの増加</strong>: 追加の抽象化レイヤーにより、システムが複雑になる可能性がある</li>
+<li><strong>学習コスト</strong>: パターンの理解に時間がかかる場合がある</li>
+<li><strong>オーバーヘッド</strong>: 間接参照によるわずかなパフォーマンス低下の可能性</li>
+<li><strong>設計初期のコスト</strong>: 将来の拡張性のために最初から複雑な設計が必要</li>
+</ul>
+<h3 id="63-適用場面"><a class="header" href="#63-適用場面">6.3 適用場面</a></h3>
+<ul>
+<li>抽象と実装を完全に分離したい場合</li>
+<li>実装を実行時に切り替えたい場合</li>
+<li>抽象と実装の両方を独立して拡張したい場合</li>
+<li>実装の詳細をクライアントから完全に隠蔽したい場合</li>
+<li>異なるプラットフォームをサポートする必要がある場合</li>
+<li>クラス階層の爆発的増加を避けたい場合</li>
+</ul>
+<h2 id="7-関連パターン"><a class="header" href="#7-関連パターン">7. 関連パターン</a></h2>
+<ul>
+<li><strong>Adapter</strong>: Adapterは既存の異なるインターフェースを統合するのに対し、Bridgeは最初から抽象と実装を分離する</li>
+<li><strong>Strategy</strong>: Strategyはアルゴリズムを交換可能にするのに対し、Bridgeは抽象と実装全体を分離する</li>
+<li><strong>Abstract Factory</strong>: Abstract Factoryは適切な実装クラスを作成するために使用できる</li>
+<li><strong>State</strong>: Stateパターンはオブジェクトの状態に基づいて振る舞いを変更するが、Bridgeはプラットフォームに基づいて実装を変更する</li>
+<li><strong>Composite</strong>: CompositeとBridgeを組み合わせることで、複合オブジェクトの実装を抽象から分離できる</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/structural/bridge">ソースコードへのリンク</a></li>
+<li><a href="../../tests/structural/bridge">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/bridge">リファクタリング・グル - Bridgeパターン</a></li>
+<li><a href="https://sourcemaking.com/design_patterns/bridge">Design Patterns: Bridge Pattern</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/structural/adapter.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/structural/composite.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/structural/adapter.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/structural/composite.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

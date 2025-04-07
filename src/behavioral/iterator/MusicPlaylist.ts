@@ -60,7 +60,12 @@ export class Playlist implements Aggregate<Track> {
      * シャッフル順でイテレーターを生成します
      */
     createShuffleIterator(): Iterator<Track> {
-        const shuffledTracks = [...this.tracks].sort(() => Math.random() - 0.5);
+        // Fisher-Yatesシャッフルアルゴリズムを使用
+        const shuffledTracks = [...this.tracks];
+        for (let i = shuffledTracks.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledTracks[i], shuffledTracks[j]] = [shuffledTracks[j], shuffledTracks[i]];
+        }
         return new PlaylistIterator(shuffledTracks);
     }
 }

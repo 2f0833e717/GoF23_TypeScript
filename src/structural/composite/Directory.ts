@@ -4,20 +4,26 @@
  * FileSystemComponentインターフェースを実装する具象クラスです。
  * 他のコンポーネント（ファイルやディレクトリ）を含むことができる複合オブジェクトとして機能します。
  */
-import { FileSystemComponent } from './FileSystemComponent';
+import { FileSystemComponent } from '../../common/interfaces/FileSystemComponent';
 import { FileSystemVisitor } from '../../behavioral/visitor/FileSystemVisitor';
+import { FileSystemUtils } from './FileSystemUtils';
+import { FileSystemElement } from '../../common/interfaces/FileSystemElement';
 
-export class Directory implements FileSystemComponent {
-    private children: Map<string, FileSystemComponent> = new Map();
-    private parent: FileSystemComponent | null = null;
-    private readonly createdAt: Date;
+export class Directory implements FileSystemComponent, FileSystemElement {
+    private name: string;
+    private children: Map<string, FileSystemComponent>;
+    private parent: FileSystemComponent | null;
+    private createdAt: Date;
     private modifiedAt: Date;
 
     /**
      * コンストラクタ
      * @param name ディレクトリ名
      */
-    constructor(private readonly name: string) {
+    constructor(name: string) {
+        this.name = name;
+        this.children = new Map();
+        this.parent = null;
         this.createdAt = new Date();
         this.modifiedAt = new Date();
     }
@@ -30,12 +36,19 @@ export class Directory implements FileSystemComponent {
         return this.name;
     }
 
-    getSize(): number {
-        let totalSize = 0;
-        for (const child of this.children.values()) {
-            totalSize += child.getSize();
+    getPath(): string {
+        return this.parent ? `${this.parent.getPath()}/${this.name}` : this.name;
+    }
+
+    getParent(): FileSystemComponent | null {
+        return this.parent;
+    }
+
+    setParent(parent: FileSystemComponent | null): void {
+        if (parent && !(parent instanceof Directory)) {
+            throw new Error('親ディレクトリが不正です');
         }
-        return totalSize;
+        this.parent = parent;
     }
 
     getCreatedAt(): Date {
@@ -46,42 +59,30 @@ export class Directory implements FileSystemComponent {
         return this.modifiedAt;
     }
 
-    getParent(): FileSystemComponent | null {
-        return this.parent;
-    }
-
-    setParent(parent: FileSystemComponent | null): void {
-        this.parent = parent;
-    }
-
-    getPath(): string {
-        const parentPath = this.parent ? this.parent.getPath() : '';
-        return parentPath ? `${parentPath}/${this.name}` : this.name;
-    }
-
-    /**
-     * 子コンポーネントを追加します
-     * @param component 追加するコンポーネント
-     * @throws Error 同名のコンポーネントが既に存在する場合
-     */
-    add(component: FileSystemComponent): void {
-        const componentName = component.getName();
-        if (this.children.has(componentName)) {
-            throw new Error(`コンポーネント "${componentName}" は既に存在します`);
+    getSize(): number {
+        let totalSize = 0;
+        for (const child of this.children.values()) {
+            totalSize += child.getSize();
         }
-        this.children.set(componentName, component);
+        return totalSize;
+    }
+
+    add(component: FileSystemComponent): void {
+        if (!component) {
+            throw new Error('追加する要素が不正です');
+        }
+        const name = component.getName();
+        if (this.children.has(name)) {
+            throw new Error(`同名の要素が既に存在します: ${name}`);
+        }
+        this.children.set(name, component);
         component.setParent(this);
         this.modifiedAt = new Date();
     }
 
-    /**
-     * 子コンポーネントを削除します
-     * @param name 削除するコンポーネントの名前
-     * @throws Error 指定された名前のコンポーネントが存在しない場合
-     */
     remove(name: string): void {
         if (!this.children.has(name)) {
-            throw new Error(`コンポーネント "${name}" が見つかりません`);
+            throw new Error(`指定された要素が存在しません: ${name}`);
         }
         const component = this.children.get(name)!;
         component.setParent(null);
@@ -89,71 +90,49 @@ export class Directory implements FileSystemComponent {
         this.modifiedAt = new Date();
     }
 
-    /**
-     * 指定された名前の子コンポーネントを取得します
-     * @param name コンポーネントの名前
-     * @returns 子コンポーネント
-     * @throws Error 指定された名前のコンポーネントが存在しない場合
-     */
     getChild(name: string): FileSystemComponent {
-        if (!this.children.has(name)) {
-            throw new Error(`コンポーネント "${name}" が見つかりません`);
+        const child = this.children.get(name);
+        if (!child) {
+            throw new Error(`指定された要素が存在しません: ${name}`);
         }
-        return this.children.get(name)!;
+        return child;
     }
 
-    /**
-     * すべての子コンポーネントを取得します
-     * @returns 子コンポーネントの配列
-     */
     getChildren(): FileSystemComponent[] {
         return Array.from(this.children.values());
     }
 
-    /**
-     * ディレクトリが空かどうかを確認します
-     * @returns ディレクトリが空の場合はtrue
-     */
     isEmpty(): boolean {
         return this.children.size === 0;
     }
 
     /**
      * ディレクトリの表示文字列を取得します
-     * @param indent インデントレベル
      * @returns フォーマットされた文字列
      */
-    display(indent: number = 0): string {
-        const indentation = ' '.repeat(indent * 2);
-        let result = `${indentation}📁 ${this.name} (${this.formatSize(this.getSize())})`;
+    display(): string {
+        const sizeStr = FileSystemUtils.formatSize(this.getSize());
+        const dateStr = this.modifiedAt.toLocaleString();
+        let result = `${sizeStr} ${dateStr} ${this.name}/`;
 
         if (this.isEmpty()) {
-            result += '\n' + ' '.repeat((indent + 1) * 2) + '(空のディレクトリ)';
+            result += '\n  (空のディレクトリ)';
             return result;
         }
 
         for (const child of this.children.values()) {
-            result += '\n' + child.display(indent + 1);
+            result += '\n  ' + child.display();
         }
 
         return result;
     }
 
     /**
-     * サイズを適切な単位に変換して表示します
+     * サイズをフォーマットして表示します
      * @param bytes バイト数
      * @returns フォーマットされたサイズ文字列
      */
     formatSize(bytes: number): string {
-        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        let size = bytes;
-        let unitIndex = 0;
-
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
+        return FileSystemUtils.formatSize(bytes);
     }
 } 

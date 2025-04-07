@@ -1,0 +1,718 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>abstract factory - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/creational/abstract-factory.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="abstract-factoryパターン---gui要素生成システム実装"><a class="header" href="#abstract-factoryパターン---gui要素生成システム実装">Abstract Factoryパターン - GUI要素生成システム実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Abstract Factoryパターンは、関連する一連のオブジェクトファミリー（製品ファミリー）を、具象クラスを指定せずに生成するためのインターフェースを提供するデザインパターンです。クライアントはオブジェクトの生成方法を知ることなく、異なるファミリーに属する製品を一貫性を持って生成できます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>関連する製品ファミリーの一貫性を保証する</li>
+<li>製品の実装を変更せずに異なるファミリーの製品に切り替える柔軟性を提供する</li>
+<li>製品の生成と利用のコードを分離する</li>
+<li>クロスプラットフォーム対応やマルチテーマUIなど、製品間の互換性が重要な場合に使用する</li>
+<li>オブジェクト生成の詳細をクライアントから隠蔽し、インターフェースを通じた操作を可能にする</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>クロスプラットフォームGUIの実装</li>
+<li>データベースアクセスの抽象化（異なるDBMSへの切り替え）</li>
+<li>マルチテーマUIの実装</li>
+<li>プラグインシステムの構築</li>
+<li>システムが複数の製品ファミリーをサポートする必要があり、具体的な製品クラスはコンパイル時に不明な場合</li>
+<li>関連する製品オブジェクト群の連携が重要で、実装の整合性を保つ必要がある場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class AbstractFactory {
+        +createProductA() ProductA
+        +createProductB() ProductB
+    }
+    
+    class ConcreteFactory1 {
+        +createProductA() ProductA
+        +createProductB() ProductB
+    }
+    
+    class ConcreteFactory2 {
+        +createProductA() ProductA
+        +createProductB() ProductB
+    }
+    
+    class ProductA {
+        +operationA() string
+    }
+    
+    class ProductB {
+        +operationB() string
+    }
+    
+    class ConcreteProductA1 {
+        +operationA() string
+    }
+    
+    class ConcreteProductA2 {
+        +operationA() string
+    }
+    
+    class ConcreteProductB1 {
+        +operationB() string
+    }
+    
+    class ConcreteProductB2 {
+        +operationB() string
+    }
+    
+    AbstractFactory &lt;|.. ConcreteFactory1
+    AbstractFactory &lt;|.. ConcreteFactory2
+    ProductA &lt;|.. ConcreteProductA1
+    ProductA &lt;|.. ConcreteProductA2
+    ProductB &lt;|.. ConcreteProductB1
+    ProductB &lt;|.. ConcreteProductB2
+    ConcreteFactory1 ..&gt; ConcreteProductA1 : 生成
+    ConcreteFactory1 ..&gt; ConcreteProductB1 : 生成
+    ConcreteFactory2 ..&gt; ConcreteProductA2 : 生成
+    ConcreteFactory2 ..&gt; ConcreteProductB2 : 生成
+    
+    note for AbstractFactory &quot;インターフェース&quot;
+    note for ProductA &quot;インターフェース&quot;
+    note for ProductB &quot;インターフェース&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>AbstractFactory</td><td>インターフェース</td><td>異なる種類の抽象製品を生成するためのインターフェースを定義</td><td>ConcreteFactory1, ConcreteFactory2により実装される</td></tr>
+<tr><td>ConcreteFactory1</td><td>具象クラス</td><td>第1バリエーションの製品ファミリーを生成する具体的な実装</td><td>AbstractFactoryを実装、ConcreteProductA1、ConcreteProductB1を生成</td></tr>
+<tr><td>ConcreteFactory2</td><td>具象クラス</td><td>第2バリエーションの製品ファミリーを生成する具体的な実装</td><td>AbstractFactoryを実装、ConcreteProductA2、ConcreteProductB2を生成</td></tr>
+<tr><td>ProductA</td><td>インターフェース</td><td>製品Aのインターフェースを定義</td><td>ConcreteProductA1, ConcreteProductA2により実装される</td></tr>
+<tr><td>ProductB</td><td>インターフェース</td><td>製品Bのインターフェースを定義、製品Aとのコラボレーション機能を含む</td><td>ConcreteProductB1, ConcreteProductB2により実装される</td></tr>
+<tr><td>ConcreteProductA1</td><td>具象クラス</td><td>製品Aの第1バリエーションの具体的な実装</td><td>ProductAを実装</td></tr>
+<tr><td>ConcreteProductA2</td><td>具象クラス</td><td>製品Aの第2バリエーションの具体的な実装</td><td>ProductAを実装</td></tr>
+<tr><td>ConcreteProductB1</td><td>具象クラス</td><td>製品Bの第1バリエーションの具体的な実装、ProductAとの連携が可能</td><td>ProductBを実装</td></tr>
+<tr><td>ConcreteProductB2</td><td>具象クラス</td><td>製品Bの第2バリエーションの具体的な実装、ProductAとの連携が可能</td><td>ProductBを実装</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>AbstractFactoryは複数の製品生成メソッドを持ち、それぞれが対応する抽象製品インターフェースを返す</li>
+<li>各ConcreteFactoryは AbstractFactoryを実装し、特定の製品ファミリーに属する製品インスタンスを返す</li>
+<li>同じConcreteFactoryから生成された製品は互いに連携できるように設計されている</li>
+<li>クライアントはAbstractFactoryとProductインターフェースを通じて操作し、具象クラスに依存しない</li>
+<li>製品間のコラボレーションは抽象インターフェースを通じて行われるため、異なるファミリーの製品でも互換性がある</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    actor Client
+    participant ConcreteFactory as ConcreteFactory
+    participant ProductA as ProductA
+    participant ProductB as ProductB
+    
+    Client-&gt;&gt;ConcreteFactory: createProductA()
+    ConcreteFactory-&gt;&gt;ProductA: インスタンス生成
+    ProductA--&gt;&gt;ConcreteFactory: ProductAインスタンス
+    ConcreteFactory--&gt;&gt;Client: ProductAインスタンス
+    
+    Client-&gt;&gt;ConcreteFactory: createProductB()
+    ConcreteFactory-&gt;&gt;ProductB: インスタンス生成
+    ProductB--&gt;&gt;ConcreteFactory: ProductBインスタンス
+    ConcreteFactory--&gt;&gt;Client: ProductBインスタンス
+    
+    Client-&gt;&gt;ProductA: operationA()
+    ProductA--&gt;&gt;Client: 操作結果
+    
+    Client-&gt;&gt;ProductB: operationB()
+    ProductB--&gt;&gt;Client: 操作結果
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[適切なConcreteFactoryの選択・生成]
+    B --&gt; C[ConcreteFactoryからProductAを生成]
+    C --&gt; D[ConcreteFactoryからProductBを生成]
+    D --&gt; E[ProductAのoperationAを実行]
+    E --&gt; F[ProductBのoperationBを実行]
+    F --&gt; G[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-同一ファミリー内での製品連携"><a class="header" href="#シナリオ1-同一ファミリー内での製品連携">シナリオ1: 同一ファミリー内での製品連携</a></h4>
+<ol>
+<li>クライアントがConcreteFactory1のインスタンスを生成</li>
+<li>クライアントがfactory.createProductA()を呼び出してProductA1を取得</li>
+<li>クライアントがfactory.createProductB()を呼び出してProductB1を取得</li>
+<li>クライアントがproductA.operationA()を実行して結果を取得</li>
+<li>クライアントがproductB.operationB()を実行</li>
+<li>製品の連携結果がクライアントに返される</li>
+</ol>
+<h4 id="シナリオ2-ファミリー間での製品互換性"><a class="header" href="#シナリオ2-ファミリー間での製品互換性">シナリオ2: ファミリー間での製品互換性</a></h4>
+<ol>
+<li>クライアントがConcreteFactory1とConcreteFactory2のインスタンスを生成</li>
+<li>クライアントがfactory1.createProductA()を呼び出してProductA1を取得</li>
+<li>クライアントがfactory2.createProductB()を呼び出してProductB2を取得</li>
+<li>クライアントがproductB.operationB()を実行</li>
+<li>異なるファミリーに属するProductB2がクライアントに返される</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェース抽象クラス"><a class="header" href="#41-主要インターフェース抽象クラス">4.1 主要インターフェース・抽象クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * 抽象製品A
+ * 
+ * 製品Aのインターフェースを宣言します。
+ * すべての具象製品はこのインターフェースを実装する必要があります。
+ */
+export interface ProductA {
+    /**
+     * 製品Aの操作を実行します
+     * @returns {string} 操作の結果
+     */
+    operationA(): string;
+}
+
+/**
+ * 抽象製品B
+ * 
+ * 製品Bのインターフェースを宣言します。
+ * すべての具象製品はこのインターフェースを実装する必要があります。
+ */
+export interface ProductB {
+    /**
+     * 製品Bの操作を実行します
+     * @returns {string} 操作の結果
+     */
+    operationB(): string;
+}
+
+/**
+ * 抽象ファクトリー
+ * 
+ * 異なる抽象製品を生成するためのインターフェースを宣言します。
+ */
+export interface AbstractFactory {
+    /**
+     * 製品Aを生成します
+     * @returns {ProductA} 生成された製品A
+     */
+    createProductA(): ProductA;
+
+    /**
+     * 製品Bを生成します
+     * @returns {ProductB} 生成された製品B
+     */
+    createProductB(): ProductB;
+}
+</code></pre>
+<h3 id="42-具象クラス実装例"><a class="header" href="#42-具象クラス実装例">4.2 具象クラス実装例</a></h3>
+<pre><code class="language-typescript">/**
+ * 具象製品A1
+ * 
+ * 製品Aのバリエーション1を実装します。
+ */
+export class ConcreteProductA1 implements ProductA {
+    /**
+     * 製品A1の操作を実行します
+     * @returns {string} 操作の結果
+     */
+    public operationA(): string {
+        return 'The result of the product A1.';
+    }
+}
+
+/**
+ * 具象製品A2
+ * 
+ * 製品Aのバリエーション2を実装します。
+ */
+export class ConcreteProductA2 implements ProductA {
+    /**
+     * 製品A2の操作を実行します
+     * @returns {string} 操作の結果
+     */
+    public operationA(): string {
+        return 'The result of the product A2.';
+    }
+}
+
+/**
+ * 具象製品B1
+ * 
+ * 製品Bのバリエーション1を実装します。
+ */
+export class ConcreteProductB1 implements ProductB {
+    /**
+     * 製品B1の操作を実行します
+     * @returns {string} 操作の結果
+     */
+    public operationB(): string {
+        return 'The result of the product B1.';
+    }
+}
+
+/**
+ * 具象製品B2
+ * 
+ * 製品Bのバリエーション2を実装します。
+ */
+export class ConcreteProductB2 implements ProductB {
+    /**
+     * 製品B2の操作を実行します
+     * @returns {string} 操作の結果
+     */
+    public operationB(): string {
+        return 'The result of the product B2.';
+    }
+}
+
+/**
+ * 具象ファクトリー1
+ * 
+ * 製品の第1バリエーションファミリーを生成する具象ファクトリーです。
+ */
+export class ConcreteFactory1 implements AbstractFactory {
+    /**
+     * 製品A1を生成します
+     * @returns {ProductA} 生成された製品A1
+     */
+    public createProductA(): ProductA {
+        return new ConcreteProductA1();
+    }
+
+    /**
+     * 製品B1を生成します
+     * @returns {ProductB} 生成された製品B1
+     */
+    public createProductB(): ProductB {
+        return new ConcreteProductB1();
+    }
+}
+
+/**
+ * 具象ファクトリー2
+ * 
+ * 製品の第2バリエーションファミリーを生成する具象ファクトリーです。
+ */
+export class ConcreteFactory2 implements AbstractFactory {
+    /**
+     * 製品A2を生成します
+     * @returns {ProductA} 生成された製品A2
+     */
+    public createProductA(): ProductA {
+        return new ConcreteProductA2();
+    }
+
+    /**
+     * 製品B2を生成します
+     * @returns {ProductB} 生成された製品B2
+     */
+    public createProductB(): ProductB {
+        return new ConcreteProductB2();
+    }
+}
+</code></pre>
+<h3 id="43-実装のバリエーション"><a class="header" href="#43-実装のバリエーション">4.3 実装のバリエーション</a></h3>
+<ol>
+<li><strong>ファクトリーメソッドベースの実装</strong>: 各製品の生成を個別のファクトリーメソッドに委ねる実装</li>
+</ol>
+<pre><code class="language-typescript">// ファクトリーメソッドベースの実装例
+abstract class AbstractFactory {
+    // 製品Aの生成を担当するファクトリーメソッド
+    protected abstract createProductA(): ProductA;
+    
+    // 製品Bの生成を担当するファクトリーメソッド
+    protected abstract createProductB(): ProductB;
+    
+    // クライアント向けのインターフェース
+    public getProductA(): ProductA {
+        return this.createProductA();
+    }
+    
+    public getProductB(): ProductB {
+        return this.createProductB();
+    }
+}
+</code></pre>
+<ol start="2">
+<li>
+<p><strong>プロトタイプベースの実装</strong>: 新しいオブジェクトのプロトタイプをファクトリーに登録し、それをクローンして新しいインスタンスを生成する実装</p>
+</li>
+<li>
+<p><strong>シングルトンの組み合わせ</strong>: 各ファクトリーをシングルトンとして実装し、アプリケーション全体で一貫して同じファクトリーインスタンスを使用する実装</p>
+</li>
+</ol>
+<pre><code class="language-typescript">// シングルトンファクトリーの例
+export class ConcreteFactory1 implements AbstractFactory {
+    private static instance: ConcreteFactory1;
+    
+    private constructor() { }
+    
+    public static getInstance(): ConcreteFactory1 {
+        if (!ConcreteFactory1.instance) {
+            ConcreteFactory1.instance = new ConcreteFactory1();
+        }
+        return ConcreteFactory1.instance;
+    }
+    
+    // 製品生成メソッド
+    // ...
+}
+</code></pre>
+<h3 id="44-注意すべき実装ポイント"><a class="header" href="#44-注意すべき実装ポイント">4.4 注意すべき実装ポイント</a></h3>
+<ul>
+<li>ファミリー内の製品は互いに協調して動作できるように設計する必要がある</li>
+<li>新しい製品タイプを追加する場合、すべてのファクトリーインターフェースとクラスを修正する必要がある（インターフェース変更に注意）</li>
+<li>製品ファミリーのバリエーションが多い場合、クラス階層が複雑になる可能性がある</li>
+<li>抽象ファクトリーは通常、複数の製品タイプを生成するため、単一責任の原則に反する可能性がある</li>
+<li>抽象製品の設計は将来の拡張に備えて十分に抽象化する必要がある</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-基本的な使用例"><a class="header" href="#51-基本的な使用例">5.1 基本的な使用例</a></h3>
+<pre><code class="language-typescript">import { AbstractFactory } from './AbstractFactory';
+import { ConcreteFactory1 } from './ConcreteFactories';
+import { ProductA, ProductB } from './Products';
+
+// 具象ファクトリーの生成
+const factory: AbstractFactory = new ConcreteFactory1();
+
+// ファクトリーから製品を生成
+const productA: ProductA = factory.createProductA();
+const productB: ProductB = factory.createProductB();
+
+// 製品の操作
+console.log(productA.operationA());
+// 出力: "The result of the product A1."
+
+console.log(productB.operationB());
+// 出力: "The result of the product B1."
+</code></pre>
+<h3 id="52-高度な使用例"><a class="header" href="#52-高度な使用例">5.2 高度な使用例</a></h3>
+<pre><code class="language-typescript">import { AbstractFactory } from './AbstractFactory';
+import { ConcreteFactory1, ConcreteFactory2 } from './ConcreteFactories';
+import { ProductA, ProductB } from './Products';
+
+// ファクトリー選択ロジック
+function getFactory(type: string): AbstractFactory {
+    if (type === 'type1') {
+        return new ConcreteFactory1();
+    } else if (type === 'type2') {
+        return new ConcreteFactory2();
+    }
+    throw new Error(`Unknown factory type: ${type}`);
+}
+
+// 設定またはユーザー入力に基づいてファクトリーを選択
+const factoryType = 'type1'; // 実際のアプリケーションではこれは設定または入力からの値
+const factory = getFactory(factoryType);
+
+// 製品の生成
+const productA = factory.createProductA();
+const productB = factory.createProductB();
+
+// 製品の操作とコラボレーション
+console.log(productA.operationA());
+console.log(productB.operationB());
+
+// クロスファミリーコラボレーション
+const factory2 = getFactory('type2');
+const productA2 = factory2.createProductA();
+
+// 異なるファミリーの製品間でのコラボレーション
+console.log(productB.operationB());
+// 出力: "The result of the product B2."
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>各ConcreteFactoryが適切なConcreteProduct実装を返すことを確認</li>
+<li>各ConcreteProductの基本操作が正しく動作することを検証</li>
+<li>同一ファミリー内の製品間のコラボレーションが期待通りに動作することを確認</li>
+<li>異なるファミリーに属する製品間のコラボレーションの互換性を検証</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Abstract Factory Pattern', () =&gt; {
+    let factory1: AbstractFactory;
+    let factory2: AbstractFactory;
+
+    beforeEach(() =&gt; {
+        factory1 = new ConcreteFactory1();
+        factory2 = new ConcreteFactory2();
+    });
+
+    describe('ConcreteFactory1', () =&gt; {
+        test('should create ProductA1', () =&gt; {
+            const productA = factory1.createProductA();
+            expect(productA.operationA()).toBe('The result of the product A1.');
+        });
+
+        test('should create ProductB1', () =&gt; {
+            const productB = factory1.createProductB();
+            expect(productB.operationB()).toBe('The result of the product B1.');
+        });
+    });
+
+    describe('Cross-factory collaboration', () =&gt; {
+        test('ProductB1 should collaborate with ProductA2', () =&gt; {
+            const productA = factory2.createProductA();
+            const productB = factory1.createProductB();
+            expect(productB.operationB())
+                .toBe('The result of the product B2.');
+        });
+
+        test('ProductB2 should collaborate with ProductA1', () =&gt; {
+            const productA = factory1.createProductA();
+            const productB = factory2.createProductB();
+            expect(productB.operationB())
+                .toBe('The result of the product B2.');
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>製品ファミリーの一貫性を保証し、兼ね合わない製品の組み合わせを防止</li>
+<li>製品の具象クラスからクライアントコードを分離し、疎結合な設計を実現</li>
+<li>新しい製品バリエーション（ファミリー）の追加が容易で、既存のコードへの影響が最小限</li>
+<li>オブジェクト生成のロジックを一元管理でき、コードの保守性が向上</li>
+<li>製品ファミリー間の切り替えが容易で、実行時の柔軟性が高い</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>新しい製品種類の追加が困難（すべてのファクトリーインターフェースと実装クラスを変更する必要がある）</li>
+<li>製品ファミリーが多い場合、多数のクラスが必要となり、システムの複雑さが増す</li>
+<li>抽象ファクトリーが多くの製品生成メソッドを持つ場合、単一責任の原則に違反する可能性がある</li>
+<li>製品間の関係が複雑になると、実装とテストが困難になる場合がある</li>
+<li>小規模なシステムでは過剰な抽象化となる可能性がある</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Factory Method</strong>: 単一の製品クラスを扱う場合に適している。Abstract Factoryは複数の関連する製品ファミリーを作成</li>
+<li><strong>Builder</strong>: 複雑なオブジェクトを段階的に構築するパターン。Abstract Factoryは関連するオブジェクト群を即時に生成</li>
+<li><strong>Prototype</strong>: 既存のオブジェクトをコピーして新しいオブジェクトを作成するパターン。Abstract Factoryと組み合わせて使用可能</li>
+<li><strong>Singleton</strong>: Abstract Factoryの実装がシングルトンとして設計されることが多い</li>
+<li><strong>Dependency Injection</strong>: オブジェクトの生成と使用を分離する別のアプローチ</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/creational/abstract-factory">ソースコードへのリンク</a></li>
+<li><a href="../../tests/creational/abstract-factory">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/abstract-factory">リファクタリング・グル - Abstract Factoryパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+<li><a href="https://www.amazon.co.jp/dp/0201633612">Gang of Four デザインパターン - Abstract Factory</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/visitor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/creational/builder.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/visitor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/creational/builder.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

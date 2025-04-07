@@ -1,0 +1,955 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>template method - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/template-method.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="template-methodパターン---アルゴリズム骨格実装"><a class="header" href="#template-methodパターン---アルゴリズム骨格実装">Template Methodパターン - アルゴリズム骨格実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Template Methodパターンは、アルゴリズムの骨格を抽象クラスで定義し、いくつかのステップの実装をサブクラスに委ねる行動パターンです。これにより、アルゴリズムの構造を変えることなく、特定のステップをサブクラスでオーバーライドして独自の振る舞いを実装することができます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>コードの重複を削減し、共通ロジックを一箇所に集約する</li>
+<li>アルゴリズムの全体的な構造を維持しながら、一部の手順を変更可能にする</li>
+<li>サブクラスが変更可能なポイントを明確に定義する</li>
+<li>フレームワークにおけるデフォルト動作と拡張ポイントを提供する</li>
+<li>「ハリウッドの原則」（「呼び出すな、我々が呼び出す」）を実現する</li>
+<li>サブクラスによる共通ロジックの変更を防止する</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>複数のクラスで同様のアルゴリズムを使用するが、特定のステップでのみ違いがある場合</li>
+<li>アルゴリズムの基本構造を固定し、一部の処理のみをカスタマイズしたい場合</li>
+<li>フレームワークのライフサイクルイベントを定義する場合</li>
+<li>複数のコンポーネントで共通の処理フローを持ちたい場合</li>
+<li>データ処理パイプラインやフォーマット変換処理など、定型的な処理手順を持つ場合</li>
+<li>フックポイントを介して拡張性を提供したい場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class AbstractClass {
+        +templateMethod(): void
+        #primitiveOperation1(): void
+        #primitiveOperation2(): void
+        #hook1(): void
+        #hook2(): boolean
+    }
+    
+    class ConcreteClassA {
+        #primitiveOperation1(): void
+        #primitiveOperation2(): void
+        #hook1(): void
+    }
+    
+    class ConcreteClassB {
+        #primitiveOperation1(): void
+        #primitiveOperation2(): void
+        #hook2(): boolean
+    }
+    
+    AbstractClass &lt;|-- ConcreteClassA: extends
+    AbstractClass &lt;|-- ConcreteClassB: extends
+    
+    note for AbstractClass &quot;抽象クラス&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>AbstractClass</td><td>抽象クラス</td><td>アルゴリズムの骨格を定義し、標準的な実装を提供する</td><td>ConcreteClassの親クラス</td></tr>
+<tr><td>ConcreteClass</td><td>具象クラス</td><td>AbstractClassで定義されたプリミティブ操作とフックをオーバーライドする</td><td>AbstractClassを継承</td></tr>
+<tr><td>templateMethod</td><td>メソッド</td><td>アルゴリズムの骨格を定義する、final（オーバーライド不可）メソッド</td><td>-</td></tr>
+<tr><td>primitiveOperation</td><td>メソッド</td><td>サブクラスで必ず実装すべき抽象メソッド</td><td>-</td></tr>
+<tr><td>hook</td><td>メソッド</td><td>サブクラスが必要に応じてオーバーライドできるオプションのメソッド</td><td>-</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>AbstractClassはアルゴリズムの骨格を<code>templateMethod</code>として定義する</li>
+<li><code>templateMethod</code>は<code>primitiveOperation</code>や<code>hook</code>を適切な順序で呼び出す</li>
+<li>ConcreteClassは必須の<code>primitiveOperation</code>をオーバーライドして実装する</li>
+<li>ConcreteClassは必要に応じて<code>hook</code>をオーバーライドしてカスタマイズする</li>
+<li>クライアントはConcreteClassのインスタンスを作成し、<code>templateMethod</code>を呼び出す</li>
+</ul>
+<h2 id="3-シーケンス"><a class="header" href="#3-シーケンス">3. シーケンス</a></h2>
+<h3 id="31-基本フロー"><a class="header" href="#31-基本フロー">3.1 基本フロー</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant ConcreteClass
+    participant AbstractClass
+    
+    Client-&gt;&gt;ConcreteClass: templateMethod()
+    activate ConcreteClass
+    ConcreteClass-&gt;&gt;AbstractClass: step1()
+    AbstractClass-&gt;&gt;ConcreteClass: execute step1
+    ConcreteClass-&gt;&gt;AbstractClass: step2()
+    AbstractClass-&gt;&gt;ConcreteClass: execute step2
+    ConcreteClass-&gt;&gt;AbstractClass: hook1()
+    AbstractClass-&gt;&gt;ConcreteClass: execute hook1
+    deactivate ConcreteClass
+</pre>
+<h3 id="32-データマイニングの例"><a class="header" href="#32-データマイニングの例">3.2 データマイニングの例</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant PDFMiner
+    participant DataMiner
+    
+    Client-&gt;&gt;PDFMiner: mine()
+    activate PDFMiner
+    PDFMiner-&gt;&gt;PDFMiner: openFile()
+    PDFMiner-&gt;&gt;PDFMiner: extractData()
+    PDFMiner-&gt;&gt;DataMiner: parseData()
+    PDFMiner-&gt;&gt;DataMiner: analyzeData()
+    PDFMiner-&gt;&gt;PDFMiner: shouldSaveToDatabase()
+    PDFMiner-&gt;&gt;DataMiner: saveToDatabase()
+    PDFMiner-&gt;&gt;DataMiner: closeFile()
+    PDFMiner-&gt;&gt;DataMiner: sendReport()
+    deactivate PDFMiner
+</pre>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * データマイナー抽象クラス
+ * データマイニングのアルゴリズム骨格を定義
+ */
+abstract class DataMiner {
+    /**
+     * テンプレートメソッド
+     * アルゴリズムの骨格を定義し、サブクラスに特定のステップの実装を委任
+     */
+    public mine(): void {
+        this.openFile();
+        this.extractData();
+        this.parseData();
+        this.analyzeData();
+        
+        // フックメソッドを利用した条件分岐
+        if (this.shouldSaveToDatabase()) {
+            this.saveToDatabase();
+        }
+        
+        this.closeFile();
+        this.sendReport();
+    }
+    
+    /**
+     * ファイルを開く操作（サブクラスで実装必須）
+     */
+    protected abstract openFile(): void;
+    
+    /**
+     * データを抽出する操作（サブクラスで実装必須）
+     */
+    protected abstract extractData(): void;
+    
+    /**
+     * データを解析する操作（デフォルト実装あり）
+     */
+    protected parseData(): void {
+        console.log('データを解析中...');
+    }
+    
+    /**
+     * データを分析する操作（デフォルト実装あり）
+     */
+    protected analyzeData(): void {
+        console.log('データを分析中...');
+    }
+    
+    /**
+     * データベースに保存する操作（デフォルト実装あり）
+     */
+    protected saveToDatabase(): void {
+        console.log('データベースに保存中...');
+    }
+    
+    /**
+     * ファイルを閉じる操作（デフォルト実装あり）
+     */
+    protected closeFile(): void {
+        console.log('ファイルを閉じています...');
+    }
+    
+    /**
+     * レポートを送信する操作（デフォルト実装あり）
+     */
+    protected sendReport(): void {
+        console.log('レポートを送信中...');
+    }
+    
+    /**
+     * フックメソッド
+     * データベースに保存するかどうかを決定
+     * @returns データベースに保存する場合はtrue
+     */
+    protected shouldSaveToDatabase(): boolean {
+        return true;
+    }
+}
+
+/**
+ * PDFデータマイナー
+ * PDF形式のファイルを処理する具象クラス
+ */
+class PDFDataMiner extends DataMiner {
+    /**
+     * PDFファイルを開く
+     */
+    protected openFile(): void {
+        console.log('PDFファイルを開いています...');
+    }
+    
+    /**
+     * PDFからデータを抽出
+     */
+    protected extractData(): void {
+        console.log('PDFからデータを抽出中...');
+    }
+    
+    /**
+     * PDF特有のデータ解析処理
+     */
+    protected parseData(): void {
+        console.log('PDFデータを解析中...');
+        // PDFに特化した解析ロジック
+        super.parseData();
+    }
+}
+
+/**
+ * CSVデータマイナー
+ * CSV形式のファイルを処理する具象クラス
+ */
+class CSVDataMiner extends DataMiner {
+    /**
+     * CSVファイルを開く
+     */
+    protected openFile(): void {
+        console.log('CSVファイルを開いています...');
+    }
+    
+    /**
+     * CSVからデータを抽出
+     */
+    protected extractData(): void {
+        console.log('CSVからデータを抽出中...');
+    }
+    
+    /**
+     * CSVデータをデータベースに保存しない
+     * @returns 常にfalse
+     */
+    protected shouldSaveToDatabase(): boolean {
+        return false;
+    }
+}
+</code></pre>
+<h3 id="42-レポート生成器の実装例"><a class="header" href="#42-レポート生成器の実装例">4.2 レポート生成器の実装例</a></h3>
+<pre><code class="language-typescript">/**
+ * レポート生成器の抽象クラス
+ */
+abstract class ReportGenerator {
+    /**
+     * レポート生成のテンプレートメソッド
+     */
+    public generate(): void {
+        this.collectData();
+        this.processData();
+        
+        if (this.shouldIncludeCharts()) {
+            this.generateCharts();
+        }
+        
+        if (this.shouldIncludeSummary()) {
+            this.generateSummary();
+        }
+        
+        this.formatReport();
+        this.distribute();
+    }
+    
+    /**
+     * データ収集（サブクラスで実装必須）
+     */
+    protected abstract collectData(): void;
+    
+    /**
+     * データ処理（サブクラスで実装必須）
+     */
+    protected abstract processData(): void;
+    
+    /**
+     * レポートのフォーマット（サブクラスで実装必須）
+     */
+    protected abstract formatReport(): void;
+    
+    /**
+     * チャートを含めるかどうかを決定するフックメソッド
+     * @returns チャートを含める場合はtrue
+     */
+    protected shouldIncludeCharts(): boolean {
+        return true;
+    }
+    
+    /**
+     * サマリーを含めるかどうかを決定するフックメソッド
+     * @returns サマリーを含める場合はtrue
+     */
+    protected shouldIncludeSummary(): boolean {
+        return true;
+    }
+    
+    /**
+     * チャート生成（デフォルト実装あり）
+     */
+    protected generateCharts(): void {
+        console.log('チャートを生成中...');
+    }
+    
+    /**
+     * サマリー生成（デフォルト実装あり）
+     */
+    protected generateSummary(): void {
+        console.log('サマリーを生成中...');
+    }
+    
+    /**
+     * レポート配布（デフォルト実装あり）
+     */
+    protected distribute(): void {
+        console.log('レポートを配布中...');
+    }
+}
+
+/**
+ * 財務レポート生成器
+ */
+class FinancialReportGenerator extends ReportGenerator {
+    /**
+     * 財務データの収集
+     */
+    protected collectData(): void {
+        console.log('財務データを収集中...');
+    }
+    
+    /**
+     * 財務データの処理
+     */
+    protected processData(): void {
+        console.log('財務データを処理中...');
+    }
+    
+    /**
+     * 財務レポートのフォーマット
+     */
+    protected formatReport(): void {
+        console.log('財務レポートをフォーマット中...');
+    }
+    
+    /**
+     * 財務レポートには常にチャートを含める
+     */
+    protected shouldIncludeCharts(): boolean {
+        return true;
+    }
+}
+</code></pre>
+<h3 id="43-実装のバリエーション"><a class="header" href="#43-実装のバリエーション">4.3 実装のバリエーション</a></h3>
+<ol>
+<li>
+<p><strong>基本的なテンプレートメソッド</strong></p>
+<ul>
+<li>抽象メソッドと具体的なメソッドの組み合わせ</li>
+<li>サブクラスは抽象メソッドを実装する必要がある</li>
+</ul>
+</li>
+<li>
+<p><strong>フックを持つテンプレートメソッド</strong></p>
+<ul>
+<li>デフォルト実装を持つメソッドをサブクラスでオーバーライド可能</li>
+<li>アルゴリズムのオプショナルな部分を制御</li>
+</ul>
+</li>
+<li>
+<p><strong>ファクトリーメソッドとの組み合わせ</strong></p>
+<ul>
+<li>テンプレートメソッド内でファクトリーメソッドを使用</li>
+<li>オブジェクト生成をサブクラスに委任</li>
+</ul>
+</li>
+<li>
+<p><strong>デコレータとの組み合わせ</strong></p>
+<ul>
+<li>テンプレートメソッドのステップをデコレータで拡張</li>
+<li>複数の拡張ポイントを提供</li>
+</ul>
+</li>
+</ol>
+<h3 id="44-注意すべき実装ポイント"><a class="header" href="#44-注意すべき実装ポイント">4.4 注意すべき実装ポイント</a></h3>
+<ul>
+<li>テンプレートメソッドはfinalにして、サブクラスでオーバーライドできないようにする</li>
+<li>抽象メソッドは必要最小限にし、サブクラスの実装負担を減らす</li>
+<li>フックメソッドはデフォルト実装を提供し、オプショナルにする</li>
+<li>サブクラスの責務と拡張ポイントを明確にドキュメント化する</li>
+<li>テンプレートメソッドの構造変更はすべてのサブクラスに影響するため慎重に行う</li>
+<li>サブクラスがスーパークラスのメソッドを適切に呼び出すよう注意する（<code>super.method()</code>）</li>
+<li>ハリウッドの原則を遵守し、サブクラスからスーパークラスを制御しないようにする</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-基本的な使用例"><a class="header" href="#51-基本的な使用例">5.1 基本的な使用例</a></h3>
+<pre><code class="language-typescript">// PDFデータマイナーの使用
+const pdfMiner = new PDFDataMiner();
+console.log('--- PDFデータマイニング開始 ---');
+pdfMiner.mine();
+console.log('--- PDFデータマイニング完了 ---');
+
+// CSVデータマイナーの使用
+const csvMiner = new CSVDataMiner();
+console.log('--- CSVデータマイニング開始 ---');
+csvMiner.mine();
+console.log('--- CSVデータマイニング完了 ---');
+</code></pre>
+<p>実行結果:</p>
+<pre><code>--- PDFデータマイニング開始 ---
+PDFファイルを開いています...
+PDFからデータを抽出中...
+PDFデータを解析中...
+データを解析中...
+データを分析中...
+データベースに保存中...
+ファイルを閉じています...
+レポートを送信中...
+--- PDFデータマイニング完了 ---
+
+--- CSVデータマイニング開始 ---
+CSVファイルを開いています...
+CSVからデータを抽出中...
+データを解析中...
+データを分析中...
+ファイルを閉じています...
+レポートを送信中...
+--- CSVデータマイニング完了 ---
+</code></pre>
+<h3 id="52-高度な使用例"><a class="header" href="#52-高度な使用例">5.2 高度な使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * オーダー処理システム
+ */
+abstract class OrderProcessor {
+    /**
+     * オーダー処理のテンプレートメソッド
+     * @param orderId 注文ID
+     * @returns 処理結果
+     */
+    public processOrder(orderId: string): OrderResult {
+        console.log(`オーダー ${orderId} の処理を開始します`);
+        
+        // 前処理
+        this.validateOrder(orderId);
+        
+        // 在庫確認
+        if (!this.checkInventory(orderId)) {
+            return { success: false, message: '在庫不足' };
+        }
+        
+        // 支払い処理
+        const paymentResult = this.processPayment(orderId);
+        if (!paymentResult.success) {
+            return { success: false, message: `支払い失敗: ${paymentResult.message}` };
+        }
+        
+        // 配送処理
+        this.arrangeShipping(orderId);
+        
+        // 通知処理
+        if (this.shouldNotifyCustomer()) {
+            this.notifyCustomer(orderId);
+        }
+        
+        // ロイヤルティポイント処理
+        if (this.shouldAwardLoyaltyPoints()) {
+            this.awardLoyaltyPoints(orderId);
+        }
+        
+        // 後処理
+        this.finalizeOrder(orderId);
+        
+        console.log(`オーダー ${orderId} の処理が完了しました`);
+        return { success: true, message: '処理成功' };
+    }
+    
+    // 抽象メソッド
+    protected abstract validateOrder(orderId: string): void;
+    protected abstract checkInventory(orderId: string): boolean;
+    protected abstract processPayment(orderId: string): PaymentResult;
+    protected abstract arrangeShipping(orderId: string): void;
+    
+    // フックメソッド
+    protected shouldNotifyCustomer(): boolean {
+        return true;
+    }
+    
+    protected shouldAwardLoyaltyPoints(): boolean {
+        return false;
+    }
+    
+    // デフォルト実装を持つメソッド
+    protected notifyCustomer(orderId: string): void {
+        console.log(`顧客にオーダー ${orderId} の通知を送信します`);
+    }
+    
+    protected awardLoyaltyPoints(orderId: string): void {
+        console.log(`オーダー ${orderId} に対してロイヤルティポイントを付与します`);
+    }
+    
+    protected finalizeOrder(orderId: string): void {
+        console.log(`オーダー ${orderId} を確定します`);
+    }
+}
+
+interface PaymentResult {
+    success: boolean;
+    message: string;
+}
+
+interface OrderResult {
+    success: boolean;
+    message: string;
+}
+
+/**
+ * オンラインショップの注文処理
+ */
+class OnlineOrderProcessor extends OrderProcessor {
+    protected validateOrder(orderId: string): void {
+        console.log(`オンラインオーダー ${orderId} のバリデーション実行`);
+    }
+    
+    protected checkInventory(orderId: string): boolean {
+        console.log(`オンライン在庫の確認: ${orderId}`);
+        return true; // 在庫あり
+    }
+    
+    protected processPayment(orderId: string): PaymentResult {
+        console.log(`オンライン決済処理: ${orderId}`);
+        return { success: true, message: 'クレジットカード決済成功' };
+    }
+    
+    protected arrangeShipping(orderId: string): void {
+        console.log(`配送業者に ${orderId} の配送を依頼`);
+    }
+    
+    protected shouldAwardLoyaltyPoints(): boolean {
+        return true; // オンライン注文はポイント付与対象
+    }
+}
+
+/**
+ * 店頭での注文処理
+ */
+class InStoreOrderProcessor extends OrderProcessor {
+    protected validateOrder(orderId: string): void {
+        console.log(`店頭オーダー ${orderId} のバリデーション実行`);
+    }
+    
+    protected checkInventory(orderId: string): boolean {
+        console.log(`店舗在庫の確認: ${orderId}`);
+        return true; // 在庫あり
+    }
+    
+    protected processPayment(orderId: string): PaymentResult {
+        console.log(`店頭決済処理: ${orderId}`);
+        return { success: true, message: '現金決済成功' };
+    }
+    
+    protected arrangeShipping(orderId: string): void {
+        console.log(`顧客に ${orderId} を手渡し`);
+    }
+    
+    protected shouldNotifyCustomer(): boolean {
+        return false; // 店頭購入は通知不要
+    }
+}
+
+// 使用例
+const onlineProcessor = new OnlineOrderProcessor();
+const inStoreProcessor = new InStoreOrderProcessor();
+
+const onlineResult = onlineProcessor.processOrder('ON-1234');
+console.log(`オンラインオーダー結果: ${onlineResult.success ? '成功' : '失敗'} - ${onlineResult.message}`);
+
+const inStoreResult = inStoreProcessor.processOrder('ST-5678');
+console.log(`店頭オーダー結果: ${inStoreResult.success ? '成功' : '失敗'} - ${inStoreResult.message}`);
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>テンプレートメソッドが正しい順序でサブメソッドを呼び出すことを確認</li>
+<li>抽象メソッドの実装が正しく呼び出されることを検証</li>
+<li>フックメソッドの条件分岐が期待通りに動作することを確認</li>
+<li>サブクラスが親クラスのメソッドを適切に呼び出していることを検証</li>
+<li>エッジケースやエラー条件での動作を検証</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Template Method Pattern Tests', () =&gt; {
+    describe('DataMiner Tests', () =&gt; {
+        // モック版のDataMiner
+        class MockDataMiner extends DataMiner {
+            public openFileCalled = false;
+            public extractDataCalled = false;
+            public parseDataCalled = false;
+            public analyzeDataCalled = false;
+            public saveToDBCalled = false;
+            public closeFileCalled = false;
+            public sendReportCalled = false;
+            public shouldSaveToDBResult = true;
+            
+            protected openFile(): void {
+                this.openFileCalled = true;
+            }
+            
+            protected extractData(): void {
+                this.extractDataCalled = true;
+            }
+            
+            protected parseData(): void {
+                this.parseDataCalled = true;
+                super.parseData();
+            }
+            
+            protected analyzeData(): void {
+                this.analyzeDataCalled = true;
+                super.analyzeData();
+            }
+            
+            protected saveToDatabase(): void {
+                this.saveToDBCalled = true;
+                super.saveToDatabase();
+            }
+            
+            protected closeFile(): void {
+                this.closeFileCalled = true;
+                super.closeFile();
+            }
+            
+            protected sendReport(): void {
+                this.sendReportCalled = true;
+                super.sendReport();
+            }
+            
+            protected shouldSaveToDatabase(): boolean {
+                return this.shouldSaveToDBResult;
+            }
+        }
+        
+        test('should execute steps in correct order', () =&gt; {
+            const miner = new MockDataMiner();
+            
+            miner.mine();
+            
+            expect(miner.openFileCalled).toBe(true);
+            expect(miner.extractDataCalled).toBe(true);
+            expect(miner.parseDataCalled).toBe(true);
+            expect(miner.analyzeDataCalled).toBe(true);
+            expect(miner.saveToDBCalled).toBe(true);
+            expect(miner.closeFileCalled).toBe(true);
+            expect(miner.sendReportCalled).toBe(true);
+        });
+        
+        test('should skip database save when hook returns false', () =&gt; {
+            const miner = new MockDataMiner();
+            miner.shouldSaveToDBResult = false;
+            
+            miner.mine();
+            
+            expect(miner.openFileCalled).toBe(true);
+            expect(miner.extractDataCalled).toBe(true);
+            expect(miner.saveToDBCalled).toBe(false);
+            expect(miner.closeFileCalled).toBe(true);
+        });
+    });
+    
+    describe('OrderProcessor Tests', () =&gt; {
+        test('OnlineOrderProcessor should award loyalty points', () =&gt; {
+            const processor = new OnlineOrderProcessor();
+            const spy = jest.spyOn(processor as any, 'awardLoyaltyPoints');
+            
+            processor.processOrder('TEST-1');
+            
+            expect(spy).toHaveBeenCalledWith('TEST-1');
+        });
+        
+        test('InStoreOrderProcessor should not notify customer', () =&gt; {
+            const processor = new InStoreOrderProcessor();
+            const spy = jest.spyOn(processor as any, 'notifyCustomer');
+            
+            processor.processOrder('TEST-2');
+            
+            expect(spy).not.toHaveBeenCalled();
+        });
+        
+        test('should handle payment failure', () =&gt; {
+            class FailingPaymentProcessor extends OnlineOrderProcessor {
+                protected processPayment(orderId: string): PaymentResult {
+                    return { success: false, message: 'カード決済失敗' };
+                }
+            }
+            
+            const processor = new FailingPaymentProcessor();
+            const result = processor.processOrder('FAIL-1');
+            
+            expect(result.success).toBe(false);
+            expect(result.message).toContain('支払い失敗');
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>コードの重複を削減し、共通ロジックを一箇所に集約できる</li>
+<li>アルゴリズムの骨格を保持しながら、特定のステップをカスタマイズできる</li>
+<li>サブクラスの役割が明確になり、拡張ポイントが特定しやすい</li>
+<li>変更の影響範囲を限定できる（サブクラスの変更が他に影響しない）</li>
+<li>「ハリウッドの原則」により制御の流れが明確になる</li>
+<li>フレームワークの設計に適している</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>継承を使用するため、柔軟性に制約がある</li>
+<li>テンプレートの変更がすべてのサブクラスに影響する</li>
+<li>サブクラスが親クラスの実装に依存するため、結合度が高い</li>
+<li>複雑なアルゴリズムでは、テンプレートメソッドも複雑になりがち</li>
+<li>多数のサブクラスが存在する場合、メンテナンスが難しくなる</li>
+<li>フックメソッドの使用が適切でない場合、設計が複雑になる</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Strategy パターン</strong>: アルゴリズム全体を交換可能にしたい場合に適している</li>
+<li><strong>Factory Method パターン</strong>: Template Methodの一種であり、オブジェクト生成を専門に扱う</li>
+<li><strong>Builder パターン</strong>: 複雑なオブジェクト構築プロセスを定義する場合に使用</li>
+<li><strong>Command パターン</strong>: 操作をオブジェクトとしてカプセル化したい場合に適している</li>
+<li><strong>Decorator パターン</strong>: 継承ではなく構成を使って振る舞いを拡張する場合に使用</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/behavioral/template-method">ソースコード</a></li>
+<li><a href="../../tests/behavioral/template-method">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/template-method">リファクタリング・グル - Template Method パターン</a></li>
+<li><a href="https://www.amazon.co.jp/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/strategy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/visitor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/strategy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/visitor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

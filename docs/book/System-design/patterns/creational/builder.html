@@ -1,0 +1,777 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>builder - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/creational/builder.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="builderパターン---段階的製品生成システム実装"><a class="header" href="#builderパターン---段階的製品生成システム実装">Builderパターン - 段階的製品生成システム実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Builderパターンは、複雑なオブジェクトの生成過程を抽象化し、同じ生成過程で異なる表現のオブジェクトを生成できるようにするデザインパターンです。このパターンは、オブジェクト構築のプロセスをその表現から分離することで、同じ構築プロセスでさまざまな表現を作成できるようにします。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>複雑なオブジェクトの段階的な生成を可能にし、生成プロセスを明確に分離する</li>
+<li>オブジェクト生成コードをビジネスロジックから分離し、コードの可読性と保守性を向上させる</li>
+<li>同じ構築プロセスで異なる種類や表現のオブジェクトを生成する柔軟性を提供する</li>
+<li>製品オブジェクトの内部表現を隠蔽し、クライアントから分離する</li>
+<li>製品の構成要素の順序や存在に関する制御を強化する</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>複雑な内部構造を持つオブジェクトを段階的に構築する必要がある場合</li>
+<li>同じ構築プロセスで異なる表現のオブジェクトを生成する必要がある場合</li>
+<li>オブジェクト構築の順序や検証に制約がある場合</li>
+<li>オブジェクト構築プロセスを標準化したい場合</li>
+<li>複雑なドキュメント生成や構成要素の多いオブジェクトの作成が必要な場合</li>
+<li>カスタマイズ可能な製品構築が要求される場合（例：設定可能なUIコンポーネント、複雑な構成ファイルなど）</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Builder {
+        +buildPartA() Builder
+        +buildPartB() Builder
+        +buildPartC() Builder
+        +getResult() Product
+    }
+    
+    note for Builder &quot;インターフェース&quot;
+    
+    class ConcreteBuilder {
+        -product: Product
+        +buildPartA()
+        +buildPartB()
+        +buildPartC()
+        +getProduct() Product
+        -reset()
+    }
+    
+    class Director {
+        -builder: Builder
+        +setBuilder(builder)
+        +buildMinimalViableProduct()
+        +buildFullFeaturedProduct()
+    }
+    
+    class Product {
+        -parts: string[]
+        +add(part)
+        +listParts() string
+    }
+    
+    Builder &lt;|.. ConcreteBuilder
+    Director o--&gt; Builder
+    ConcreteBuilder ..&gt; Product
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Builder</td><td>インターフェース</td><td>製品の各パーツを構築するためのメソッドを宣言</td><td>ConcreteBuilderによって実装される</td></tr>
+<tr><td>ConcreteBuilder</td><td>具象クラス</td><td>Builderインターフェースを実装し、製品の構築手順を定義。製品の生成と取得を担当</td><td>Builderを実装、Productを生成</td></tr>
+<tr><td>Director</td><td>具象クラス</td><td>特定の順序で構築手順を実行する。異なる種類の製品を構築するための高レベルのインターフェースを提供</td><td>Builderを使用</td></tr>
+<tr><td>Product</td><td>具象クラス</td><td>構築される複雑なオブジェクト。様々なパーツから構成され、ConcreteBuilderによって生成される</td><td>ConcreteBuilderによって生成</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Directorはビルダーオブジェクトを受け取り、一連の構築ステップを定義された順序で実行</li>
+<li>ConcreteBuilderはBuilderインターフェースを実装し、製品の構築手順と表現を定義</li>
+<li>各構築ステップの実行結果は、ConcreteBuilder内部のProductインスタンスに反映される</li>
+<li>クライアントはDirectorを使用するか、ConcreteBuilderを直接使用して製品を構築可能</li>
+<li>製品完成後、クライアントはConcreteBuilderからProductを取得</li>
+<li>構築プロセスと製品表現が分離されているため、同じDirectorでも異なるBuilderと組み合わせることで異なる製品を生成可能</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    actor Client
+    participant Director
+    participant ConcreteBuilder
+    participant Product
+    
+    Client-&gt;&gt;Director: 構築依頼
+    Director-&gt;&gt;ConcreteBuilder: buildPartA()
+    ConcreteBuilder-&gt;&gt;Product: add(&quot;PartA1&quot;)
+    
+    Director-&gt;&gt;ConcreteBuilder: buildPartB()
+    ConcreteBuilder-&gt;&gt;Product: add(&quot;PartB1&quot;)
+    
+    Director-&gt;&gt;ConcreteBuilder: buildPartC()
+    ConcreteBuilder-&gt;&gt;Product: add(&quot;PartC1&quot;)
+    
+    Client-&gt;&gt;ConcreteBuilder: getProduct()
+    ConcreteBuilder-&gt;&gt;ConcreteBuilder: 新しいProductを作成
+    ConcreteBuilder--&gt;&gt;Client: 完成したProduct
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[ビルダーとディレクターの準備]
+    B --&gt; C[構築タイプの選択]
+    C --&gt;|最小構成| D[パーツAの構築]
+    C --&gt;|フル機能| E[パーツAの構築]
+    E --&gt; F[パーツBの構築]
+    F --&gt; G[パーツCの構築]
+    D --&gt; H[製品の取得]
+    G --&gt; H
+    H --&gt; I[製品の利用]
+    I --&gt; J[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-ディレクターを使用した製品構築"><a class="header" href="#シナリオ1-ディレクターを使用した製品構築">シナリオ1: ディレクターを使用した製品構築</a></h4>
+<ol>
+<li>クライアントがConcreteBuilderのインスタンスを作成</li>
+<li>クライアントがDirectorインスタンスを作成し、ConcreteBuilderを渡す</li>
+<li>クライアントがdirector.buildFullFeaturedProduct()を呼び出す</li>
+<li>ディレクターが一連のビルド手順をConcreteBuilderに対して実行
+<ul>
+<li>builder.buildPartA()</li>
+<li>builder.buildPartB()</li>
+<li>builder.buildPartC()</li>
+</ul>
+</li>
+<li>クライアントがbuilder.getProduct()を呼び出して完成した製品を取得</li>
+<li>ConcreteBuilderが内部状態をリセット</li>
+</ol>
+<h4 id="シナリオ2-ディレクターなしの手動製品構築"><a class="header" href="#シナリオ2-ディレクターなしの手動製品構築">シナリオ2: ディレクターなしの手動製品構築</a></h4>
+<ol>
+<li>クライアントがConcreteBuilderのインスタンスを作成</li>
+<li>クライアントが必要なパーツだけを選択的に構築
+<ul>
+<li>builder.buildPartA()</li>
+<li>builder.buildPartC()</li>
+</ul>
+</li>
+<li>クライアントがbuilder.getProduct()を呼び出して製品を取得</li>
+<li>クライアントが別の製品構築を開始（ConcreteBuilderの状態はリセット済み）
+<ul>
+<li>builder.buildPartB()</li>
+</ul>
+</li>
+<li>クライアントが2つ目の製品を取得</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェース抽象クラス"><a class="header" href="#41-主要インターフェース抽象クラス">4.1 主要インターフェース・抽象クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * ビルダーインターフェース
+ * 
+ * 製品の各パーツを構築するためのメソッドを宣言します。
+ */
+export interface Builder {
+    /**
+     * パーツAを構築します
+     */
+    buildPartA(): void;
+
+    /**
+     * パーツBを構築します
+     */
+    buildPartB(): void;
+
+    /**
+     * パーツCを構築します
+     */
+    buildPartC(): void;
+}
+</code></pre>
+<h3 id="42-具象クラス実装例"><a class="header" href="#42-具象クラス実装例">4.2 具象クラス実装例</a></h3>
+<pre><code class="language-typescript">/**
+ * 製品クラス
+ * 
+ * 複雑なオブジェクトを表現します。
+ * このクラスは、様々なパーツから構成される複雑なオブジェクトを定義します。
+ */
+export class Product {
+    private parts: string[] = [];
+
+    /**
+     * パーツを追加します
+     * @param part 追加するパーツ
+     */
+    public add(part: string): void {
+        this.parts.push(part);
+    }
+
+    /**
+     * 製品の構成パーツを一覧表示します
+     * @returns {string} パーツのリスト
+     */
+    public listParts(): string {
+        return `製品のパーツ: ${this.parts.join(', ')}\n`;
+    }
+}
+
+/**
+ * 具象ビルダー
+ * 
+ * ビルダーインターフェースの具体的な実装を提供します。
+ * 製品の構築手順を定義し、最終的な製品を返します。
+ */
+export class ConcreteBuilder implements Builder {
+    private product!: Product;
+
+    /**
+     * 新しい製品の構築を開始します
+     */
+    constructor() {
+        this.reset();
+    }
+
+    /**
+     * ビルダーをリセットします
+     */
+    public reset(): void {
+        this.product = new Product();
+    }
+
+    /**
+     * パーツAを構築します
+     */
+    public buildPartA(): void {
+        this.product.add('PartA1');
+    }
+
+    /**
+     * パーツBを構築します
+     */
+    public buildPartB(): void {
+        this.product.add('PartB1');
+    }
+
+    /**
+     * パーツCを構築します
+     */
+    public buildPartC(): void {
+        this.product.add('PartC1');
+    }
+
+    /**
+     * 構築した製品を取得します
+     * @returns {Product} 構築された製品
+     */
+    public getProduct(): Product {
+        const result = this.product;
+        this.reset();
+        return result;
+    }
+}
+
+/**
+ * ディレクター
+ * 
+ * 特定の順序で構築手順を実行するためのクラスです。
+ * 同じ構築プロセスから異なる種類の製品を生成する場合に便利です。
+ */
+export class Director {
+    private builder: Builder;
+
+    /**
+     * コンストラクタ
+     * @param builder 使用するビルダー
+     */
+    constructor(builder: Builder) {
+        this.builder = builder;
+    }
+
+    /**
+     * ビルダーを設定します
+     * @param builder 設定するビルダー
+     */
+    public setBuilder(builder: Builder): void {
+        this.builder = builder;
+    }
+
+    /**
+     * 最小構成の製品を構築します
+     * パーツAのみを含む製品を作成します。
+     */
+    public buildMinimalViableProduct(): void {
+        this.builder.buildPartA();
+    }
+
+    /**
+     * フル機能の製品を構築します
+     * すべてのパーツを含む製品を作成します。
+     */
+    public buildFullFeaturedProduct(): void {
+        this.builder.buildPartA();
+        this.builder.buildPartB();
+        this.builder.buildPartC();
+    }
+}
+</code></pre>
+<h3 id="43-実装のバリエーション"><a class="header" href="#43-実装のバリエーション">4.3 実装のバリエーション</a></h3>
+<ol>
+<li><strong>流れるようなインターフェース（Fluent Interface）</strong>: メソッドチェーン呼び出しをサポートするように実装</li>
+</ol>
+<pre><code class="language-typescript">export class FluentBuilder implements Builder {
+    private product: Product = new Product();
+
+    public buildPartA(): FluentBuilder {
+        this.product.add('PartA1');
+        return this;
+    }
+
+    public buildPartB(): FluentBuilder {
+        this.product.add('PartB1');
+        return this;
+    }
+
+    public buildPartC(): FluentBuilder {
+        this.product.add('PartC1');
+        return this;
+    }
+
+    public build(): Product {
+        const result = this.product;
+        this.product = new Product();
+        return result;
+    }
+}
+
+// 使用例
+const product = new FluentBuilder()
+    .buildPartA()
+    .buildPartC()
+    .build();
+</code></pre>
+<ol start="2">
+<li><strong>パラメータ化ビルダー</strong>: パーツの構築時にパラメータを渡す実装</li>
+</ol>
+<pre><code class="language-typescript">export class ParameterizedBuilder implements Builder {
+    private product: Product = new Product();
+
+    public buildPartA(variant: string): void {
+        this.product.add(`PartA_${variant}`);
+    }
+
+    // その他のメソッド...
+}
+</code></pre>
+<ol start="3">
+<li><strong>コンポジットビルダー</strong>: 複数のビルダーを組み合わせて複雑な製品を構築する実装</li>
+</ol>
+<pre><code class="language-typescript">export class CompositeBuilder implements Builder {
+    private headerBuilder: Builder;
+    private bodyBuilder: Builder;
+    private footerBuilder: Builder;
+
+    constructor(
+        headerBuilder: Builder,
+        bodyBuilder: Builder,
+        footerBuilder: Builder
+    ) {
+        this.headerBuilder = headerBuilder;
+        this.bodyBuilder = bodyBuilder;
+        this.footerBuilder = footerBuilder;
+    }
+
+    public buildFullDocument(): Product {
+        // 各ビルダーを順番に呼び出して複合製品を構築
+        // ...
+    }
+}
+</code></pre>
+<h3 id="44-注意すべき実装ポイント"><a class="header" href="#44-注意すべき実装ポイント">4.4 注意すべき実装ポイント</a></h3>
+<ul>
+<li>ビルダーパターンは、製品が複雑で多くのパーツから構成される場合や、構築手順に順序や検証が必要な場合に適している</li>
+<li>getProductメソッドの後にビルダーをリセットすることで、同じビルダーを再利用しやすくなる</li>
+<li>過度に複雑でないオブジェクトに対してBuilderパターンを使用すると、不必要に複雑になる可能性がある</li>
+<li>ビルダーとディレクターの責任を明確に分離し、単一責任の原則に従うべき</li>
+<li>製品クラスのイミュータビリティ（不変性）を確保するために、製品が完成するまでクライアントが製品にアクセスできないようにする</li>
+<li>テスト時には、ビルダーの状態リセットが適切に行われることを確認する</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-基本的な使用例"><a class="header" href="#51-基本的な使用例">5.1 基本的な使用例</a></h3>
+<pre><code class="language-typescript">// ビルダーとディレクターを使った製品構築
+const builder = new ConcreteBuilder();
+const director = new Director(builder);
+
+// 最小構成の製品を構築
+director.buildMinimalViableProduct();
+const minimalProduct = builder.getProduct();
+console.log(minimalProduct.listParts());
+// 出力: "製品のパーツ: PartA1"
+
+// フル機能の製品を構築
+director.buildFullFeaturedProduct();
+const fullProduct = builder.getProduct();
+console.log(fullProduct.listParts());
+// 出力: "製品のパーツ: PartA1, PartB1, PartC1"
+</code></pre>
+<h3 id="52-高度な使用例"><a class="header" href="#52-高度な使用例">5.2 高度な使用例</a></h3>
+<pre><code class="language-typescript">// 複数のビルダーで同じディレクター使用
+class HTMLBuilder implements Builder {
+    private html: string = '&lt;html&gt;';
+    
+    public buildPartA(): void {
+        this.html += '&lt;header&gt;Header&lt;/header&gt;';
+    }
+    
+    public buildPartB(): void {
+        this.html += '&lt;body&gt;Content&lt;/body&gt;';
+    }
+    
+    public buildPartC(): void {
+        this.html += '&lt;footer&gt;Footer&lt;/footer&gt;';
+    }
+    
+    public getProduct(): string {
+        const result = this.html + '&lt;/html&gt;';
+        this.html = '&lt;html&gt;';
+        return result;
+    }
+}
+
+class JSONBuilder implements Builder {
+    private json: any = {};
+    
+    public buildPartA(): void {
+        this.json.header = 'Header';
+    }
+    
+    public buildPartB(): void {
+        this.json.body = 'Content';
+    }
+    
+    public buildPartC(): void {
+        this.json.footer = 'Footer';
+    }
+    
+    public getProduct(): any {
+        const result = { ...this.json };
+        this.json = {};
+        return result;
+    }
+}
+
+// 同じディレクターで異なる表現を生成
+const htmlBuilder = new HTMLBuilder();
+const jsonBuilder = new JSONBuilder();
+const director = new Director(htmlBuilder);
+
+// HTML生成
+director.buildFullFeaturedProduct();
+const html = htmlBuilder.getProduct();
+console.log(html);
+// 出力: "&lt;html&gt;&lt;header&gt;Header&lt;/header&gt;&lt;body&gt;Content&lt;/body&gt;&lt;footer&gt;Footer&lt;/footer&gt;&lt;/html&gt;"
+
+// JSON生成
+director.setBuilder(jsonBuilder);
+director.buildFullFeaturedProduct();
+const json = jsonBuilder.getProduct();
+console.log(JSON.stringify(json));
+// 出力: "{"header":"Header","body":"Content","footer":"Footer"}"
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>ビルダーが各パーツを正しく構築できることを確認</li>
+<li>getProduct()呼び出し後にビルダーの状態がリセットされることを検証</li>
+<li>ディレクターが指定された順序でビルダーのメソッドを呼び出すことを確認</li>
+<li>異なるビルダーでも同じディレクターが正しく動作することを検証</li>
+<li>段階的な構築プロセスが途中で中断されても製品が適切に生成されることを確認</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Builder Pattern', () =&gt; {
+    let builder: ConcreteBuilder;
+    let director: Director;
+
+    beforeEach(() =&gt; {
+        builder = new ConcreteBuilder();
+        director = new Director(builder);
+    });
+
+    describe('Builder without Director', () =&gt; {
+        test('should construct product step by step', () =&gt; {
+            builder.buildPartA();
+            expect(builder.getProduct().listParts()).toBe('製品のパーツ: PartA1\n');
+
+            builder.buildPartB();
+            expect(builder.getProduct().listParts()).toBe('製品のパーツ: PartB1\n');
+
+            builder.buildPartC();
+            expect(builder.getProduct().listParts()).toBe('製品のパーツ: PartC1\n');
+        });
+
+        test('should reset builder state after getting product', () =&gt; {
+            builder.buildPartA();
+            builder.buildPartB();
+            const product1 = builder.getProduct();
+            const product2 = builder.getProduct();
+
+            expect(product1.listParts()).toBe('製品のパーツ: PartA1, PartB1\n');
+            expect(product2.listParts()).toBe('製品のパーツ: \n');
+        });
+    });
+
+    describe('Builder with Director', () =&gt; {
+        test('should build minimal viable product', () =&gt; {
+            director.buildMinimalViableProduct();
+            expect(builder.getProduct().listParts()).toBe('製品のパーツ: PartA1\n');
+        });
+
+        test('should build full featured product', () =&gt; {
+            director.buildFullFeaturedProduct();
+            expect(builder.getProduct().listParts())
+                .toBe('製品のパーツ: PartA1, PartB1, PartC1\n');
+        });
+
+        test('should work with different builders', () =&gt; {
+            const anotherBuilder = new ConcreteBuilder();
+            director.setBuilder(anotherBuilder);
+            director.buildFullFeaturedProduct();
+            expect(anotherBuilder.getProduct().listParts())
+                .toBe('製品のパーツ: PartA1, PartB1, PartC1\n');
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>製品の内部表現を隠蔽し、クライアントから分離できる</li>
+<li>製品の構築と表現を分離することで、同じ構築プロセスで異なる表現を作成できる</li>
+<li>製品構築のプロセスを段階的に制御でき、複雑な製品の構築を管理しやすくなる</li>
+<li>オブジェクト生成コードの再利用性が向上する</li>
+<li>製品の構築に関する検証ロジックを一元管理できる</li>
+<li>製品のバリエーションに対して高い柔軟性を提供する</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>シンプルなオブジェクト生成に対して使用すると、不必要に複雑になる可能性がある</li>
+<li>製品クラスごとに専用のビルダークラスが必要になり、クラス数が増加する</li>
+<li>ディレクターの導入により、追加の抽象化レイヤーが生じる</li>
+<li>パフォーマンスへの若干の影響が発生する可能性がある（特に小さなオブジェクト生成の場合）</li>
+<li>クライアントが正しくビルダーを使用するための理解が必要</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Factory Method</strong>: 単一の製品クラスを生成する場合に適している。Builderはより複雑な製品の段階的構築に焦点を当てる</li>
+<li><strong>Abstract Factory</strong>: 関連する製品ファミリーを即時に生成する場合に使用。Builderは製品構築プロセスとその手順を強調</li>
+<li><strong>Prototype</strong>: 既存のオブジェクトをコピーして新しいオブジェクトを作成する場合に有用</li>
+<li><strong>Composite</strong>: Builderパターンは複合オブジェクトの構築によく使用される</li>
+<li><strong>Fluent Interface</strong>: Builderパターンと組み合わせて、メソッドチェーン形式のAPIを提供することが多い</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/creational/builder">ソースコード</a></li>
+<li><a href="../../tests/creational/builder">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/builder">リファクタリング・グル - Builderパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+<li><a href="https://www.amazon.co.jp/dp/0201633612">Gang of Four デザインパターン - Builder</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/creational/abstract-factory.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/creational/factory-method.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/creational/abstract-factory.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/creational/factory-method.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,1088 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>modules - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/guides/architecture/modules.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="モジュール構成"><a class="header" href="#モジュール構成">モジュール構成</a></h1>
+<h2 id="1-コアモジュール"><a class="header" href="#1-コアモジュール">1. コアモジュール</a></h2>
+<h3 id="11-共通インターフェース"><a class="header" href="#11-共通インターフェース">1.1 共通インターフェース</a></h3>
+<pre class="mermaid">classDiagram
+    direction TB
+    
+    class IModule {
+        +init()
+        +dispose()
+        +getState()
+    }
+    
+    class IModuleRegistry {
+        +register(module)
+        +unregister(module)
+        +getModule(moduleId)
+        +getAllModules()
+    }
+    
+    class IModuleConfig {
+        +id
+        +dependencies
+        +options
+        +getOption(key, defaultValue)
+        +setOption(key, value)
+    }
+    
+    IModule ..&gt; IModuleConfig : uses
+    IModuleRegistry &quot;1&quot; o-- &quot;many&quot; IModule : manages
+    
+    note for IModule &quot;すべてのモジュールの基底インターフェース&quot;
+    note for IModuleRegistry &quot;モジュールの登録と管理&quot;
+    note for IModuleConfig &quot;モジュールの設定と依存関係定義&quot;
+</pre>
+<h3 id="12-ユーティリティ"><a class="header" href="#12-ユーティリティ">1.2 ユーティリティ</a></h3>
+<p>共通ユーティリティモジュールは、プロジェクト全体で再利用可能な機能を提供します。</p>
+<pre><code class="language-typescript">// ファイル操作
+export namespace FileUtils {
+    export function readJsonFile&lt;T&gt;(path: string): Promise&lt;T&gt;;
+    export function writeJsonFile&lt;T&gt;(path: string, data: T): Promise&lt;void&gt;;
+    export function exists(path: string): Promise&lt;boolean&gt;;
+}
+
+// 文字列処理
+export namespace StringUtils {
+    export function toCamelCase(value: string): string;
+    export function toSnakeCase(value: string): string;
+    export function toKebabCase(value: string): string;
+    export function formatTemplate(template: string, params: Record&lt;string, string&gt;): string;
+}
+
+// 日付処理
+export namespace DateUtils {
+    export function format(date: Date, format: string): string;
+    export function parse(dateString: string, format: string): Date;
+    export function addDays(date: Date, days: number): Date;
+}
+
+// 型変換
+export namespace ConversionUtils {
+    export function toNumber(value: unknown): number;
+    export function toBoolean(value: unknown): boolean;
+    export function toArray&lt;T&gt;(value: T | T[]): T[];
+}
+
+// バリデーション
+export namespace ValidationUtils {
+    export function isEmail(value: string): boolean;
+    export function isNumeric(value: string): boolean;
+    export function isAlphanumeric(value: string): boolean;
+    export function hasMinLength(value: string, minLength: number): boolean;
+}
+</code></pre>
+<h3 id="13-型定義"><a class="header" href="#13-型定義">1.3 型定義</a></h3>
+<pre><code class="language-typescript">// 基本結果型
+export type Result&lt;T, E = Error&gt; = {
+    success: boolean;
+    data?: T;
+    error?: E;
+};
+
+// Optional型
+export type Optional&lt;T&gt; = T | null | undefined;
+
+// イベント型定義
+export type EventType = 'create' | 'update' | 'delete' | 'load' | 'error';
+
+// イベントリスナー
+export interface EventListener&lt;T = any&gt; {
+    (data: T): void | Promise&lt;void&gt;;
+}
+
+// イベントエミッタ
+export interface EventEmitter {
+    on&lt;T&gt;(event: EventType, listener: EventListener&lt;T&gt;): void;
+    off&lt;T&gt;(event: EventType, listener: EventListener&lt;T&gt;): void;
+    emit&lt;T&gt;(event: EventType, data: T): void;
+}
+
+// 設定型定義
+export interface Config {
+    debug: boolean;
+    logLevel: 'info' | 'warn' | 'error' | 'debug';
+    maxRetries: number;
+    timeout: number;
+}
+
+// 識別子付きエンティティインターフェース
+export interface Entity&lt;T = string&gt; {
+    id: T;
+}
+</code></pre>
+<h2 id="2-パターンモジュール"><a class="header" href="#2-パターンモジュール">2. パターンモジュール</a></h2>
+<h3 id="21-生成パターン"><a class="header" href="#21-生成パターン">2.1 生成パターン</a></h3>
+<h4 id="factory-method-パターン"><a class="header" href="#factory-method-パターン">Factory Method パターン</a></h4>
+<pre class="mermaid">classDiagram
+    class Creator
+    class ConcreteCreator
+</pre>
+<h4 id="factory-method-パターン-1"><a class="header" href="#factory-method-パターン-1">Factory Method パターン</a></h4>
+<pre class="mermaid">graph TD
+    Creator[&quot;Creator&quot;]
+    ConcreteCreator[&quot;ConcreteCreator&quot;]
+    Product[&quot;Product&quot;]
+    ConcreteProduct[&quot;ConcreteProduct&quot;]
+    
+    Creator--&gt;|継承|ConcreteCreator
+    Product--&gt;|継承|ConcreteProduct
+    ConcreteCreator-.-&gt;|生成|ConcreteProduct
+</pre>
+<h4 id="abstract-factory-パターン"><a class="header" href="#abstract-factory-パターン">Abstract Factory パターン</a></h4>
+<pre class="mermaid">classDiagram
+    class AbstractFactory
+    class ConcreteFactory
+</pre>
+<h4 id="abstract-factory-パターン-1"><a class="header" href="#abstract-factory-パターン-1">Abstract Factory パターン</a></h4>
+<pre class="mermaid">graph TD
+    AbstractFactory[&quot;AbstractFactory&quot;]
+    ConcreteFactory[&quot;ConcreteFactory&quot;]
+    ProductA[&quot;ProductA&quot;]
+    ProductB[&quot;ProductB&quot;]
+    
+    AbstractFactory--&gt;|継承|ConcreteFactory
+    ConcreteFactory-.-&gt;|生成|ProductA
+    ConcreteFactory-.-&gt;|生成|ProductB
+</pre>
+<h4 id="builder-パターン"><a class="header" href="#builder-パターン">Builder パターン</a></h4>
+<pre class="mermaid">classDiagram
+    class Director
+    class Builder
+</pre>
+<h4 id="builder-パターン-1"><a class="header" href="#builder-パターン-1">Builder パターン</a></h4>
+<pre class="mermaid">graph TD
+    Director[&quot;Director&quot;]
+    Builder[&quot;Builder&quot;]
+    ConcreteBuilder[&quot;ConcreteBuilder&quot;]
+    Product[&quot;Product&quot;]
+    
+    Builder--&gt;|継承|ConcreteBuilder
+    Director--&gt;|利用|Builder
+    ConcreteBuilder-.-&gt;|構築|Product
+</pre>
+<h4 id="singleton-パターン"><a class="header" href="#singleton-パターン">Singleton パターン</a></h4>
+<pre class="mermaid">classDiagram
+    class Singleton {
+        -instance: Singleton
+        -constructor()
+        +getInstance() Singleton
+    }
+    
+    Singleton ..&gt; Singleton : returns
+</pre>
+<h4 id="prototype-パターン"><a class="header" href="#prototype-パターン">Prototype パターン</a></h4>
+<pre class="mermaid">classDiagram
+    class Prototype {
+        +clone()
+    }
+    class ConcretePrototype {
+        +clone()
+    }
+    
+    Prototype &lt;|-- ConcretePrototype
+    ConcretePrototype ..&gt; ConcretePrototype : creates copy
+</pre>
+<h3 id="22-構造パターン"><a class="header" href="#22-構造パターン">2.2 構造パターン</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TD
+    subgraph &quot;Composite&quot;
+        A1[Component] --&gt;|継承| B1[Composite]
+        A1 --&gt;|継承| C1[Leaf]
+        B1 --&gt;|contains| A1
+    end
+    
+    subgraph &quot;Decorator&quot;
+        A2[Component] --&gt;|実装| B2[ConcreteComponent]
+        A2 --&gt;|継承| C2[Decorator]
+        C2 --&gt;|実装| D2[ConcreteDecorator]
+        C2 --&gt;|contains| A2
+    end
+    
+    subgraph &quot;Proxy&quot;
+        A3[Subject] --&gt;|実装| B3[RealSubject]
+        A3 --&gt;|実装| C3[Proxy]
+        C3 -.-&gt;|refers to| B3
+    end
+    
+    subgraph &quot;Adapter&quot;
+        A4[Target] --&gt;|実装| B4[Adapter]
+        B4 -.-&gt;|uses| C4[Adaptee]
+    end
+    
+    subgraph &quot;Bridge&quot;
+        A5[Abstraction] --&gt;|継承| B5[RefinedAbstraction] 
+        A5 -.-&gt;|uses| C5[Implementor]
+        C5 --&gt;|実装| D5[ConcreteImplementor]
+    end
+    
+    subgraph &quot;Flyweight&quot;
+        A6[Flyweight] --&gt;|実装| B6[ConcreteFlyweight]
+        C6[FlyweightFactory] -.-&gt;|creates| B6
+        C6 -.-&gt;|manages| B6
+    end
+    
+    subgraph &quot;Facade&quot;
+        A7[Facade] -.-&gt;|uses| B7[SubsystemA]
+        A7 -.-&gt;|uses| C7[SubsystemB]
+        A7 -.-&gt;|uses| D7[SubsystemC]
+    end
+</pre>
+<h3 id="23-振る舞いパターン"><a class="header" href="#23-振る舞いパターン">2.3 振る舞いパターン</a></h3>
+<pre class="mermaid">classDiagram
+    %% Observer
+    class Subject {
+        +attach(observer)
+        +detach(observer)
+        +notify()
+    }
+    class ConcreteSubject {
+        -state
+        +setState()
+    }
+    class Observer {
+        +update()
+    }
+    class ConcreteObserver {
+        +update()
+    }
+    Subject &lt;|-- ConcreteSubject
+    Observer &lt;|-- ConcreteObserver
+    Subject o-- Observer
+    
+    %% Strategy
+    class Context {
+        -strategy
+        +setStrategy(strategy)
+        +executeStrategy()
+    }
+    class Strategy {
+        +execute()
+    }
+    class ConcreteStrategyA {
+        +execute()
+    }
+    class ConcreteStrategyB {
+        +execute()
+    }
+    Strategy &lt;|-- ConcreteStrategyA
+    Strategy &lt;|-- ConcreteStrategyB
+    Context o-- Strategy
+    
+    %% Visitor
+    class Visitor {
+        +visitElementA(elementA)
+        +visitElementB(elementB)
+    }
+    class ConcreteVisitor {
+        +visitElementA(elementA)
+        +visitElementB(elementB)
+    }
+    class Element {
+        +accept(visitor)
+    }
+    class ElementA {
+        +accept(visitor)
+        +operationA()
+    }
+    class ElementB {
+        +accept(visitor)
+        +operationB()
+    }
+    Visitor &lt;|-- ConcreteVisitor
+    Element &lt;|-- ElementA
+    Element &lt;|-- ElementB
+    ElementA ..&gt; Visitor
+    ElementB ..&gt; Visitor
+    
+    %% Chain of Responsibility
+    class Handler {
+        -successor
+        +setNext(handler)
+        +handle(request)
+    }
+    class ConcreteHandlerA {
+        +handle(request)
+    }
+    class ConcreteHandlerB {
+        +handle(request)
+    }
+    Handler &lt;|-- ConcreteHandlerA
+    Handler &lt;|-- ConcreteHandlerB
+    Handler o-- Handler
+    
+    %% Command
+    class Command {
+        +execute()
+    }
+    class ConcreteCommand {
+        -receiver
+        +execute()
+    }
+    class Invoker {
+        -command
+        +setCommand(command)
+        +executeCommand()
+    }
+    class Receiver {
+        +action()
+    }
+    Command &lt;|-- ConcreteCommand
+    Invoker o-- Command
+    ConcreteCommand o-- Receiver
+    
+    %% State
+    class Context2 {
+        -state
+        +setState(state)
+        +request()
+    }
+    class State {
+        +handle(context)
+    }
+    class ConcreteStateA {
+        +handle(context)
+    }
+    class ConcreteStateB {
+        +handle(context)
+    }
+    State &lt;|-- ConcreteStateA
+    State &lt;|-- ConcreteStateB
+    Context2 o-- State
+    
+    %% Template Method
+    class AbstractClass {
+        +templateMethod()
+        #primitiveOperation1()
+        #primitiveOperation2()
+    }
+    class ConcreteClass {
+        #primitiveOperation1()
+        #primitiveOperation2()
+    }
+    AbstractClass &lt;|-- ConcreteClass
+</pre>
+<h2 id="3-テストモジュール"><a class="header" href="#3-テストモジュール">3. テストモジュール</a></h2>
+<h3 id="31-テスト構成"><a class="header" href="#31-テスト構成">3.1 テスト構成</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TD
+    A[テストスイート] --&gt; B[単体テスト]
+    A --&gt; C[統合テスト]
+    A --&gt; D[E2Eテスト]
+    
+    B --&gt; E[コンポーネントテスト]
+    B --&gt; F[機能テスト]
+    B --&gt; G[境界値テスト]
+    
+    E --&gt; H[モック]
+    E --&gt; I[スタブ]
+    E --&gt; J[スパイ]
+    
+    C --&gt; K[テストフィクスチャ]
+    C --&gt; L[テストヘルパー]
+    C --&gt; M[データプロバイダー]
+    
+    D --&gt; N[テストシナリオ]
+    D --&gt; O[テストデータ]
+    D --&gt; P[性能テスト]
+</pre>
+<h3 id="32-テストユーティリティ"><a class="header" href="#32-テストユーティリティ">3.2 テストユーティリティ</a></h3>
+<pre><code class="language-typescript">/**
+ * テスト用ヘルパークラス
+ * テスト実行に必要な各種ユーティリティを提供
+ */
+export class TestHelper {
+    /**
+     * モックオブジェクトの生成
+     * @param baseObj ベースとなるオブジェクト
+     * @param overrides 上書きするプロパティ
+     * @returns モックオブジェクト
+     */
+    static createMock&lt;T extends object&gt;(baseObj: T, overrides: Partial&lt;T&gt; = {}): jest.Mocked&lt;T&gt; {
+        return {
+            ...baseObj,
+            ...overrides
+        } as jest.Mocked&lt;T&gt;;
+    }
+    
+    /**
+     * テスト環境のセットアップ
+     * @param options セットアップオプション
+     */
+    static setupTestEnvironment(options: TestSetupOptions = {}): void {
+        // データベース初期化
+        if (options.resetDatabase) {
+            // テスト用データベースの初期化処理
+        }
+        
+        // キャッシュのクリア
+        if (options.clearCache) {
+            // キャッシュのクリア処理
+        }
+        
+        // テスト用データの作成
+        if (options.seedTestData) {
+            // テストデータの投入
+        }
+    }
+    
+    /**
+     * テスト後のクリーンアップ
+     */
+    static cleanupTestData(): void {
+        // テストで使用したリソースの解放
+        // 一時ファイルの削除
+        // モックのリセット
+    }
+    
+    /**
+     * 非同期操作の待機
+     * @param ms 待機時間（ミリ秒）
+     */
+    static async wait(ms: number): Promise&lt;void&gt; {
+        return new Promise(resolve =&gt; setTimeout(resolve, ms));
+    }
+    
+    /**
+     * 非同期エラーの検証
+     * @param fn テスト対象の非同期関数
+     * @param errorType 期待するエラーの型
+     */
+    static async expectAsyncError(fn: () =&gt; Promise&lt;any&gt;, errorType?: any): Promise&lt;void&gt; {
+        try {
+            await fn();
+            throw new Error('エラーが発生しませんでした');
+        } catch (error) {
+            if (errorType) {
+                expect(error).toBeInstanceOf(errorType);
+            }
+        }
+    }
+}
+
+/**
+ * テストセットアップのオプション
+ */
+interface TestSetupOptions {
+    resetDatabase?: boolean;
+    clearCache?: boolean;
+    seedTestData?: boolean;
+    mockExternalServices?: boolean;
+    isolateTests?: boolean;
+}
+</code></pre>
+<h2 id="4-ドキュメントモジュール"><a class="header" href="#4-ドキュメントモジュール">4. ドキュメントモジュール</a></h2>
+<h3 id="41-api文書"><a class="header" href="#41-api文書">4.1 API文書</a></h3>
+<p>TypeDocによって生成されるAPI文書は、以下の情報を含みます：</p>
+<ul>
+<li>各クラス・インターフェースの説明</li>
+<li>メソッドとプロパティの一覧と詳細</li>
+<li>型情報と継承関係</li>
+<li>使用例とコードサンプル</li>
+</ul>
+<pre><code class="language-typescript">/**
+ * 訪問者パターンを実装するためのインターフェース
+ * ファイルシステム要素を操作するための各種訪問者を定義
+ * 
+ * @template T - 操作の結果の型
+ * @example
+ * ```typescript
+ * class FileSearcher implements FileSystemVisitor&lt;File[]&gt; {
+ *   private results: File[] = [];
+ *   
+ *   visitFile(file: File): void {
+ *     if (this.matchesCriteria(file)) {
+ *       this.results.push(file);
+ *     }
+ *   }
+ *   
+ *   getResults(): File[] {
+ *     return this.results;
+ *   }
+ * }
+ * ```
+ */
+export interface FileSystemVisitor&lt;T = void&gt; {
+    /**
+     * ファイルを訪問する
+     * @param file 訪問するファイル
+     */
+    visitFile(file: File): void;
+    
+    /**
+     * ディレクトリを訪問する
+     * @param directory 訪問するディレクトリ
+     */
+    visitDirectory(directory: Directory): void;
+    
+    /**
+     * 結果を取得する
+     * @returns 操作の結果
+     */
+    getResults?(): T;
+}
+</code></pre>
+<h3 id="42-設計文書"><a class="header" href="#42-設計文書">4.2 設計文書</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TD
+    A[設計文書] --&gt; B[アーキテクチャ設計]
+    A --&gt; C[詳細設計]
+    A --&gt; D[テスト設計]
+    
+    B --&gt; E[システム構成]
+    B --&gt; F[モジュール構成]
+    B --&gt; G[依存関係管理]
+    
+    C --&gt; H[クラス設計]
+    C --&gt; I[シーケンス図]
+    C --&gt; J[実装ガイドライン]
+    
+    D --&gt; K[テスト計画]
+    D --&gt; L[テストケース]
+    D --&gt; M[カバレッジ目標]
+</pre>
+<h2 id="5-例示モジュール"><a class="header" href="#5-例示モジュール">5. 例示モジュール</a></h2>
+<h3 id="51-サンプルコード"><a class="header" href="#51-サンプルコード">5.1 サンプルコード</a></h3>
+<pre><code class="language-typescript">/**
+ * Visitor パターンの使用例 (振る舞いパターン)
+ * ファイルシステム内のファイル検索を実装
+ */
+
+// ファイルシステムコンポーネント
+class FileSystem {
+    private root: Directory;
+    
+    constructor() {
+        this.root = new Directory('root');
+    }
+    
+    public getRoot(): Directory {
+        return this.root;
+    }
+    
+    public accept(visitor: FileSystemVisitor): void {
+        this.root.accept(visitor);
+    }
+    
+    // ファイルシステムの構築（サンプル用）
+    public initialize(): void {
+        const docs = new Directory('docs');
+        const src = new Directory('src');
+        
+        const readme = new File('README.md', 2048);
+        const config = new File('config.json', 1024);
+        
+        const mainTs = new File('main.ts', 4096);
+        const appTs = new File('app.ts', 8192);
+        
+        this.root.addEntry(docs);
+        this.root.addEntry(src);
+        this.root.addEntry(readme);
+        this.root.addEntry(config);
+        
+        src.addEntry(mainTs);
+        src.addEntry(appTs);
+    }
+}
+
+// 訪問者インターフェース
+interface FileSystemVisitor {
+    visitFile(file: File): void;
+    visitDirectory(directory: Directory): void;
+}
+
+// ファイル検索の訪問者実装
+class FileSearcher implements FileSystemVisitor {
+    private pattern: RegExp;
+    private results: File[] = [];
+    
+    constructor(searchPattern: string) {
+        this.pattern = new RegExp(searchPattern);
+    }
+    
+    public visitFile(file: File): void {
+        if (this.pattern.test(file.getName())) {
+            this.results.push(file);
+        }
+    }
+    
+    public visitDirectory(directory: Directory): void {
+        // ディレクトリそのものには何もしない
+        // 子要素の訪問は Directory.accept によって行われる
+    }
+    
+    public getResults(): File[] {
+        return this.results;
+    }
+}
+
+// 使用例
+function searchExample(): void {
+    const fileSystem = new FileSystem();
+    fileSystem.initialize();
+    
+    // .ts ファイルを検索
+    const tsFileSearcher = new FileSearcher('\\.ts$');
+    fileSystem.accept(tsFileSearcher);
+    
+    console.log('TypeScript ファイル検索結果:');
+    tsFileSearcher.getResults().forEach(file =&gt; {
+        console.log(`- ${file.getPath()}: ${file.getSize()} bytes`);
+    });
+}
+</code></pre>
+<h3 id="52-デモアプリケーション"><a class="header" href="#52-デモアプリケーション">5.2 デモアプリケーション</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TD
+    A[デモアプリケーション] --&gt; B[コマンドラインデモ]
+    A --&gt; C[Webデモ]
+    A --&gt; D[ドキュメントデモ]
+    
+    B --&gt; E[ファイルシステムデモ]
+    B --&gt; F[スマートホームデモ]
+    B --&gt; G[データ処理デモ]
+    
+    C --&gt; H[対話的デモ]
+    C --&gt; I[ビジュアルコンポーネント]
+    C --&gt; J[APIエンドポイント]
+    
+    D --&gt; K[コード生成デモ]
+    D --&gt; L[アニメーションデモ]
+    D --&gt; M[インタラクティブガイド]
+</pre>
+<h2 id="6-モジュール間の依存関係"><a class="header" href="#6-モジュール間の依存関係">6. モジュール間の依存関係</a></h2>
+<h3 id="61-依存グラフ"><a class="header" href="#61-依存グラフ">6.1 依存グラフ</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TB
+    A[コアモジュール] --&gt; B[パターンモジュール]
+    A --&gt; C[テストモジュール]
+    A --&gt; D[ドキュメントモジュール]
+    A --&gt; E[例示モジュール]
+    
+    B --&gt; C
+    B --&gt; D
+    B --&gt; E
+    
+    C --&gt; D
+    
+    E --&gt; D
+    
+    %% 詳細な依存関係
+    subgraph &quot;コアモジュール&quot;
+        A1[共通インターフェース]
+        A2[ユーティリティ]
+        A3[型定義]
+    end
+    
+    subgraph &quot;パターンモジュール&quot;
+        B1[生成パターン]
+        B2[構造パターン]
+        B3[振る舞いパターン]
+    end
+</pre>
+<h3 id="62-循環依存の防止"><a class="header" href="#62-循環依存の防止">6.2 循環依存の防止</a></h3>
+<p>循環依存を防止するための主要な戦略：</p>
+<ol>
+<li>
+<p><strong>インターフェースを活用した依存方向の制御</strong></p>
+<pre><code class="language-typescript">// 良い例：インターフェースを使用して依存方向を制御
+interface Logger {
+    log(message: string): void;
+}
+
+class ConsoleLogger implements Logger {
+    log(message: string): void {
+        console.log(message);
+    }
+}
+
+class UserService {
+    constructor(private logger: Logger) {}
+    
+    createUser(userData: UserData): User {
+        this.logger.log(`新しいユーザーを作成: ${userData.name}`);
+        // ユーザー作成ロジック
+        return new User(userData);
+    }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>依存性の注入</strong></p>
+<pre><code class="language-typescript">// 良い例：依存性の注入
+class Application {
+    constructor(
+        private userService: UserService,
+        private authService: AuthService,
+        private configService: ConfigService
+    ) {}
+    
+    initialize(): void {
+        this.configService.load();
+        this.authService.initialize();
+        // アプリケーションの初期化
+    }
+}
+
+// 依存関係の組み立て
+const logger = new ConsoleLogger();
+const configService = new ConfigService();
+const authService = new AuthService(logger, configService);
+const userService = new UserService(logger);
+const app = new Application(userService, authService, configService);
+</code></pre>
+</li>
+<li>
+<p><strong>イベントベースの通信</strong></p>
+<pre><code class="language-typescript">// 良い例：イベントを使用した疎結合な通信
+class EventBus {
+    private listeners: Map&lt;string, Function[]&gt; = new Map();
+    
+    subscribe(event: string, callback: Function): void {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event)!.push(callback);
+    }
+    
+    publish(event: string, data?: any): void {
+        if (this.listeners.has(event)) {
+            for (const callback of this.listeners.get(event)!) {
+                callback(data);
+            }
+        }
+    }
+}
+
+// 使用例
+const eventBus = new EventBus();
+
+class UserManager {
+    constructor(private eventBus: EventBus) {
+        this.eventBus.subscribe('user:created', this.handleUserCreated.bind(this));
+    }
+    
+    private handleUserCreated(user: User): void {
+        console.log(`ユーザーが作成されました: ${user.name}`);
+    }
+}
+
+class AuthService {
+    constructor(private eventBus: EventBus) {}
+    
+    createUser(userData: UserData): User {
+        const user = new User(userData);
+        // ユーザー作成ロジック
+        this.eventBus.publish('user:created', user);
+        return user;
+    }
+}
+</code></pre>
+</li>
+</ol>
+<h2 id="7-モジュールの品質管理"><a class="header" href="#7-モジュールの品質管理">7. モジュールの品質管理</a></h2>
+<h3 id="71-品質メトリクス"><a class="header" href="#71-品質メトリクス">7.1 品質メトリクス</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>メトリクス名</th><th>説明</th><th>目標値</th><th>測定ツール</th></tr></thead><tbody>
+<tr><td>コード行数</td><td>モジュールあたりの物理行数</td><td>&lt; 500行</td><td>TSLint/ESLint</td></tr>
+<tr><td>循環的複雑度</td><td>関数内の分岐の複雑さ</td><td>&lt; 10</td><td>ESLint complexity</td></tr>
+<tr><td>依存関係の数</td><td>モジュールの外部依存数</td><td>&lt; 10</td><td>dependency-cruiser</td></tr>
+<tr><td>テストカバレッジ</td><td>コードの実行カバレッジ</td><td>&gt; 85%</td><td>Jest coverage</td></tr>
+<tr><td>重複コード率</td><td>コードベース内の重複率</td><td>&lt; 3%</td><td>jscpd</td></tr>
+<tr><td>静的解析警告</td><td>コード品質警告の数</td><td>0</td><td>ESLint</td></tr>
+<tr><td>ドキュメント率</td><td>ドキュメント付き要素の割合</td><td>&gt; 80%</td><td>TypeDoc</td></tr>
+</tbody></table>
+</div>
+<h3 id="72-品質保証プロセス"><a class="header" href="#72-品質保証プロセス">7.2 品質保証プロセス</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph LR
+    A[コード作成] --&gt; B[静的解析]
+    B --&gt; C[単体テスト]
+    C --&gt; D[コードレビュー]
+    D --&gt; E[統合テスト]
+    E --&gt; F[ドキュメント更新]
+    F --&gt; G[リリース準備]
+    G --&gt; H[パフォーマンステスト]
+    H --&gt; I[セキュリティスキャン]
+    I --&gt; J[リリース承認]
+</pre>
+<h2 id="8-モジュールの拡張性"><a class="header" href="#8-モジュールの拡張性">8. モジュールの拡張性</a></h2>
+<h3 id="81-拡張ポイント"><a class="header" href="#81-拡張ポイント">8.1 拡張ポイント</a></h3>
+<ol>
+<li>
+<p><strong>プラグインシステム</strong></p>
+<ul>
+<li>プラグインインターフェース</li>
+<li>プラグイン読み込みメカニズム</li>
+<li>プラグイン設定と初期化</li>
+</ul>
+</li>
+<li>
+<p><strong>イベントハンドラ</strong></p>
+<ul>
+<li>イベント発行/購読システム</li>
+<li>フックポイント</li>
+<li>非同期イベント処理</li>
+</ul>
+</li>
+<li>
+<p><strong>カスタムビジター</strong></p>
+<ul>
+<li>標準ビジターの拡張</li>
+<li>複合ビジターの構築</li>
+<li>結果集約メカニズム</li>
+</ul>
+</li>
+<li>
+<p><strong>フィルターチェーン</strong></p>
+<ul>
+<li>前処理/後処理フィルター</li>
+<li>条件付きフィルター</li>
+<li>優先度ベースのフィルター</li>
+</ul>
+</li>
+</ol>
+<h3 id="82-拡張手順"><a class="header" href="#82-拡張手順">8.2 拡張手順</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph TB
+    A[要件分析] --&gt; B[拡張ポイント特定]
+    B --&gt; C[インターフェース実装]
+    C --&gt; D[依存関係解決]
+    D --&gt; E[単体テスト作成]
+    E --&gt; F[統合テスト]
+    F --&gt; G[ドキュメント更新]
+</pre>
+<h2 id="9-モジュールのバージョン管理"><a class="header" href="#9-モジュールのバージョン管理">9. モジュールのバージョン管理</a></h2>
+<h3 id="91-バージョニング規則"><a class="header" href="#91-バージョニング規則">9.1 バージョニング規則</a></h3>
+<p>セマンティックバージョニングに基づく：</p>
+<ul>
+<li><strong>メジャーバージョン</strong>（x.0.0）： 互換性のない変更</li>
+<li><strong>マイナーバージョン</strong>（0.x.0）： 後方互換性のある機能追加</li>
+<li><strong>パッチバージョン</strong>（0.0.x）： バグ修正と軽微な変更</li>
+</ul>
+<h3 id="92-変更管理"><a class="header" href="#92-変更管理">9.2 変更管理</a></h3>
+<pre class="mermaid">%%{ init: { 'flowchart': { 'defaultRenderer': 'elk' } } }%%
+graph LR
+    A[変更提案] --&gt; B[影響分析]
+    B --&gt; C[実装]
+    C --&gt; D[テスト]
+    D --&gt; E[ドキュメント更新]
+    E --&gt; F[リリース]
+    F --&gt; G[変更履歴更新]
+</pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/guides/architecture/documentation-guidelines.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/guides/architecture/principles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/guides/architecture/documentation-guidelines.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/guides/architecture/principles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

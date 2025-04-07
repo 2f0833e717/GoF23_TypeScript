@@ -1,0 +1,1101 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>chain of responsibility - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/chain-of-responsibility.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chain-of-responsibilityパターン---処理委譲連鎖実装"><a class="header" href="#chain-of-responsibilityパターン---処理委譲連鎖実装">Chain of Responsibilityパターン - 処理委譲連鎖実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Chain of Responsibilityパターンは、要求を処理できる複数のオブジェクトを連鎖（チェーン）として繋ぎ、要求を連鎖に沿って順次伝播させることで、要求の送信者と受信者を分離する行動パターンです。各ハンドラーは要求を処理するか、チェーン内の次のハンドラーに要求を渡します。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>要求の送信者と受信者の結合度を低減する</li>
+<li>複数のオブジェクト間で処理の責任を分散する</li>
+<li>処理順序の動的な変更や実行時の処理ルート変更を可能にする</li>
+<li>単一責任の原則に従った設計を促進する</li>
+<li>条件分岐の複雑さを軽減する</li>
+<li>ハンドラーの追加・削除を容易にする</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>複数のオブジェクトが要求を処理できる可能性がある場合</li>
+<li>要求を処理すべき具体的なハンドラーが事前にわからない場合</li>
+<li>要求処理のセットが動的に変更される可能性がある場合</li>
+<li>イベント処理システム、ミドルウェア、フィルターチェーンの実装</li>
+<li>ログ処理、認証・認可処理、入力検証などの段階的な処理</li>
+<li>エラーハンドリングや例外処理の階層化</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Handler {
+        +setNext(handler: Handler): Handler
+        +handle(request: Request): Response
+    }
+    
+    class AbstractHandler {
+        -nextHandler: Handler
+        +setNext(handler: Handler): Handler
+        +handle(request: Request): Response
+    }
+    
+    class ConcreteHandlerA {
+        +handle(request: Request): Response
+    }
+    
+    class ConcreteHandlerB {
+        +handle(request: Request): Response
+    }
+    
+    class ConcreteHandlerC {
+        +handle(request: Request): Response
+    }
+    
+    class Client {
+        -handler: Handler
+        +doSomething(request: Request): void
+    }
+    
+    Handler &lt;|.. AbstractHandler : implements
+    AbstractHandler &lt;|-- ConcreteHandlerA : extends
+    AbstractHandler &lt;|-- ConcreteHandlerB : extends
+    AbstractHandler &lt;|-- ConcreteHandlerC : extends
+    Client --&gt; Handler : uses
+    
+    note for Handler &quot;インターフェース&quot;
+    note for AbstractHandler &quot;抽象クラス&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Handler</td><td>インターフェース</td><td>要求処理の共通インターフェースを定義</td><td>AbstractHandlerに実装される</td></tr>
+<tr><td>AbstractHandler</td><td>抽象クラス</td><td>次のハンドラーへの参照を保持し、基本的な連鎖機能を実装</td><td>Handlerを実装し、具象ハンドラーのベースクラスとなる</td></tr>
+<tr><td>ConcreteHandler</td><td>具象クラス</td><td>特定の種類の要求を処理する具体的な実装</td><td>AbstractHandlerを継承する</td></tr>
+<tr><td>Client</td><td>クラス</td><td>連鎖の先頭ハンドラーに要求を送信</td><td>Handlerを使用する</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Clientは要求をHandlerのインターフェースを通じて送信する</li>
+<li>AbstractHandlerは次のハンドラーへの参照を管理し、要求の転送メカニズムを提供する</li>
+<li>各ConcreteHandlerは自身が処理できる要求を処理し、それ以外は次のハンドラーに転送する</li>
+<li>連鎖の最後まで要求が処理されない場合、デフォルトの動作が実行されるか、要求は無視される</li>
+<li>ハンドラーが要求を処理した後も、任意で連鎖を続行するかを決定できる</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant HandlerA
+    participant HandlerB
+    participant HandlerC
+    
+    Client-&gt;&gt;HandlerA: handle(request)
+    activate HandlerA
+    
+    alt HandlerAが処理可能
+        HandlerA--&gt;&gt;Client: response
+    else HandlerAが処理不可
+    HandlerA-&gt;&gt;HandlerB: handle(request)
+        activate HandlerB
+        
+        alt HandlerBが処理可能
+            HandlerB--&gt;&gt;HandlerA: response
+            HandlerA--&gt;&gt;Client: response
+        else HandlerBが処理不可
+            HandlerB-&gt;&gt;HandlerC: handle(request)
+            activate HandlerC
+            
+            alt HandlerCが処理可能
+                HandlerC--&gt;&gt;HandlerB: response
+    HandlerB--&gt;&gt;HandlerA: response
+    HandlerA--&gt;&gt;Client: response
+            else 処理できるハンドラーなし
+                HandlerC--&gt;&gt;HandlerB: defaultResponse
+                HandlerB--&gt;&gt;HandlerA: defaultResponse
+                HandlerA--&gt;&gt;Client: defaultResponse
+            end
+            
+            deactivate HandlerC
+        end
+        
+        deactivate HandlerB
+    end
+    
+    deactivate HandlerA
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[クライアントが要求を発行]
+    B --&gt; C[ハンドラーチェーンの最初のハンドラーに要求を送信]
+    C --&gt; D{現在のハンドラーが\n要求を処理できるか?}
+    D --&gt;|Yes| E[要求を処理]
+    D --&gt;|No| F{次のハンドラーが\n存在するか?}
+    F --&gt;|Yes| G[次のハンドラーに要求を転送]
+    G --&gt; D
+    F --&gt;|No| H[デフォルト処理またはエラー]
+    E --&gt; I{処理後も連鎖を\n続行するか?}
+    I --&gt;|Yes| F
+    I --&gt;|No| J[結果をクライアントに返す]
+    H --&gt; J
+    J --&gt; K[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-ログレベルに基づく処理"><a class="header" href="#シナリオ1-ログレベルに基づく処理">シナリオ1: ログレベルに基づく処理</a></h4>
+<ol>
+<li>クライアントが特定のレベル（info、warn、error）でログメッセージを記録</li>
+<li>メッセージは最初のハンドラー（InfoLogHandler）に送信される</li>
+<li>各ハンドラーは自身が担当するログレベルのメッセージのみを処理</li>
+<li>他のレベルのメッセージは次のハンドラーに転送</li>
+<li>例えば、errorメッセージはInfoLogHandlerとWarnLogHandlerを通過し、最終的にErrorLogHandlerが処理</li>
+</ol>
+<h4 id="シナリオ2-認証認可フロー"><a class="header" href="#シナリオ2-認証認可フロー">シナリオ2: 認証・認可フロー</a></h4>
+<ol>
+<li>ユーザーがリソースへのアクセスをリクエスト</li>
+<li>リクエストは認証ハンドラーに送信され、有効な認証情報を確認</li>
+<li>認証成功後、リクエストは認可ハンドラーに転送され、アクセス権を確認</li>
+<li>認可成功後、リクエストはレート制限ハンドラーに転送され、アクセス頻度を確認</li>
+<li>すべてのチェックが通過した場合のみ、リクエストは実際のリソースハンドラーに到達</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェース基本クラス"><a class="header" href="#41-主要インターフェース基本クラス">4.1 主要インターフェース・基本クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * ハンドラーインターフェース
+ * チェーン内のすべてのハンドラーが実装する基本インターフェース
+ */
+interface Handler&lt;T&gt; {
+    /**
+     * 次のハンドラーを設定
+     * @param handler 次のハンドラー
+     * @returns 次のハンドラー（メソッドチェーン用）
+     */
+    setNext(handler: Handler&lt;T&gt;): Handler&lt;T&gt;;
+    
+    /**
+     * 要求を処理
+     * @param request 処理する要求
+     * @returns 処理結果またはnull
+     */
+    handle(request: T): T | null;
+}
+
+/**
+ * 基本ハンドラー
+ * チェーン管理の共通機能を実装する抽象クラス
+ */
+abstract class AbstractHandler&lt;T&gt; implements Handler&lt;T&gt; {
+    /**
+     * 次のハンドラー
+     */
+    private nextHandler: Handler&lt;T&gt; | null = null;
+    
+    /**
+     * 次のハンドラーを設定
+     * @param handler 次のハンドラー
+     * @returns 次のハンドラー（メソッドチェーン用）
+     */
+    setNext(handler: Handler&lt;T&gt;): Handler&lt;T&gt; {
+        this.nextHandler = handler;
+        return handler;
+    }
+    
+    /**
+     * 要求を処理
+     * @param request 処理する要求
+     * @returns 処理結果またはnull
+     */
+    handle(request: T): T | null {
+        // 自身が処理できない場合は次のハンドラーに転送
+        if (this.nextHandler) {
+            return this.nextHandler.handle(request);
+        }
+        
+        // チェーンの最後に到達し、処理できない場合はnullを返す
+        return null;
+    }
+}
+</code></pre>
+<h3 id="42-ログハンドラー実装例"><a class="header" href="#42-ログハンドラー実装例">4.2 ログハンドラー実装例</a></h3>
+<pre><code class="language-typescript">/**
+ * ログレベル定義
+ */
+enum LogLevel {
+    INFO = 'info',
+    WARN = 'warn',
+    ERROR = 'error'
+}
+
+/**
+ * ログメッセージ定義
+ */
+interface LogMessage {
+    level: LogLevel;
+    message: string;
+    timestamp: Date;
+}
+
+/**
+ * 情報ログハンドラー
+ */
+class InfoLogHandler extends AbstractHandler&lt;LogMessage&gt; {
+    /**
+     * 情報ログを処理
+     * @param request ログメッセージ
+     * @returns 処理したログメッセージまたは次のハンドラーの結果
+     */
+    handle(request: LogMessage): LogMessage | null {
+        if (request.level === LogLevel.INFO) {
+            console.log(this.formatMessage(request));
+            return request;
+        }
+        
+        // 情報ログでない場合は次のハンドラーに転送
+        return super.handle(request);
+    }
+    
+    /**
+     * ログメッセージをフォーマット
+     * @param log ログメッセージ
+     * @returns フォーマット済みメッセージ
+     */
+    private formatMessage(log: LogMessage): string {
+        return `[${log.timestamp.toISOString()}] ${log.level.toUpperCase()}: ${log.message}`;
+    }
+}
+
+/**
+ * 警告ログハンドラー
+ */
+class WarnLogHandler extends AbstractHandler&lt;LogMessage&gt; {
+    /**
+     * 警告ログを処理
+     * @param request ログメッセージ
+     * @returns 処理したログメッセージまたは次のハンドラーの結果
+     */
+    handle(request: LogMessage): LogMessage | null {
+        if (request.level === LogLevel.WARN) {
+            console.warn(this.formatMessage(request));
+            return request;
+        }
+        
+        // 警告ログでない場合は次のハンドラーに転送
+        return super.handle(request);
+    }
+    
+    /**
+     * ログメッセージをフォーマット
+     * @param log ログメッセージ
+     * @returns フォーマット済みメッセージ
+     */
+    private formatMessage(log: LogMessage): string {
+        return `[${log.timestamp.toISOString()}] ${log.level.toUpperCase()}: ${log.message}`;
+    }
+}
+
+/**
+ * エラーログハンドラー
+ */
+class ErrorLogHandler extends AbstractHandler&lt;LogMessage&gt; {
+    /**
+     * エラーログを処理
+     * @param request ログメッセージ
+     * @returns 処理したログメッセージまたは次のハンドラーの結果
+     */
+    handle(request: LogMessage): LogMessage | null {
+        if (request.level === LogLevel.ERROR) {
+            console.error(this.formatMessage(request));
+            this.notifyAdmin(request);
+            return request;
+        }
+        
+        // エラーログでない場合は次のハンドラーに転送
+        return super.handle(request);
+    }
+    
+    /**
+     * ログメッセージをフォーマット
+     * @param log ログメッセージ
+     * @returns フォーマット済みメッセージ
+     */
+    private formatMessage(log: LogMessage): string {
+        return `[${log.timestamp.toISOString()}] ${log.level.toUpperCase()}: ${log.message}`;
+    }
+    
+    /**
+     * 管理者に通知
+     * @param log エラーログメッセージ
+     */
+    private notifyAdmin(log: LogMessage): void {
+        // 実際の実装ではメール送信やアラート発信などを行う
+        console.log(`管理者に通知: ${log.message}`);
+    }
+}
+</code></pre>
+<h3 id="43-実装のバリエーション"><a class="header" href="#43-実装のバリエーション">4.3 実装のバリエーション</a></h3>
+<ol>
+<li>
+<p><strong>単一ハンドラー処理型</strong></p>
+<ul>
+<li>各要求は一つのハンドラーのみが処理し、処理後に連鎖は停止する</li>
+<li>最初に条件を満たすハンドラーが要求を処理する</li>
+</ul>
+</li>
+<li>
+<p><strong>複数ハンドラー処理型</strong></p>
+<ul>
+<li>複数のハンドラーが同じ要求を順次処理できる</li>
+<li>要求は常に連鎖の最後まで伝播する（ミドルウェアパターンに類似）</li>
+</ul>
+</li>
+<li>
+<p><strong>双方向連鎖型</strong></p>
+<ul>
+<li>要求が連鎖を上り下りする（処理後に逆方向にも伝播する）</li>
+<li>リクエスト/レスポンスの前処理と後処理を実装できる</li>
+</ul>
+</li>
+<li>
+<p><strong>動的連鎖型</strong></p>
+<ul>
+<li>実行時に連鎖の構成を変更できる</li>
+<li>状態やコンテキストに基づいて異なる連鎖パスを構築する</li>
+</ul>
+</li>
+</ol>
+<h3 id="44-注意すべき実装ポイント"><a class="header" href="#44-注意すべき実装ポイント">4.4 注意すべき実装ポイント</a></h3>
+<ul>
+<li>循環参照を避け、連鎖に循環が生じないようにする</li>
+<li>連鎖が長すぎる場合、パフォーマンスに影響する可能性があるため、適切な長さに保つ</li>
+<li>要求が処理されない場合のデフォルト動作を明確に定義する</li>
+<li>各ハンドラーは単一責任の原則に従い、明確に定義された責務を持つべき</li>
+<li>ハンドラーの順序に依存しないよう注意する（または順序の依存関係を明確にドキュメント化する）</li>
+<li>連鎖の構築を簡単にするためのファクトリやビルダーパターンの使用を検討する</li>
+<li>デバッグしやすくするために、要求の処理状況を追跡するロギングを実装する</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-基本的な使用例"><a class="header" href="#51-基本的な使用例">5.1 基本的な使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * ロガークラス
+ * ログチェーンを構築し、使いやすいインターフェースを提供
+ */
+class Logger {
+    /**
+     * ハンドラーチェーンの先頭
+     */
+    private handler: Handler&lt;LogMessage&gt;;
+    
+    /**
+     * コンストラクタ
+     * ハンドラーチェーンを構築
+     */
+    constructor() {
+        // ハンドラーの作成
+        const infoHandler = new InfoLogHandler();
+        const warnHandler = new WarnLogHandler();
+        const errorHandler = new ErrorLogHandler();
+        
+        // チェーンの構築
+        infoHandler.setNext(warnHandler).setNext(errorHandler);
+        
+        // チェーンの先頭を保持
+        this.handler = infoHandler;
+    }
+    
+    /**
+     * 情報ログの記録
+     * @param message ログメッセージ
+     */
+    info(message: string): void {
+        this.handler.handle({
+            level: LogLevel.INFO,
+            message,
+            timestamp: new Date()
+        });
+    }
+    
+    /**
+     * 警告ログの記録
+     * @param message ログメッセージ
+     */
+    warn(message: string): void {
+        this.handler.handle({
+            level: LogLevel.WARN,
+            message,
+            timestamp: new Date()
+        });
+    }
+    
+    /**
+     * エラーログの記録
+     * @param message ログメッセージ
+     */
+    error(message: string): void {
+        this.handler.handle({
+            level: LogLevel.ERROR,
+            message,
+            timestamp: new Date()
+        });
+    }
+}
+
+// 使用例
+const logger = new Logger();
+
+logger.info('アプリケーションを開始しました');
+logger.warn('メモリ使用量が高くなっています');
+logger.error('データベース接続に失敗しました');
+
+// 出力例:
+// [2023-04-01T10:30:00.000Z] INFO: アプリケーションを開始しました
+// [2023-04-01T10:30:01.000Z] WARN: メモリ使用量が高くなっています
+// [2023-04-01T10:30:02.000Z] ERROR: データベース接続に失敗しました
+// 管理者に通知: データベース接続に失敗しました
+</code></pre>
+<h3 id="52-高度な使用例"><a class="header" href="#52-高度な使用例">5.2 高度な使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * リクエスト型定義
+ */
+interface Request {
+    url: string;
+    method: string;
+    headers: Record&lt;string, string&gt;;
+    body?: any;
+    user?: {
+        id: string;
+        roles: string[];
+    };
+}
+
+/**
+ * レスポンス型定義
+ */
+interface Response {
+    status: number;
+    body?: any;
+    headers: Record&lt;string, string&gt;;
+}
+
+/**
+ * HTTPハンドラーインターフェース
+ */
+interface HttpHandler {
+    setNext(handler: HttpHandler): HttpHandler;
+    handle(request: Request, response: Response): Response;
+}
+
+/**
+ * HTTP基本ハンドラー
+ */
+abstract class AbstractHttpHandler implements HttpHandler {
+    private nextHandler: HttpHandler | null = null;
+    
+    setNext(handler: HttpHandler): HttpHandler {
+        this.nextHandler = handler;
+        return handler;
+    }
+    
+    handle(request: Request, response: Response): Response {
+        if (this.nextHandler) {
+            return this.nextHandler.handle(request, response);
+        }
+        return response;
+    }
+}
+
+/**
+ * 認証ハンドラー
+ */
+class AuthenticationHandler extends AbstractHttpHandler {
+    handle(request: Request, response: Response): Response {
+        console.log('認証チェック中...');
+        
+        // Authorization ヘッダーの確認
+        const authHeader = request.headers['Authorization'];
+        if (!authHeader) {
+            response.status = 401;
+            response.body = { error: '認証が必要です' };
+            return response;
+        }
+        
+        // 実際のシステムでは、ここでトークン検証などを行う
+        request.user = {
+            id: 'user-123',
+            roles: ['user']
+        };
+        
+        console.log('認証成功');
+        return super.handle(request, response);
+    }
+}
+
+/**
+ * 認可ハンドラー
+ */
+class AuthorizationHandler extends AbstractHttpHandler {
+    handle(request: Request, response: Response): Response {
+        console.log('認可チェック中...');
+        
+        // ユーザーが存在しない場合
+        if (!request.user) {
+            response.status = 401;
+            response.body = { error: 'ユーザー情報がありません' };
+            return response;
+        }
+        
+        // 管理者権限が必要なURLの場合
+        if (request.url.startsWith('/admin') &amp;&amp; !request.user.roles.includes('admin')) {
+            response.status = 403;
+            response.body = { error: 'アクセス権限がありません' };
+            return response;
+        }
+        
+        console.log('認可成功');
+        return super.handle(request, response);
+    }
+}
+
+/**
+ * レート制限ハンドラー
+ */
+class RateLimitHandler extends AbstractHttpHandler {
+    private rateLimits: Map&lt;string, { count: number, lastReset: number }&gt; = new Map();
+    private readonly LIMIT = 10; // 10リクエスト/分
+    
+    handle(request: Request, response: Response): Response {
+        console.log('レート制限チェック中...');
+        
+        const userId = request.user?.id || request.headers['X-Client-IP'] || 'anonymous';
+        const now = Date.now();
+        const minuteMs = 60 * 1000;
+        
+        // ユーザーのレート情報を取得または初期化
+        let rateInfo = this.rateLimits.get(userId);
+        if (!rateInfo || (now - rateInfo.lastReset &gt; minuteMs)) {
+            rateInfo = { count: 0, lastReset: now };
+        }
+        
+        // カウント増加
+        rateInfo.count++;
+        this.rateLimits.set(userId, rateInfo);
+        
+        // 制限チェック
+        if (rateInfo.count &gt; this.LIMIT) {
+            response.status = 429;
+            response.body = { error: 'リクエスト数制限を超えました' };
+            response.headers['Retry-After'] = '60';
+            return response;
+        }
+        
+        console.log('レート制限内');
+        return super.handle(request, response);
+    }
+}
+
+/**
+ * コンテンツハンドラー
+ */
+class ContentHandler extends AbstractHttpHandler {
+    handle(request: Request, response: Response): Response {
+        console.log(`リクエスト処理: ${request.method} ${request.url}`);
+        
+        // 実際のコンテンツ処理
+        response.status = 200;
+        response.body = { message: '処理に成功しました', user: request.user };
+        
+        return super.handle(request, response);
+    }
+}
+
+/**
+ * ロギングハンドラー
+ */
+class LoggingHandler extends AbstractHttpHandler {
+    handle(request: Request, response: Response): Response {
+        // リクエストを記録
+        console.log(`${new Date().toISOString()} - ${request.method} ${request.url}`);
+        
+        // 次のハンドラーに転送
+        const result = super.handle(request, response);
+        
+        // レスポンスを記録
+        console.log(`${new Date().toISOString()} - レスポンス: ${response.status}`);
+        
+        return result;
+    }
+}
+
+/**
+ * ハンドラーチェーンの構築と使用例
+ */
+// ハンドラーの作成
+const loggingHandler = new LoggingHandler();
+const authenticationHandler = new AuthenticationHandler();
+const authorizationHandler = new AuthorizationHandler();
+const rateLimitHandler = new RateLimitHandler();
+const contentHandler = new ContentHandler();
+
+// チェーンの構築
+loggingHandler
+    .setNext(authenticationHandler)
+    .setNext(authorizationHandler)
+    .setNext(rateLimitHandler)
+    .setNext(contentHandler);
+
+// リクエスト処理
+const request: Request = {
+    url: '/admin/dashboard',
+    method: 'GET',
+    headers: {
+        'Authorization': 'Bearer token123',
+        'Content-Type': 'application/json'
+    }
+};
+
+const response: Response = {
+    status: 100, // 継続
+    headers: {}
+};
+
+// チェーンを実行
+const result = loggingHandler.handle(request, response);
+console.log('最終レスポンス:', result);
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>各ハンドラーが自身の責務を正しく果たすことを検証</li>
+<li>各ハンドラーが適切に要求を次のハンドラーに転送することを確認</li>
+<li>連鎖の最後に達した場合の動作を検証</li>
+<li>エラー処理の正確性を検証</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Chain of Responsibility Pattern', () =&gt; {
+describe('LogHandler', () =&gt; {
+    let infoHandler: InfoLogHandler;
+    let warnHandler: WarnLogHandler;
+    let errorHandler: ErrorLogHandler;
+        let consoleSpy: jest.SpyInstance;
+    
+    beforeEach(() =&gt; {
+            // ハンドラーの作成
+        infoHandler = new InfoLogHandler();
+        warnHandler = new WarnLogHandler();
+        errorHandler = new ErrorLogHandler();
+        
+            // チェーンの構築
+            infoHandler.setNext(warnHandler).setNext(errorHandler);
+            
+            // コンソール出力のモック
+            consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+            jest.spyOn(console, 'warn').mockImplementation();
+            jest.spyOn(console, 'error').mockImplementation();
+        });
+        
+        afterEach(() =&gt; {
+            jest.restoreAllMocks();
+        });
+        
+        test('should handle INFO level logs in InfoLogHandler', () =&gt; {
+            const logMessage: LogMessage = {
+                level: LogLevel.INFO,
+                message: 'テスト情報',
+                timestamp: new Date()
+            };
+            
+            infoHandler.handle(logMessage);
+            
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('INFO: テスト情報'));
+            expect(console.warn).not.toHaveBeenCalled();
+            expect(console.error).not.toHaveBeenCalled();
+        });
+        
+        test('should pass WARN level logs to WarnLogHandler', () =&gt; {
+            const logMessage: LogMessage = {
+                level: LogLevel.WARN,
+                message: 'テスト警告',
+                timestamp: new Date()
+            };
+            
+            infoHandler.handle(logMessage);
+            
+            expect(console.log).not.toHaveBeenCalled();
+            expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('WARN: テスト警告'));
+            expect(console.error).not.toHaveBeenCalled();
+        });
+        
+        test('should pass ERROR level logs to ErrorLogHandler', () =&gt; {
+            const logMessage: LogMessage = {
+                level: LogLevel.ERROR,
+                message: 'テストエラー',
+                timestamp: new Date()
+            };
+            
+            infoHandler.handle(logMessage);
+            
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('管理者に通知'));
+            expect(console.warn).not.toHaveBeenCalled();
+            expect(console.error).toHaveBeenCalledWith(expect.stringContaining('ERROR: テストエラー'));
+        });
+        
+        test('should return null when no handler can process the request', () =&gt; {
+            const invalidLogMessage = {
+                level: 'debug' as any,
+                message: 'デバッグメッセージ',
+                timestamp: new Date()
+            };
+            
+            const result = infoHandler.handle(invalidLogMessage);
+            
+            expect(result).toBeNull();
+            expect(console.log).not.toHaveBeenCalled();
+            expect(console.warn).not.toHaveBeenCalled();
+            expect(console.error).not.toHaveBeenCalled();
+        });
+    });
+    
+    describe('HTTPHandler', () =&gt; {
+        let loggingHandler: LoggingHandler;
+        let authHandler: AuthenticationHandler;
+        let authzHandler: AuthorizationHandler;
+        let rateHandler: RateLimitHandler;
+        let contentHandler: ContentHandler;
+    
+    beforeEach(() =&gt; {
+            // ハンドラーの作成
+            loggingHandler = new LoggingHandler();
+            authHandler = new AuthenticationHandler();
+            authzHandler = new AuthorizationHandler();
+            rateHandler = new RateLimitHandler();
+            contentHandler = new ContentHandler();
+            
+            // チェーンの構築
+            loggingHandler
+                .setNext(authHandler)
+                .setNext(authzHandler)
+                .setNext(rateHandler)
+                .setNext(contentHandler);
+            
+            jest.spyOn(console, 'log').mockImplementation();
+        });
+        
+        afterEach(() =&gt; {
+            jest.restoreAllMocks();
+        });
+        
+        test('should return 401 when authentication fails', () =&gt; {
+            const request: Request = {
+                url: '/dashboard',
+                method: 'GET',
+                headers: {}
+            };
+            
+            const response: Response = {
+                status: 100,
+                headers: {}
+            };
+            
+            const result = loggingHandler.handle(request, response);
+            
+            expect(result.status).toBe(401);
+            expect(result.body).toHaveProperty('error');
+        });
+        
+        test('should return 403 when authorization fails', () =&gt; {
+            const request: Request = {
+                url: '/admin/dashboard',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer token123'
+                },
+                user: {
+                    id: 'user-123',
+                    roles: ['user']
+                }
+            };
+            
+            const response: Response = {
+                status: 100,
+                headers: {}
+            };
+            
+            const result = loggingHandler.handle(request, response);
+            
+            expect(result.status).toBe(403);
+            expect(result.body).toHaveProperty('error');
+        });
+        
+        test('should process request successfully when all checks pass', () =&gt; {
+            const request: Request = {
+                url: '/dashboard',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer token123'
+                },
+                user: {
+                    id: 'user-123',
+                    roles: ['user']
+                }
+            };
+            
+            const response: Response = {
+                status: 100,
+                headers: {}
+            };
+            
+            const result = loggingHandler.handle(request, response);
+            
+            expect(result.status).toBe(200);
+            expect(result.body).toHaveProperty('message');
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>要求の送信者と受信者を分離し、結合度を低減する</li>
+<li>処理の責任を分散し、単一責任の原則を促進する</li>
+<li>連鎖の構成を動的に変更でき、柔軟性が高い</li>
+<li>新しいハンドラーの追加が容易（開放/閉鎖原則に準拠）</li>
+<li>大きな条件分岐を避け、コードの可読性と保守性を向上させる</li>
+<li>処理の順序を明示的に制御できる</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>要求が必ず処理される保証がない（すべてのハンドラーが要求を拒否する可能性）</li>
+<li>デバッグが複雑になる可能性がある（要求の流れを追跡するのが難しい）</li>
+<li>長い連鎖はパフォーマンスに影響を与える可能性がある</li>
+<li>連鎖の設計が不適切な場合、責任の所在が不明確になることがある</li>
+<li>実装によっては、ハンドラー間の順序依存関係が生じることがある</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Command パターン</strong>: 要求をオブジェクトとしてカプセル化するが、Chain of Responsibilityは要求の処理者を動的に決定する</li>
+<li><strong>Composite パターン</strong>: ツリー構造のオブジェクトを扱い、Chain of Responsibilityと組み合わせて階層的な処理チェーンを構築できる</li>
+<li><strong>Decorator パターン</strong>: オブジェクトに新しい振る舞いを追加するが、Chain of Responsibilityは処理の責任を分散する</li>
+<li><strong>Observer パターン</strong>: イベント通知の仕組みを提供するが、Chain of Responsibilityは要求の処理フローを定義する</li>
+<li><strong>Middleware パターン</strong>: Web フレームワークなどで使用される、Chain of Responsibilityの応用パターン</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/behavioral/chain-of-responsibility">ソースコード</a></li>
+<li><a href="../../tests/behavioral/chain-of-responsibility">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/chain-of-responsibility">リファクタリング・グル - Chain of Responsibility パターン</a></li>
+<li><a href="https://www.amazon.co.jp/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/guides/implementation/testing-guidelines.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/command.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/guides/implementation/testing-guidelines.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/command.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

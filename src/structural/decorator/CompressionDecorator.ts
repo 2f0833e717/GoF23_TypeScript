@@ -12,8 +12,21 @@ export class CompressionDecorator extends DataSourceDecorator {
      * @param data 書き込むデータ
      */
     writeData(data: string): void {
-        const compressedData = this.compress(data);
-        super.writeData(compressedData);
+        if (data === null || data === undefined) {
+            throw new Error('データが無効です');
+        }
+
+        if (typeof data !== 'string') {
+            throw new Error('データは文字列である必要があります');
+        }
+
+        try {
+            const compressedData = this.compress(data);
+            super.writeData(compressedData);
+        } catch (error) {
+            console.error('データの書き込みに失敗しました:', error);
+            throw new Error('データの書き込みに失敗しました');
+        }
     }
 
     /**
@@ -21,11 +34,16 @@ export class CompressionDecorator extends DataSourceDecorator {
      * @returns 解凍されたデータ
      */
     readData(): string {
-        const compressedData = super.readData();
-        if (!compressedData) {
-            return '';
+        try {
+            const compressedData = super.readData();
+            if (!compressedData) {
+                return '';
+            }
+            return this.decompress(compressedData);
+        } catch (error) {
+            console.error('データの読み込みに失敗しました:', error);
+            throw new Error('データの読み込みに失敗しました');
         }
-        return this.decompress(compressedData);
     }
 
     /**
@@ -40,7 +58,7 @@ export class CompressionDecorator extends DataSourceDecorator {
             return compressed.toString('base64');
         } catch (error) {
             console.error('データの圧縮に失敗しました:', error);
-            return data;
+            throw new Error('データの圧縮に失敗しました');
         }
     }
 
@@ -51,12 +69,16 @@ export class CompressionDecorator extends DataSourceDecorator {
      */
     private decompress(compressedData: string): string {
         try {
+            if (!compressedData) {
+                return '';
+            }
+
             const buffer = Buffer.from(compressedData, 'base64');
             const decompressed = zlib.inflateSync(buffer);
             return decompressed.toString('utf8');
         } catch (error) {
             console.error('データの解凍に失敗しました:', error);
-            return compressedData;
+            throw new Error('データの解凍に失敗しました');
         }
     }
 } 

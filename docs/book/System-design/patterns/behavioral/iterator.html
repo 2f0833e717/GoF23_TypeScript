@@ -1,0 +1,1222 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>iterator - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/behavioral/iterator.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="iteratorパターン---コレクション走査実装"><a class="header" href="#iteratorパターン---コレクション走査実装">Iteratorパターン - コレクション走査実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Iteratorパターンは、コレクションの内部構造を公開せずに、その要素に順次アクセスする方法を提供する行動パターンです。これにより、コレクションの実装詳細から独立して、異なるコレクション構造に対して統一的なアクセス方法を実現できます。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>コレクションの内部構造を隠蔽する</li>
+<li>複数の走査アルゴリズムを提供する</li>
+<li>コレクションのインターフェースをシンプルに保つ</li>
+<li>走査ロジックとコレクション要素の管理を分離する</li>
+<li>複数のトラバーサルを同時に行う</li>
+<li>反復処理のための統一的なインターフェースを提供する</li>
+<li>クライアントからコレクションの実装詳細を隠蔽する</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>複雑なデータ構造を走査する必要がある場合</li>
+<li>コレクションの内部実装を隠蔽したい場合</li>
+<li>走査と集約操作を分離したい場合</li>
+<li>同一コレクションに対して複数の走査方法を提供する場合</li>
+<li>異なる種類のコレクションに対して統一的なアクセス方法が必要な場合</li>
+<li>データ構造のトラバーサルを抽象化したい場合</li>
+<li>複数のコレクションを同じインターフェースで処理したい場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Iterator {
+        +hasNext(): boolean
+        +next(): T
+        +current(): T
+        +reset(): void
+    }
+    
+    class Collection {
+        +createIterator(): Iterator
+    }
+    
+    class ConcreteIterator {
+        -collection: ConcreteCollection
+        -position: number
+        +hasNext(): boolean
+        +next(): T
+        +current(): T
+        +reset(): void
+    }
+    
+    class ConcreteCollection {
+        -items: T[]
+        +add(item: T): void
+        +get(index: number): T
+        +size(): number
+        +createIterator(): Iterator
+    }
+    
+    class BidirectionalIterator {
+        +hasPrevious(): boolean
+        +previous(): T
+    }
+    
+    class FilteringIterator {
+        -iterator: Iterator
+        -predicate: Function
+        +hasNext(): boolean
+        +next(): T
+        +current(): T
+        +reset(): void
+    }
+    
+    Iterator &lt;|.. ConcreteIterator : implements
+    Collection &lt;|.. ConcreteCollection : implements
+    ConcreteCollection --&gt; ConcreteIterator : creates
+    Iterator &lt;|-- BidirectionalIterator : extends
+    Iterator &lt;|.. FilteringIterator : implements
+    
+    note for Iterator &quot;インターフェース&quot;
+    note for Collection &quot;インターフェース&quot;
+    note for BidirectionalIterator &quot;インターフェース&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Iterator</td><td>インターフェース</td><td>コレクション要素へのアクセス方法を定義</td><td>ConcreteIterator に実装される</td></tr>
+<tr><td>Collection</td><td>インターフェース</td><td>イテレータの生成メソッドを定義</td><td>ConcreteCollection に実装される</td></tr>
+<tr><td>ConcreteIterator</td><td>クラス</td><td>特定のコレクションに対する走査ロジックを実装</td><td>Iterator を実装、ConcreteCollection を参照</td></tr>
+<tr><td>ConcreteCollection</td><td>クラス</td><td>要素の格納と独自のイテレータ生成を担当</td><td>Collection を実装、ConcreteIterator を生成</td></tr>
+<tr><td>BidirectionalIterator</td><td>インターフェース</td><td>双方向走査機能を追加</td><td>Iterator を拡張</td></tr>
+<tr><td>FilteringIterator</td><td>クラス</td><td>条件に合致する要素のみを提供</td><td>Iterator を実装、他の Iterator を参照</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>クライアントはCollectionのcreateIterator()メソッドを呼び出してイテレータを取得する</li>
+<li>クライアントはIteratorインターフェースを通じてコレクションの要素にアクセスする</li>
+<li>ConcreteIteratorはConcreteCollectionの内部構造を知っており、適切な走査を行う</li>
+<li>イテレータは現在の位置を追跡し、次の要素へのアクセスを提供する</li>
+<li>特殊なイテレータ（BidirectionalIterator、FilteringIteratorなど）は基本機能を拡張する</li>
+</ul>
+<h2 id="3-シーケンス"><a class="header" href="#3-シーケンス">3. シーケンス</a></h2>
+<h3 id="31-基本フロー"><a class="header" href="#31-基本フロー">3.1 基本フロー</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Collection
+    participant Iterator
+    
+    Client-&gt;&gt;Collection: createIterator()
+    activate Collection
+    Collection-&gt;&gt;Iterator: new Iterator(this)
+    activate Iterator
+    Iterator--&gt;&gt;Collection: iterator
+    deactivate Iterator
+    Collection--&gt;&gt;Client: iterator
+    deactivate Collection
+    
+    loop Iteration
+        Client-&gt;&gt;Iterator: hasNext()
+        activate Iterator
+        Iterator--&gt;&gt;Client: boolean
+        deactivate Iterator
+        
+        alt hasNext() == true
+            Client-&gt;&gt;Iterator: next()
+            activate Iterator
+            Iterator--&gt;&gt;Client: element
+            deactivate Iterator
+            Client-&gt;&gt;Client: process element
+        end
+    end
+</pre>
+<h3 id="32-リスト走査の例"><a class="header" href="#32-リスト走査の例">3.2 リスト走査の例</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant ArrayList
+    participant ArrayListIterator
+    
+    Client-&gt;&gt;ArrayList: createIterator()
+    activate ArrayList
+    ArrayList-&gt;&gt;ArrayListIterator: new ArrayListIterator(this)
+    activate ArrayListIterator
+    ArrayListIterator--&gt;&gt;ArrayList: iterator
+    deactivate ArrayListIterator
+    ArrayList--&gt;&gt;Client: iterator
+    deactivate ArrayList
+    
+    Client-&gt;&gt;ArrayListIterator: hasNext()
+    activate ArrayListIterator
+    ArrayListIterator--&gt;&gt;Client: true
+    deactivate ArrayListIterator
+    
+    Client-&gt;&gt;ArrayListIterator: next()
+    activate ArrayListIterator
+    ArrayListIterator-&gt;&gt;ArrayList: get(position)
+    activate ArrayList
+    ArrayList--&gt;&gt;ArrayListIterator: element
+    deactivate ArrayList
+    ArrayListIterator--&gt;&gt;Client: element
+    deactivate ArrayListIterator
+    
+    Client-&gt;&gt;ArrayListIterator: hasNext()
+    activate ArrayListIterator
+    ArrayListIterator--&gt;&gt;Client: true
+    deactivate ArrayListIterator
+    
+    Client-&gt;&gt;ArrayListIterator: next()
+    activate ArrayListIterator
+    ArrayListIterator-&gt;&gt;ArrayList: get(position)
+    activate ArrayList
+    ArrayList--&gt;&gt;ArrayListIterator: element
+    deactivate ArrayList
+    ArrayListIterator--&gt;&gt;Client: element
+    deactivate ArrayListIterator
+    
+    Client-&gt;&gt;ArrayListIterator: hasNext()
+    activate ArrayListIterator
+    ArrayListIterator--&gt;&gt;Client: false
+    deactivate ArrayListIterator
+</pre>
+<h3 id="33-プロセスフロー"><a class="header" href="#33-プロセスフロー">3.3 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[コレクションの作成]
+    B --&gt; C[要素の追加]
+    C --&gt; D[イテレータの取得]
+    D --&gt; E{次の要素があるか?}
+    E --&gt;|Yes| F[次の要素を取得]
+    F --&gt; G[要素の処理]
+    G --&gt; E
+    E --&gt;|No| H[終了]
+</pre>
+<h3 id="34-重要なシナリオ"><a class="header" href="#34-重要なシナリオ">3.4 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-基本的なコレクション走査"><a class="header" href="#シナリオ1-基本的なコレクション走査">シナリオ1: 基本的なコレクション走査</a></h4>
+<ol>
+<li>クライアントがコレクションを作成し、要素を追加</li>
+<li>コレクションからイテレータを取得</li>
+<li>イテレータを使って要素を順番に取得し処理</li>
+<li>すべての要素を処理したらループ終了</li>
+</ol>
+<h4 id="シナリオ2-フィルタリング走査"><a class="header" href="#シナリオ2-フィルタリング走査">シナリオ2: フィルタリング走査</a></h4>
+<ol>
+<li>基本イテレータをラップするフィルタリングイテレータを作成</li>
+<li>フィルタリング条件を指定</li>
+<li>イテレータを使って条件に合致する要素のみを取得</li>
+<li>取得した要素を処理</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * イテレータインターフェース
+ * コレクション内の要素を走査するための共通インターフェース
+ */
+interface Iterator&lt;T&gt; {
+    /**
+     * 次の要素が存在するかどうかを確認
+     * @returns 次の要素が存在する場合はtrue
+     */
+    hasNext(): boolean;
+    
+    /**
+     * 次の要素を取得し、ポインタを進める
+     * @returns 次の要素
+     * @throws 次の要素が存在しない場合はエラー
+     */
+    next(): T;
+    
+    /**
+     * 現在の要素を取得
+     * @returns 現在の要素
+     * @throws 現在の要素が存在しない場合はエラー
+     */
+    current(): T;
+    
+    /**
+     * イテレータをリセットして最初から走査できるようにする
+     */
+    reset(): void;
+}
+
+/**
+ * コレクションインターフェース
+ * イテレータを生成するためのインターフェース
+ */
+interface Aggregate&lt;T&gt; {
+    /**
+     * このコレクション用のイテレータを生成する
+     * @returns 新しいイテレータ
+     */
+    createIterator(): Iterator&lt;T&gt;;
+}
+
+/**
+ * 配列リストの実装
+ * 可変長の配列を管理するコレクション
+ */
+class ArrayList&lt;T&gt; implements Aggregate&lt;T&gt; {
+    /**
+     * 内部データ格納用の配列
+     */
+    private items: T[] = [];
+    
+    /**
+     * 要素を追加する
+     * @param item 追加する要素
+     */
+    add(item: T): void {
+        this.items.push(item);
+    }
+    
+    /**
+     * 指定したインデックスの要素を取得する
+     * @param index 取得する要素のインデックス
+     * @returns 指定したインデックスの要素
+     */
+    get(index: number): T {
+        return this.items[index];
+    }
+    
+    /**
+     * コレクションのサイズを取得する
+     * @returns コレクション内の要素数
+     */
+    size(): number {
+        return this.items.length;
+    }
+    
+    /**
+     * このコレクション用のイテレータを生成する
+     * @returns 新しいArrayListIterator
+     */
+    createIterator(): Iterator&lt;T&gt; {
+        return new ArrayListIterator&lt;T&gt;(this);
+    }
+}
+
+/**
+ * ArrayListのイテレータ実装
+ */
+class ArrayListIterator&lt;T&gt; implements Iterator&lt;T&gt; {
+    /**
+     * 現在の走査位置
+     */
+    private position: number = 0;
+    
+    /**
+     * コンストラクタ
+     * @param list 走査対象のArrayList
+     */
+    constructor(private list: ArrayList&lt;T&gt;) {}
+    
+    /**
+     * 次の要素が存在するかどうかを確認
+     * @returns 次の要素が存在する場合はtrue
+     */
+    hasNext(): boolean {
+        return this.position &lt; this.list.size();
+    }
+    
+    /**
+     * 次の要素を取得し、ポインタを進める
+     * @returns 次の要素
+     * @throws 次の要素が存在しない場合はエラー
+     */
+    next(): T {
+        if (this.hasNext()) {
+            const item = this.list.get(this.position);
+            this.position++;
+            return item;
+        }
+        throw new Error('No more elements');
+    }
+    
+    /**
+     * 現在の要素を取得
+     * @returns 現在の要素
+     * @throws 現在の要素が存在しない場合はエラー
+     */
+    current(): T {
+        if (this.position &gt; 0 &amp;&amp; this.position &lt;= this.list.size()) {
+            return this.list.get(this.position - 1);
+        }
+        throw new Error('No current element');
+    }
+    
+    /**
+     * イテレータをリセットして最初から走査できるようにする
+     */
+    reset(): void {
+        this.position = 0;
+    }
+}
+</code></pre>
+<h3 id="42-双方向イテレータの実装"><a class="header" href="#42-双方向イテレータの実装">4.2 双方向イテレータの実装</a></h3>
+<pre><code class="language-typescript">/**
+ * 双方向イテレータインターフェース
+ * 前後両方向への走査を可能にする拡張イテレータ
+ */
+interface BidirectionalIterator&lt;T&gt; extends Iterator&lt;T&gt; {
+    /**
+     * 前の要素が存在するかどうかを確認
+     * @returns 前の要素が存在する場合はtrue
+     */
+    hasPrevious(): boolean;
+    
+    /**
+     * 前の要素を取得し、ポインタを戻す
+     * @returns 前の要素
+     * @throws 前の要素が存在しない場合はエラー
+     */
+    previous(): T;
+}
+
+/**
+ * ArrayList用の双方向イテレータ実装
+ */
+class BidirectionalArrayListIterator&lt;T&gt; implements BidirectionalIterator&lt;T&gt; {
+    /**
+     * 現在の走査位置
+     */
+    private position: number = 0;
+    
+    /**
+     * コンストラクタ
+     * @param list 走査対象のArrayList
+     */
+    constructor(private list: ArrayList&lt;T&gt;) {}
+    
+    /**
+     * 次の要素が存在するかどうかを確認
+     * @returns 次の要素が存在する場合はtrue
+     */
+    hasNext(): boolean {
+        return this.position &lt; this.list.size();
+    }
+    
+    /**
+     * 前の要素が存在するかどうかを確認
+     * @returns 前の要素が存在する場合はtrue
+     */
+    hasPrevious(): boolean {
+        return this.position &gt; 0;
+    }
+    
+    /**
+     * 次の要素を取得し、ポインタを進める
+     * @returns 次の要素
+     * @throws 次の要素が存在しない場合はエラー
+     */
+    next(): T {
+        if (this.hasNext()) {
+            const item = this.list.get(this.position);
+            this.position++;
+            return item;
+        }
+        throw new Error('No more elements');
+    }
+    
+    /**
+     * 前の要素を取得し、ポインタを戻す
+     * @returns 前の要素
+     * @throws 前の要素が存在しない場合はエラー
+     */
+    previous(): T {
+        if (this.hasPrevious()) {
+            this.position--;
+            return this.list.get(this.position);
+        }
+        throw new Error('No previous elements');
+    }
+    
+    /**
+     * 現在の要素を取得
+     * @returns 現在の要素
+     * @throws 現在の要素が存在しない場合はエラー
+     */
+    current(): T {
+        if (this.position &gt; 0 &amp;&amp; this.position &lt;= this.list.size()) {
+            return this.list.get(this.position - 1);
+        }
+        throw new Error('No current element');
+    }
+    
+    /**
+     * イテレータをリセットして最初から走査できるようにする
+     */
+    reset(): void {
+        this.position = 0;
+    }
+}
+</code></pre>
+<h3 id="43-フィルタリングイテレータの実装"><a class="header" href="#43-フィルタリングイテレータの実装">4.3 フィルタリングイテレータの実装</a></h3>
+<pre><code class="language-typescript">/**
+ * フィルタリングイテレータ
+ * 条件に合致する要素のみを返すイテレータ
+ */
+class FilteringIterator&lt;T&gt; implements Iterator&lt;T&gt; {
+    /**
+     * 内部イテレータ
+     */
+    private iterator: Iterator&lt;T&gt;;
+    
+    /**
+     * フィルタリング条件
+     */
+    private predicate: (item: T) =&gt; boolean;
+    
+    /**
+     * コンストラクタ
+     * @param iterator 基となるイテレータ
+     * @param predicate フィルタリング条件
+     */
+    constructor(iterator: Iterator&lt;T&gt;, predicate: (item: T) =&gt; boolean) {
+        this.iterator = iterator;
+        this.predicate = predicate;
+        this.moveToNextValid();
+    }
+    
+    /**
+     * 次の条件に合致する要素が存在するかどうかを確認
+     * @returns 次の条件に合致する要素が存在する場合はtrue
+     */
+    hasNext(): boolean {
+        return this.iterator.hasNext();
+    }
+    
+    /**
+     * 次の条件に合致する要素を取得
+     * @returns 次の条件に合致する要素
+     * @throws 次の条件に合致する要素が存在しない場合はエラー
+     */
+    next(): T {
+        if (!this.hasNext()) {
+            throw new Error('No more elements');
+        }
+        
+        const item = this.iterator.next();
+        this.moveToNextValid();
+        return item;
+    }
+    
+    /**
+     * 現在の要素を取得
+     * @returns 現在の要素
+     */
+    current(): T {
+        return this.iterator.current();
+    }
+    
+    /**
+     * イテレータをリセットして最初から走査できるようにする
+     */
+    reset(): void {
+        this.iterator.reset();
+        this.moveToNextValid();
+    }
+    
+    /**
+     * 次の条件に合致する要素まで移動
+     */
+    private moveToNextValid(): void {
+        while (this.iterator.hasNext()) {
+            const nextItem = this.iterator.current();
+            if (this.predicate(nextItem)) {
+                return;
+            }
+            this.iterator.next();
+        }
+    }
+}
+</code></pre>
+<h3 id="44-実装のバリエーション"><a class="header" href="#44-実装のバリエーション">4.4 実装のバリエーション</a></h3>
+<ol>
+<li>
+<p><strong>基本イテレータ</strong></p>
+<ul>
+<li>コレクション内の要素を順方向に走査</li>
+<li>hasNext()とnext()のみを提供</li>
+</ul>
+</li>
+<li>
+<p><strong>双方向イテレータ</strong></p>
+<ul>
+<li>前後両方向への走査が可能</li>
+<li>hasPrevious()とprevious()を追加</li>
+</ul>
+</li>
+<li>
+<p><strong>ランダムアクセスイテレータ</strong></p>
+<ul>
+<li>任意の位置への直接アクセスが可能</li>
+<li>index指定で要素にアクセス</li>
+</ul>
+</li>
+<li>
+<p><strong>フィルタリングイテレータ</strong></p>
+<ul>
+<li>条件に合致する要素のみを返す</li>
+<li>デコレータパターンを利用</li>
+</ul>
+</li>
+</ol>
+<h3 id="45-注意すべき実装ポイント"><a class="header" href="#45-注意すべき実装ポイント">4.5 注意すべき実装ポイント</a></h3>
+<ul>
+<li>イテレーションの状態管理（現在位置）を適切に行う</li>
+<li>hasNext()とnext()の一貫性を保持する</li>
+<li>next()の呼び出し前にhasNext()で確認する習慣をつける</li>
+<li>コレクション変更中のイテレーション（Concurrent Modification）に注意</li>
+<li>エラーハンドリングを適切に実装する</li>
+<li>イテレータの再利用（reset）時の状態リセットを確実に行う</li>
+<li>パフォーマンスを考慮した実装を心がける（特に大きなコレクションの場合）</li>
+</ul>
+<h2 id="5-使用例"><a class="header" href="#5-使用例">5. 使用例</a></h2>
+<h3 id="51-基本的な使用例"><a class="header" href="#51-基本的な使用例">5.1 基本的な使用例</a></h3>
+<pre><code class="language-typescript">// リストの作成と要素の追加
+const list = new ArrayList&lt;number&gt;();
+for (let i = 0; i &lt; 5; i++) {
+    list.add(i);
+}
+
+// イテレータの使用
+const iterator = list.createIterator();
+console.log('通常のイテレーション:');
+while (iterator.hasNext()) {
+    console.log(iterator.next());
+}
+// 出力:
+// 0
+// 1
+// 2
+// 3
+// 4
+
+// イテレータのリセットと再利用
+iterator.reset();
+console.log('リセット後の再イテレーション:');
+while (iterator.hasNext()) {
+    console.log(iterator.next());
+}
+
+// 双方向イテレータの使用
+const biIterator = new BidirectionalArrayListIterator(list);
+console.log('双方向イテレータの前進:');
+while (biIterator.hasNext()) {
+    console.log(biIterator.next());
+}
+
+console.log('双方向イテレータの後退:');
+while (biIterator.hasPrevious()) {
+    console.log(biIterator.previous());
+}
+// 出力:
+// 4
+// 3
+// 2
+// 1
+// 0
+</code></pre>
+<h3 id="52-高度な使用例"><a class="header" href="#52-高度な使用例">5.2 高度な使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * 数値リスト特化クラス
+ * 数値専用のフィルタリングイテレータを提供
+ */
+class NumberList extends ArrayList&lt;number&gt; {
+    /**
+     * 偶数のみを返すイテレータを取得
+     * @returns 偶数フィルタリングイテレータ
+     */
+    getEvenNumberIterator(): Iterator&lt;number&gt; {
+        return new FilteringIterator(
+            this.createIterator(),
+            num =&gt; num % 2 === 0
+        );
+    }
+    
+    /**
+     * 指定した値より大きい数値のみを返すイテレータを取得
+     * @param threshold しきい値
+     * @returns しきい値フィルタリングイテレータ
+     */
+    getNumbersGreaterThan(threshold: number): Iterator&lt;number&gt; {
+        return new FilteringIterator(
+            this.createIterator(),
+            num =&gt; num &gt; threshold
+        );
+    }
+}
+
+/**
+ * 複数のコレクションを連結して走査するイテレータ
+ */
+class ConcatenatingIterator&lt;T&gt; implements Iterator&lt;T&gt; {
+    private iterators: Iterator&lt;T&gt;[];
+    private currentIteratorIndex: number = 0;
+    
+    /**
+     * コンストラクタ
+     * @param iterators 連結するイテレータの配列
+     */
+    constructor(iterators: Iterator&lt;T&gt;[]) {
+        this.iterators = [...iterators];
+    }
+    
+    /**
+     * 次の要素が存在するかどうかを確認
+     * @returns 次の要素が存在する場合はtrue
+     */
+    hasNext(): boolean {
+        // 現在のイテレータに次の要素がある場合
+        if (this.currentIteratorIndex &lt; this.iterators.length &amp;&amp; 
+            this.iterators[this.currentIteratorIndex].hasNext()) {
+            return true;
+        }
+        
+        // 次のイテレータを探す
+        for (let i = this.currentIteratorIndex + 1; i &lt; this.iterators.length; i++) {
+            if (this.iterators[i].hasNext()) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 次の要素を取得
+     * @returns 次の要素
+     * @throws 次の要素が存在しない場合はエラー
+     */
+    next(): T {
+        if (!this.hasNext()) {
+            throw new Error('No more elements');
+        }
+        
+        // 現在のイテレータに次の要素がなければ次のイテレータに移動
+        while (this.currentIteratorIndex &lt; this.iterators.length &amp;&amp; 
+               !this.iterators[this.currentIteratorIndex].hasNext()) {
+            this.currentIteratorIndex++;
+        }
+        
+        // 現在のイテレータから次の要素を取得
+        return this.iterators[this.currentIteratorIndex].next();
+    }
+    
+    /**
+     * 現在の要素を取得
+     * @returns 現在の要素
+     * @throws 現在の要素が存在しない場合はエラー
+     */
+    current(): T {
+        if (this.currentIteratorIndex &lt; this.iterators.length) {
+            return this.iterators[this.currentIteratorIndex].current();
+        }
+        throw new Error('No current element');
+    }
+    
+    /**
+     * イテレータをリセット
+     */
+    reset(): void {
+        this.iterators.forEach(iterator =&gt; iterator.reset());
+        this.currentIteratorIndex = 0;
+    }
+}
+
+// 使用例
+const numbers = new NumberList();
+for (let i = 0; i &lt; 10; i++) {
+    numbers.add(i);
+}
+
+// 偶数のみを走査
+console.log('偶数のみのイテレーション:');
+const evenIterator = numbers.getEvenNumberIterator();
+while (evenIterator.hasNext()) {
+    console.log(evenIterator.next());
+}
+// 出力:
+// 0
+// 2
+// 4
+// 6
+// 8
+
+// 5より大きい数値のみを走査
+console.log('5より大きい数値のイテレーション:');
+const greaterThanFiveIterator = numbers.getNumbersGreaterThan(5);
+while (greaterThanFiveIterator.hasNext()) {
+    console.log(greaterThanFiveIterator.next());
+}
+// 出力:
+// 6
+// 7
+// 8
+// 9
+
+// 複数リストの連結走査
+const list1 = new ArrayList&lt;string&gt;();
+list1.add('a');
+list1.add('b');
+
+const list2 = new ArrayList&lt;string&gt;();
+list2.add('c');
+list2.add('d');
+
+const concatenatingIterator = new ConcatenatingIterator([
+    list1.createIterator(),
+    list2.createIterator()
+]);
+
+console.log('連結イテレーション:');
+while (concatenatingIterator.hasNext()) {
+    console.log(concatenatingIterator.next());
+}
+// 出力:
+// a
+// b
+// c
+// d
+</code></pre>
+<h2 id="6-テスト戦略"><a class="header" href="#6-テスト戦略">6. テスト戦略</a></h2>
+<h3 id="61-ユニットテスト要件"><a class="header" href="#61-ユニットテスト要件">6.1 ユニットテスト要件</a></h3>
+<ul>
+<li>基本イテレータの機能テスト（hasNext, next, current, reset）</li>
+<li>空のコレクションでのイテレータの挙動テスト</li>
+<li>走査完了後の挙動テスト（next()呼び出し時のエラー）</li>
+<li>双方向イテレータの前後走査機能テスト</li>
+<li>フィルタリングイテレータのフィルタリング機能テスト</li>
+<li>イテレータのリセット機能テスト</li>
+<li>エラーケース（要素なし、範囲外アクセスなど）のテスト</li>
+</ul>
+<h3 id="62-テスト実装例"><a class="header" href="#62-テスト実装例">6.2 テスト実装例</a></h3>
+<pre><code class="language-typescript">describe('Iterator Pattern Tests', () =&gt; {
+describe('ArrayList Iterator', () =&gt; {
+    let list: ArrayList&lt;number&gt;;
+    let iterator: Iterator&lt;number&gt;;
+    
+    beforeEach(() =&gt; {
+        list = new ArrayList&lt;number&gt;();
+        for (let i = 0; i &lt; 3; i++) {
+            list.add(i);
+        }
+        iterator = list.createIterator();
+    });
+    
+        test('should iterate through all elements', () =&gt; {
+        const results: number[] = [];
+        while (iterator.hasNext()) {
+            results.push(iterator.next());
+        }
+        expect(results).toEqual([0, 1, 2]);
+    });
+    
+        test('should reset iterator', () =&gt; {
+            iterator.next(); // 0
+            iterator.next(); // 1
+        iterator.reset();
+        expect(iterator.next()).toBe(0);
+    });
+    
+        test('should throw error when no more elements', () =&gt; {
+            iterator.next(); // 0
+            iterator.next(); // 1
+            iterator.next(); // 2
+        expect(() =&gt; iterator.next()).toThrow('No more elements');
+    });
+        
+        test('should get current element', () =&gt; {
+            iterator.next(); // 0
+            expect(iterator.current()).toBe(0);
+            iterator.next(); // 1
+            expect(iterator.current()).toBe(1);
+        });
+        
+        test('should throw error when getting current before first element', () =&gt; {
+            expect(() =&gt; iterator.current()).toThrow('No current element');
+        });
+        
+        test('should handle empty collection', () =&gt; {
+            const emptyList = new ArrayList&lt;number&gt;();
+            const emptyIterator = emptyList.createIterator();
+            expect(emptyIterator.hasNext()).toBe(false);
+            expect(() =&gt; emptyIterator.next()).toThrow('No more elements');
+        });
+    });
+    
+    describe('BidirectionalIterator', () =&gt; {
+        let list: ArrayList&lt;number&gt;;
+        let iterator: BidirectionalIterator&lt;number&gt;;
+        
+        beforeEach(() =&gt; {
+            list = new ArrayList&lt;number&gt;();
+            for (let i = 0; i &lt; 3; i++) {
+                list.add(i);
+            }
+            iterator = new BidirectionalArrayListIterator&lt;number&gt;(list);
+        });
+        
+        test('should iterate forward through all elements', () =&gt; {
+            const results: number[] = [];
+            while (iterator.hasNext()) {
+                results.push(iterator.next());
+            }
+            expect(results).toEqual([0, 1, 2]);
+        });
+        
+        test('should iterate backward through all elements', () =&gt; {
+            // まず最後まで進める
+            while (iterator.hasNext()) {
+                iterator.next();
+            }
+            
+            // 後ろから走査
+            const results: number[] = [];
+            while (iterator.hasPrevious()) {
+                results.push(iterator.previous());
+            }
+            expect(results).toEqual([2, 1, 0]);
+        });
+        
+        test('should handle interleaved forward/backward iteration', () =&gt; {
+            expect(iterator.next()).toBe(0);
+            expect(iterator.next()).toBe(1);
+            expect(iterator.previous()).toBe(1);
+            expect(iterator.previous()).toBe(0);
+            expect(iterator.next()).toBe(0);
+            expect(iterator.next()).toBe(1);
+            expect(iterator.next()).toBe(2);
+        });
+        
+        test('should throw error when no previous elements', () =&gt; {
+            expect(() =&gt; iterator.previous()).toThrow('No previous elements');
+        });
+    });
+    
+    describe('FilteringIterator', () =&gt; {
+        let list: ArrayList&lt;number&gt;;
+        let evenIterator: Iterator&lt;number&gt;;
+        
+        beforeEach(() =&gt; {
+            list = new ArrayList&lt;number&gt;();
+            for (let i = 0; i &lt; 5; i++) {
+                list.add(i);
+            }
+            evenIterator = new FilteringIterator&lt;number&gt;(
+                list.createIterator(),
+                num =&gt; num % 2 === 0
+            );
+        });
+        
+        test('should filter elements correctly', () =&gt; {
+            const results: number[] = [];
+            while (evenIterator.hasNext()) {
+                results.push(evenIterator.next());
+            }
+            expect(results).toEqual([0, 2, 4]);
+        });
+        
+        test('should reset filtered iterator', () =&gt; {
+            evenIterator.next(); // 0
+            evenIterator.next(); // 2
+            evenIterator.reset();
+            expect(evenIterator.next()).toBe(0);
+        });
+        
+        test('should handle no matching elements', () =&gt; {
+            const noMatchIterator = new FilteringIterator&lt;number&gt;(
+                list.createIterator(),
+                num =&gt; num &gt; 10
+            );
+            expect(noMatchIterator.hasNext()).toBe(false);
+            expect(() =&gt; noMatchIterator.next()).toThrow('No more elements');
+        });
+    });
+    
+    describe('NumberList', () =&gt; {
+        let numberList: NumberList;
+        
+        beforeEach(() =&gt; {
+            numberList = new NumberList();
+            for (let i = 0; i &lt; 10; i++) {
+                numberList.add(i);
+            }
+        });
+        
+        test('should iterate through even numbers only', () =&gt; {
+            const evenIterator = numberList.getEvenNumberIterator();
+            const results: number[] = [];
+            
+            while (evenIterator.hasNext()) {
+                results.push(evenIterator.next());
+            }
+            
+            expect(results).toEqual([0, 2, 4, 6, 8]);
+        });
+        
+        test('should iterate through numbers greater than threshold', () =&gt; {
+            const greaterThanFiveIterator = numberList.getNumbersGreaterThan(5);
+            const results: number[] = [];
+            
+            while (greaterThanFiveIterator.hasNext()) {
+                results.push(greaterThanFiveIterator.next());
+            }
+            
+            expect(results).toEqual([6, 7, 8, 9]);
+        });
+    });
+});
+</code></pre>
+<h2 id="7-評価"><a class="header" href="#7-評価">7. 評価</a></h2>
+<h3 id="71-メリット"><a class="header" href="#71-メリット">7.1 メリット</a></h3>
+<ul>
+<li>コレクションの内部構造を隠蔽し、クライアントコードを単純化する</li>
+<li>コレクションの走査ロジックをカプセル化し、コレクションクラスを軽量に保つ</li>
+<li>異なるコレクションクラスに対して統一的なアクセス方法を提供する</li>
+<li>複数の走査を同時に行うことができる</li>
+<li>コレクションのインターフェースをシンプルに保つことができる</li>
+<li>走査アルゴリズムを追加・変更することが容易</li>
+<li>単一責任の原則に従い、コレクションと走査の責務を分離</li>
+</ul>
+<h3 id="72-デメリット制約"><a class="header" href="#72-デメリット制約">7.2 デメリット・制約</a></h3>
+<ul>
+<li>単純なコレクションでは過剰な設計になる可能性がある</li>
+<li>クラス数の増加によりコードベースが複雑化する</li>
+<li>イテレータの状態管理に注意が必要（特に並行処理環境では）</li>
+<li>コレクション変更中のイテレーション（Concurrent Modification）を防ぐ機構が必要</li>
+<li>言語組み込みのイテレーション機能と比較して冗長になる場合がある</li>
+<li>パフォーマンス面でのオーバーヘッドが生じる可能性がある</li>
+</ul>
+<h3 id="73-代替パターン関連パターン"><a class="header" href="#73-代替パターン関連パターン">7.3 代替パターン・関連パターン</a></h3>
+<ul>
+<li><strong>Compositeパターン</strong>: 複合オブジェクトの走査にIteratorを使用</li>
+<li><strong>Visitorパターン</strong>: コレクション要素を処理するロジックをカプセル化する際にIteratorと組み合わせる</li>
+<li><strong>Factoryパターン</strong>: Iterator生成に使用することがある</li>
+<li><strong>Mementoパターン</strong>: イテレーションの状態を保存・復元するために使用</li>
+<li><strong>Generatorパターン</strong>: 遅延評価のイテレーション実装に利用</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/behavioral/iterator">ソースコード</a></li>
+<li><a href="../../tests/behavioral/iterator">テストコード</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/iterator">リファクタリング・グル - Iterator パターン</a></li>
+<li><a href="https://www.amazon.co.jp/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+<li><a href="https://www.typescriptlang.org/docs/handbook/iterators-and-generators.html">TypeScript の組み込みイテレータとイテレーブル</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/behavioral/interpreter.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/mediator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/behavioral/interpreter.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/mediator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

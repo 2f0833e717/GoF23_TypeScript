@@ -4,12 +4,18 @@
  * FileSystemComponentインターフェースを実装する具象クラスです。
  * 他のファイルシステム要素への参照として機能します。
  */
-import { FileSystemComponent } from './FileSystemComponent';
+import { FileSystemComponent } from '../../common/interfaces/FileSystemComponent';
 import { FileSystemVisitor } from '../../behavioral/visitor/FileSystemVisitor';
+import { Directory } from './Directory';
+import { FileSystemUtils } from './FileSystemUtils';
+import { File } from './File';
+import { FileSystemElement } from '../../common/interfaces/FileSystemElement';
 
-export class SymbolicLink implements FileSystemComponent {
-    private parent: FileSystemComponent | null = null;
-    private readonly createdAt: Date;
+export class SymbolicLink implements FileSystemComponent, FileSystemElement {
+    private name: string;
+    private target: FileSystemComponent | null;
+    private parent: FileSystemComponent | null;
+    private createdAt: Date;
     private modifiedAt: Date;
 
     /**
@@ -17,10 +23,13 @@ export class SymbolicLink implements FileSystemComponent {
      * @param name リンク名
      * @param target リンク先の要素
      */
-    constructor(
-        private readonly name: string,
-        private target: FileSystemComponent
-    ) {
+    constructor(name: string, target: FileSystemComponent | null) {
+        this.name = name;
+        if (target !== null && !(target instanceof File) && !(target instanceof Directory) && !(target instanceof SymbolicLink)) {
+            throw new Error('ターゲットが不正です');
+        }
+        this.target = target;
+        this.parent = null;
         this.createdAt = new Date();
         this.modifiedAt = new Date();
     }
@@ -34,7 +43,7 @@ export class SymbolicLink implements FileSystemComponent {
     }
 
     getSize(): number {
-        return this.target.getSize();
+        return this.target ? this.target.getSize() : 0;
     }
 
     getCreatedAt(): Date {
@@ -50,19 +59,21 @@ export class SymbolicLink implements FileSystemComponent {
     }
 
     setParent(parent: FileSystemComponent | null): void {
+        if (parent && !(parent instanceof Directory)) {
+            throw new Error('親ディレクトリが不正です');
+        }
         this.parent = parent;
     }
 
     getPath(): string {
-        const parentPath = this.parent ? this.parent.getPath() : '';
-        return parentPath ? `${parentPath}/${this.name}` : this.name;
+        return this.parent ? `${this.parent.getPath()}/${this.name}` : this.name;
     }
 
     /**
      * リンク先の要素を取得します
      * @returns リンク先の要素
      */
-    getTarget(): FileSystemComponent {
+    getTarget(): FileSystemComponent | null {
         return this.target;
     }
 
@@ -71,14 +82,17 @@ export class SymbolicLink implements FileSystemComponent {
      * @returns リンク先のパス
      */
     getTargetPath(): string {
-        return this.target.getPath();
+        return this.target ? this.target.getPath() : '(無効なリンク)';
     }
 
     /**
      * リンク先の要素を設定します
      * @param target 新しいリンク先の要素
      */
-    setTarget(target: FileSystemComponent): void {
+    setTarget(target: FileSystemComponent | null): void {
+        if (target !== null && !(target instanceof File) && !(target instanceof Directory) && !(target instanceof SymbolicLink)) {
+            throw new Error('ターゲットが不正です');
+        }
         this.target = target;
         this.modifiedAt = new Date();
     }
@@ -93,29 +107,21 @@ export class SymbolicLink implements FileSystemComponent {
 
     /**
      * シンボリックリンクの表示文字列を取得します
-     * @param indent インデントレベル
      * @returns フォーマットされた文字列
      */
-    display(indent: number = 0): string {
-        const indentation = ' '.repeat(indent * 2);
-        return `${indentation}🔗 ${this.name} -> ${this.target.getPath()} (${this.formatSize(this.getSize())})`;
+    display(): string {
+        const sizeStr = FileSystemUtils.formatSize(this.getSize());
+        const dateStr = this.modifiedAt.toLocaleString();
+        const targetPath = this.isValid() ? this.getTargetPath() : '(無効なリンク)';
+        return `${sizeStr} ${dateStr} ${this.name} -> ${targetPath}`;
     }
 
     /**
-     * サイズを適切な単位に変換して表示します
+     * サイズをフォーマットして表示します
      * @param bytes バイト数
      * @returns フォーマットされたサイズ文字列
      */
     formatSize(bytes: number): string {
-        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        let size = bytes;
-        let unitIndex = 0;
-
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
+        return FileSystemUtils.formatSize(bytes);
     }
 } 

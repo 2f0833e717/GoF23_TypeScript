@@ -110,4 +110,116 @@ describe('SmartHome Command Pattern Tests', () => {
             expect(controller.getUndoHistory()).toHaveLength(0);
         });
     });
+
+    describe('Error Handling', () => {
+        test('should handle invalid light operations', () => {
+            const light = new SmartLight('Test Light');
+            const controller = new SmartHomeController();
+
+            // 無効な明るさ設定
+            const setBrightnessCommand = new LightBrightnessCommand(light, -10);
+            expect(() => controller.executeCommand(setBrightnessCommand)).toThrow('明るさは0から100の間で指定してください');
+            expect(light.getBrightness()).toBe(100); // デフォルト値
+
+            const setBrightnessCommand2 = new LightBrightnessCommand(light, 150);
+            expect(() => controller.executeCommand(setBrightnessCommand2)).toThrow('明るさは0から100の間で指定してください');
+            expect(light.getBrightness()).toBe(100); // デフォルト値
+
+            // すでにONの状態でONにする
+            const turnOnCommand = new LightPowerCommand(light, true);
+            controller.executeCommand(turnOnCommand);
+            expect(light.isOn()).toBe(true);
+            controller.executeCommand(turnOnCommand);
+            expect(light.isOn()).toBe(true);
+
+            // すでにOFFの状態でOFFにする
+            const turnOffCommand = new LightPowerCommand(light, false);
+            controller.executeCommand(turnOffCommand);
+            expect(light.isOn()).toBe(false);
+            controller.executeCommand(turnOffCommand);
+            expect(light.isOn()).toBe(false);
+        });
+
+        test('should handle invalid thermostat operations', () => {
+            const thermostat = new Thermostat('Test Thermostat');
+            const controller = new SmartHomeController();
+
+            // 無効な温度設定
+            const setTempCommand = new ThermostatTemperatureCommand(thermostat, -10);
+            expect(() => controller.executeCommand(setTempCommand)).toThrow('温度は16℃から32℃の間で指定してください');
+            expect(thermostat.getTemperature()).toBe(22); // デフォルト値
+
+            const setTempCommand2 = new ThermostatTemperatureCommand(thermostat, 40);
+            expect(() => controller.executeCommand(setTempCommand2)).toThrow('温度は16℃から32℃の間で指定してください');
+            expect(thermostat.getTemperature()).toBe(22); // デフォルト値
+
+            // 無効なモード設定
+            expect(() => thermostat.setMode('INVALID' as any)).toThrow();
+
+            // すでにONの状態でONにする
+            const turnOnCommand = new ThermostatModeCommand(thermostat, 'heat');
+            controller.executeCommand(turnOnCommand);
+            expect(thermostat.getMode()).toBe('heat');
+            controller.executeCommand(turnOnCommand);
+            expect(thermostat.getMode()).toBe('heat');
+
+            // すでにOFFの状態でOFFにする
+            const turnOffCommand = new ThermostatModeCommand(thermostat, 'off');
+            controller.executeCommand(turnOffCommand);
+            expect(thermostat.getMode()).toBe('off');
+            controller.executeCommand(turnOffCommand);
+            expect(thermostat.getMode()).toBe('off');
+        });
+    });
+
+    describe('Complex Operations', () => {
+        test('should handle multiple commands in sequence', () => {
+            const light = new SmartLight('Test Light');
+            const thermostat = new Thermostat('Test Thermostat');
+            const controller = new SmartHomeController();
+
+            // 複数のコマンドを順番に実行
+            const commands = [
+                new LightPowerCommand(light, true),
+                new LightBrightnessCommand(light, 75),
+                new ThermostatModeCommand(thermostat, 'heat'),
+                new ThermostatTemperatureCommand(thermostat, 24),
+                new ThermostatModeCommand(thermostat, 'cool')
+            ];
+
+            commands.forEach(cmd => controller.executeCommand(cmd));
+
+            expect(light.isOn()).toBe(true);
+            expect(light.getBrightness()).toBe(75);
+            expect(thermostat.getMode()).toBe('cool');
+            expect(thermostat.getTemperature()).toBe(24);
+
+            // 逆順にundo
+            commands.reverse().forEach(() => controller.undoLastCommand());
+
+            expect(thermostat.getMode()).toBe('heat'); // 最初のモードに戻る
+            expect(thermostat.getTemperature()).toBe(22); // デフォルト温度
+            expect(light.getBrightness()).toBe(100); // デフォルトの明るさ
+            expect(light.isOn()).toBe(false);
+        });
+
+        test('should handle rapid state changes', () => {
+            const light = new SmartLight('Test Light');
+            const controller = new SmartHomeController();
+
+            // 急速な状態変更
+            for (let i = 0; i < 10; i++) {
+                controller.executeCommand(new LightPowerCommand(light, true));
+                expect(light.isOn()).toBe(true);
+                controller.executeCommand(new LightPowerCommand(light, false));
+                expect(light.isOn()).toBe(false);
+            }
+
+            // 急速な明るさ変更
+            for (let brightness = 0; brightness <= 100; brightness += 10) {
+                controller.executeCommand(new LightBrightnessCommand(light, brightness));
+                expect(light.getBrightness()).toBe(brightness);
+            }
+        });
+    });
 }); 

@@ -1,0 +1,571 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>singleton - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/creational/singleton.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="singleton-パターン"><a class="header" href="#singleton-パターン">Singleton パターン</a></h1>
+<h2 id="概要"><a class="header" href="#概要">概要</a></h2>
+<p>Singleton パターン（シングルトン・パターン）は、あるクラスのインスタンスが必ず1つであることを保証し、そのインスタンスへのグローバルなアクセスポイントを提供するデザインパターンです。</p>
+<h2 id="目的"><a class="header" href="#目的">目的</a></h2>
+<ul>
+<li>クラスのインスタンスが1つだけ存在することを保証する</li>
+<li>そのインスタンスへのグローバルなアクセスポイントを提供する</li>
+<li>共有リソースへのアクセスを制御する</li>
+</ul>
+<h2 id="構造"><a class="header" href="#構造">構造</a></h2>
+<p><img src="../../images/singleton.png" alt="Singleton パターン" /></p>
+<ul>
+<li><strong>Singleton</strong>: 唯一のインスタンスを取得するための静的メソッド（getInstance）を持ち、コンストラクタが外部から呼び出されないようにするクラス</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Singleton {
+        -static instance: Singleton
+        -privateData: any
+        -constructor()
+        +static getInstance()
+        +operation1()
+        +operation2()
+    }
+    
+    class Client {
+    }
+    
+    Client --&gt; Singleton : uses
+    Singleton --&gt; Singleton : creates
+
+    note for Singleton &quot;唯一のインスタンスを提供し\nグローバルなアクセスポイントを持つ&quot;
+    note for Client &quot;Singletonのインスタンスを\ngetInstance()を通じて取得&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Singleton</td><td>クラス</td><td>クラスの唯一のインスタンスを作成・管理し、グローバルなアクセスを提供する</td><td>自身のインスタンスを生成・管理</td></tr>
+<tr><td>Client</td><td>クラス</td><td>Singletonインスタンスを使用する</td><td>Singletonを使用</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Singletonクラスは自身の唯一のインスタンスを静的メンバー変数として保持</li>
+<li>コンストラクタはprivateであり、外部からの直接のインスタンス化を防止</li>
+<li>クライアントはgetInstance()静的メソッドを通じてのみインスタンスを取得可能</li>
+<li>同一プロセス内の全てのクライアントが同じSingletonインスタンスを共有</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client1
+    participant Client2
+    participant Singleton
+    
+    Client1-&gt;&gt;Singleton: getInstance()
+    activate Singleton
+    
+    Note over Singleton: インスタンスが存在しない場合、生成
+    Singleton--&gt;&gt;Client1: singletonインスタンス
+    deactivate Singleton
+    
+    Client1-&gt;&gt;Singleton: operation1()
+    activate Singleton
+    Singleton--&gt;&gt;Client1: 結果
+    deactivate Singleton
+    
+    Client2-&gt;&gt;Singleton: getInstance()
+    activate Singleton
+    Note over Singleton: 既存のインスタンスを返す
+    Singleton--&gt;&gt;Client2: 同じsingletonインスタンス
+    deactivate Singleton
+    
+    Client2-&gt;&gt;Singleton: operation2()
+    activate Singleton
+    Singleton--&gt;&gt;Client2: 結果
+    deactivate Singleton
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[クライアントがSingleton.getInstanceを呼び出す]
+    B --&gt; C{インスタンスは\n既に存在するか?}
+    C --&gt;|いいえ| D[Singletonインスタンスを生成]
+    D --&gt; E[インスタンスを静的変数に格納]
+    C --&gt;|はい| F[既存のインスタンスを使用]
+    E --&gt; G[インスタンスをクライアントに返す]
+    F --&gt; G
+    G --&gt; H[クライアントがインスタンスのメソッドを使用]
+    H --&gt; I[終了]
+</pre>
+<h2 id="4-実装例"><a class="header" href="#4-実装例">4. 実装例</a></h2>
+<h3 id="typescript-による実装"><a class="header" href="#typescript-による実装">TypeScript による実装</a></h3>
+<pre><code class="language-typescript">/**
+ * シングルトンパターンの実装例
+ * プログラム全体で一つだけのインスタンスを持つ設定管理クラス
+ */
+export class ConfigManager {
+  /**
+   * 唯一のインスタンスを保持する静的プロパティ
+   * 初期値はnullで、後で初期化される
+   */
+  private static instance: ConfigManager | null = null;
+
+  /**
+   * 設定値を保持するオブジェクト
+   */
+  private settings: { [key: string]: any } = {};
+
+  /**
+   * 最後に設定が更新された日時
+   */
+  private lastUpdated: Date;
+
+  /**
+   * privateコンストラクタで外部からのインスタンス化を防止
+   * 
+   * このコンストラクタは、getInstance()メソッド内からのみ呼び出される
+   */
+  private constructor() {
+    this.lastUpdated = new Date();
+    console.log('ConfigManager インスタンスが作成されました');
+    
+    // デフォルト設定の読み込み
+    this.settings = {
+      theme: 'light',
+      language: 'ja',
+      notifications: true,
+      autoSave: true
+    };
+  }
+
+  /**
+   * シングルトンインスタンスを取得するメソッド
+   * 
+   * インスタンスが存在しない場合は新規作成し、存在する場合は既存のインスタンスを返す
+   * @returns ConfigManagerの唯一のインスタンス
+   */
+  public static getInstance(): ConfigManager {
+    // インスタンスが存在しない場合に初期化
+    if (ConfigManager.instance === null) {
+      ConfigManager.instance = new ConfigManager();
+    }
+    
+    return ConfigManager.instance;
+  }
+
+  /**
+   * 設定値を取得
+   * 
+   * @param key 設定キー
+   * @param defaultValue キーが存在しない場合のデフォルト値
+   * @returns 設定値またはデフォルト値
+   */
+  public getSetting(key: string, defaultValue: any = null): any {
+    return key in this.settings ? this.settings[key] : defaultValue;
+  }
+
+  /**
+   * 設定値を更新
+   * 
+   * @param key 設定キー
+   * @param value 設定値
+   */
+  public setSetting(key: string, value: any): void {
+    this.settings[key] = value;
+    this.lastUpdated = new Date();
+    console.log(`設定 "${key}" が "${value}" に更新されました`);
+  }
+
+  /**
+   * 全ての設定値を取得
+   * 
+   * @returns 全ての設定値
+   */
+  public getAllSettings(): { [key: string]: any } {
+    return { ...this.settings }; // 元のオブジェクトを変更されないようにコピーを返す
+  }
+
+  /**
+   * 設定値を初期値にリセット
+   */
+  public resetSettings(): void {
+    this.settings = {
+      theme: 'light',
+      language: 'ja',
+      notifications: true,
+      autoSave: true
+    };
+    this.lastUpdated = new Date();
+    console.log('全ての設定が初期値にリセットされました');
+  }
+
+  /**
+   * 最後に設定が更新された日時を取得
+   * 
+   * @returns 最終更新日時
+   */
+  public getLastUpdated(): Date {
+    return this.lastUpdated;
+  }
+
+  /**
+   * スレッドセーフな実装のための追加機能:
+   * このメソッドはマルチスレッド環境での使用を想定したもので、
+   * TypeScriptがシングルスレッドで動作するJavaScriptで実行される場合は
+   * 実際には必要ありませんが、概念的な説明として含めています。
+   */
+  private static createInstance(): ConfigManager {
+    const instance = new ConfigManager();
+    return instance;
+  }
+}
+</code></pre>
+<h3 id="使用例"><a class="header" href="#使用例">使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * シングルトンパターンの使用例
+ */
+function main() {
+  // 最初のインスタンス取得
+  const config1 = ConfigManager.getInstance();
+  console.log('現在のテーマ:', config1.getSetting('theme'));  // light
+  
+  // 設定を変更
+  config1.setSetting('theme', 'dark');
+  console.log('更新後のテーマ:', config1.getSetting('theme'));  // dark
+  
+  // 別の場所でインスタンスを取得（同じインスタンスが返される）
+  const config2 = ConfigManager.getInstance();
+  
+  // 同一インスタンスであることを確認
+  console.log('config1とconfig2は同じインスタンス:', config1 === config2);  // true
+  
+  // config2で取得した設定値は、config1で変更した値が反映されている
+  console.log('config2でのテーマ設定:', config2.getSetting('theme'));  // dark
+  
+  // 全ての設定を表示
+  console.log('全ての設定:', config2.getAllSettings());
+  
+  // 最終更新日時を確認
+  console.log('最終更新時刻:', config2.getLastUpdated());
+  
+  // 設定をリセット
+  config1.resetSettings();
+  console.log('リセット後のテーマ:', config2.getSetting('theme'));  // light（リセット後）
+}
+
+// クライアントコードを実行
+main();
+
+// 出力例：
+// ConfigManager インスタンスが作成されました
+// 現在のテーマ: light
+// 設定 "theme" が "dark" に更新されました
+// 更新後のテーマ: dark
+// config1とconfig2は同じインスタンス: true
+// config2でのテーマ設定: dark
+// 全ての設定: { theme: 'dark', language: 'ja', notifications: true, autoSave: true }
+// 最終更新時刻: Thu Apr 04 2025 15:30:45 GMT+0900 (日本標準時)
+// 全ての設定が初期値にリセットされました
+// リセット後のテーマ: light
+</code></pre>
+<h2 id="singleton-の実装バリエーション"><a class="header" href="#singleton-の実装バリエーション">Singleton の実装バリエーション</a></h2>
+<h3 id="1-遅延初期化lazy-initialization"><a class="header" href="#1-遅延初期化lazy-initialization">1. 遅延初期化（Lazy Initialization）</a></h3>
+<p>最もよく使われる実装で、インスタンスが必要とされるまでその生成を遅らせます。上記の例では遅延初期化を使用しています。</p>
+<pre><code class="language-typescript">public static getInstance(): Singleton {
+  if (Singleton.instance === null) {
+    Singleton.instance = new Singleton();
+  }
+  return Singleton.instance;
+}
+</code></pre>
+<h3 id="2-即時初期化eager-initialization"><a class="header" href="#2-即時初期化eager-initialization">2. 即時初期化（Eager Initialization）</a></h3>
+<p>クラスのロード時にインスタンスを作成します。リソースを多く消費するシングルトンでは避けるべき場合もあります。</p>
+<pre><code class="language-typescript">export class EagerSingleton {
+  private static instance: EagerSingleton = new EagerSingleton();
+  
+  private constructor() { /* ... */ }
+  
+  public static getInstance(): EagerSingleton {
+    return EagerSingleton.instance;
+  }
+}
+</code></pre>
+<h3 id="3-double-checked-locking-パターン"><a class="header" href="#3-double-checked-locking-パターン">3. Double-Checked Locking パターン</a></h3>
+<p>マルチスレッド環境で、同期化のオーバーヘッドを最小限に抑えるための実装です。
+TypeScriptは主にシングルスレッド環境で実行されるため、通常は必要ありませんが、
+概念的に理解するために掲載します。</p>
+<pre><code class="language-typescript">export class ThreadSafeSingleton {
+  private static instance: ThreadSafeSingleton | null = null;
+  private static lock = {};
+  
+  private constructor() { /* ... */ }
+  
+  public static getInstance(): ThreadSafeSingleton {
+    if (ThreadSafeSingleton.instance === null) {
+      // ここでロックを取得する（概念的なコード）
+      synchronized(this.lock) {
+        if (ThreadSafeSingleton.instance === null) {
+          ThreadSafeSingleton.instance = new ThreadSafeSingleton();
+        }
+      }
+    }
+    return ThreadSafeSingleton.instance;
+  }
+}
+</code></pre>
+<h2 id="メリット"><a class="header" href="#メリット">メリット</a></h2>
+<ol>
+<li><strong>一貫性の保証</strong>: クラスのインスタンスが1つだけ存在することを保証</li>
+<li><strong>グローバルアクセス</strong>: システムのどこからでもアクセス可能</li>
+<li><strong>遅延初期化</strong>: 必要になるまでインスタンスを作成しないため、リソースの節約が可能</li>
+<li><strong>インスタンスの再利用</strong>: 同じインスタンスを繰り返し使用するため、メモリ使用量の削減</li>
+</ol>
+<h2 id="デメリット"><a class="header" href="#デメリット">デメリット</a></h2>
+<ol>
+<li><strong>単体テストの困難さ</strong>: グローバル状態を持つため、テストが複雑になる</li>
+<li><strong>隠れた依存関係</strong>: コード間の依存関係が隠れてしまう</li>
+<li><strong>並行処理の問題</strong>: マルチスレッド環境では特別な対応が必要</li>
+<li><strong>責任過多のリスク</strong>: シングルトンに多くの責任を持たせてしまう傾向がある</li>
+</ol>
+<h2 id="適用場面"><a class="header" href="#適用場面">適用場面</a></h2>
+<ol>
+<li>リソースへの共有アクセスを管理する場合（データベース接続、ファイルシステムなど）</li>
+<li>アプリケーション全体で共有される設定を管理する場合</li>
+<li>厳密に1つのインスタンスのみが必要なオブジェクト（ロガー、キャッシュなど）</li>
+<li>状態を持つ必要があるグローバルな操作を提供する場合</li>
+</ol>
+<h2 id="実装時の注意点"><a class="header" href="#実装時の注意点">実装時の注意点</a></h2>
+<ol>
+<li>コンストラクタは必ず <code>private</code> にして、外部からのインスタンス化を防ぐ</li>
+<li>シングルトンに過度の責任を持たせない（単一責任の原則を守る）</li>
+<li>マルチスレッド環境ではスレッドセーフな実装を検討する</li>
+<li>シリアライズ/デシリアライズを行う場合は特別な対応が必要</li>
+<li>テスト時にモック化できるような設計にする</li>
+</ol>
+<h2 id="関連パターン"><a class="header" href="#関連パターン">関連パターン</a></h2>
+<ul>
+<li><strong>Factory Method</strong>: シングルトンインスタンスを作成するためにFactory Methodパターンを使用することがある</li>
+<li><strong>Facade</strong>: システム全体へのアクセスを単純化するために、FacadeパターンとともにSingletonを使用することがある</li>
+<li><strong>State</strong>: ステート管理のためにシングルトンが使用されることがある</li>
+<li><strong>Abstract Factory</strong>: Abstract FactoryのインスタンスをSingletonとして実装することがある</li>
+</ul>
+<h2 id="参考資料"><a class="header" href="#参考資料">参考資料</a></h2>
+<h3 id="内部リンク"><a class="header" href="#内部リンク">内部リンク</a></h3>
+<ul>
+<li><a href="../../src/creational/singleton">ソースコードへのリンク</a></li>
+<li><a href="../../tests/creational/singleton">テストコードへのリンク</a></li>
+</ul>
+<h3 id="外部リンク"><a class="header" href="#外部リンク">外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/singleton">リファクタリング・グル - Singletonパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/creational/prototype.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/structural/adapter.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/creational/prototype.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/structural/adapter.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

@@ -5,9 +5,9 @@
  * 新しい操作を追加する際は、このインターフェースを実装する新しいVisitorを作成します。
  */
 
-import { File } from '../../../src/structural/composite/File';
-import { Directory } from '../../../src/structural/composite/Directory';
-import { SymbolicLink } from '../../../src/structural/composite/SymbolicLink';
+import { File } from '../../structural/composite/File';
+import { Directory } from '../../structural/composite/Directory';
+import { SymbolicLink } from '../../structural/composite/SymbolicLink';
 
 export interface FileSystemVisitor {
     /**

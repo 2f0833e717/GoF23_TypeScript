@@ -56,13 +56,21 @@ export interface SearchCriteria {
 export class FileSearcher implements FileSystemVisitor {
     private results: FileSystemElement[] = [];
     private criteria: SearchCriteria;
+    private visitedElements: Set<string> = new Set();
 
     /**
      * コンストラクタ
      * @param criteria 検索条件
+     * @throws {Error} 検索条件が不正な場合
      */
     constructor(criteria: SearchCriteria) {
+        // 検索条件の妥当性チェック
+        if (criteria.minSize !== undefined && criteria.minSize < 0) {
+            throw new Error('最小サイズは0以上である必要があります');
+        }
+        
         this.criteria = criteria;
+        this.reset();
     }
 
     /**
@@ -70,8 +78,14 @@ export class FileSearcher implements FileSystemVisitor {
      * @param file 訪問するファイル
      */
     visitFile(file: File): void {
+        const path = file.getPath();
+        if (this.visitedElements.has(path)) {
+            return;
+        }
+        
         if (this.matchesCriteria(file)) {
             this.results.push(file);
+            this.visitedElements.add(path);
         }
     }
 
@@ -80,8 +94,19 @@ export class FileSearcher implements FileSystemVisitor {
      * @param directory 訪問するディレクトリ
      */
     visitDirectory(directory: Directory): void {
+        const path = directory.getPath();
+        if (this.visitedElements.has(path)) {
+            return;
+        }
+        
         if (this.matchesCriteria(directory)) {
             this.results.push(directory);
+            this.visitedElements.add(path);
+        }
+
+        // ディレクトリの内容を検索対象に含める
+        for (const child of directory.getChildren()) {
+            child.accept(this);
         }
     }
 
@@ -90,8 +115,19 @@ export class FileSearcher implements FileSystemVisitor {
      * @param symlink 訪問するシンボリックリンク
      */
     visitSymbolicLink(symlink: SymbolicLink): void {
+        const path = symlink.getPath();
+        if (this.visitedElements.has(path)) {
+            return;
+        }
+        
         if (this.matchesCriteria(symlink)) {
             this.results.push(symlink);
+            this.visitedElements.add(path);
+        }
+
+        const target = symlink.getTarget();
+        if (target) {
+            target.accept(this);
         }
     }
 
@@ -100,7 +136,7 @@ export class FileSearcher implements FileSystemVisitor {
      * @returns 検索条件に一致したファイルシステム要素の配列
      */
     getResult(): FileSystemElement[] {
-        return this.results;
+        return [...this.results];
     }
 
     /**
@@ -151,5 +187,6 @@ export class FileSearcher implements FileSystemVisitor {
      */
     reset(): void {
         this.results = [];
+        this.visitedElements.clear();
     }
-} 
+}

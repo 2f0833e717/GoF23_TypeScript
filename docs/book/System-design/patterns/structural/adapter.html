@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>adapter - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/patterns/structural/adapter.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="adapter-パターン"><a class="header" href="#adapter-パターン">Adapter パターン</a></h1>
+<h1 id="adapterパターン---インターフェース変換実装"><a class="header" href="#adapterパターン---インターフェース変換実装">Adapterパターン - インターフェース変換実装</a></h1>
+<h2 id="1-概要"><a class="header" href="#1-概要">1. 概要</a></h2>
+<h3 id="11-パターンの定義"><a class="header" href="#11-パターンの定義">1.1 パターンの定義</a></h3>
+<p>Adapterパターンは、互換性のないインターフェースを持つクラス同士を連携させるためのデザインパターンです。既存のクラスを修正せずに、クライアントが期待するインターフェースに変換します。</p>
+<h3 id="12-目的解決する問題"><a class="header" href="#12-目的解決する問題">1.2 目的・解決する問題</a></h3>
+<ul>
+<li>互換性のないインターフェース間の橋渡しをする</li>
+<li>既存のクラスを変更せずに新しいインターフェースで利用できるようにする</li>
+<li>レガシーコードと新しいコードを統合する</li>
+<li>サードパーティライブラリを既存のシステムに組み込む</li>
+<li>異なるAPIやデータ形式の統合を容易にする</li>
+</ul>
+<h3 id="13-コンテキスト適用場面"><a class="header" href="#13-コンテキスト適用場面">1.3 コンテキスト・適用場面</a></h3>
+<ul>
+<li>既存のクラスを使いたいが、そのインターフェースが現在のシステムのインターフェースと互換性がない場合</li>
+<li>既存のサブクラスを再利用したいが、親クラスのインターフェースを変更することはできない場合</li>
+<li>レガシーコードと新しいコードを統合したい場合</li>
+<li>複数の既存のサブクラスに共通の機能を追加したいが、継承による変更が現実的でない場合</li>
+<li>外部ライブラリやAPIを独自のコード構造に適合させる必要がある場合</li>
+</ul>
+<h2 id="2-クラス構造"><a class="header" href="#2-クラス構造">2. クラス構造</a></h2>
+<h3 id="21-クラス図"><a class="header" href="#21-クラス図">2.1 クラス図</a></h3>
+<pre class="mermaid">classDiagram
+    class Target {
+        +request
+    }
+    
+    class Client {
+        +executeRequest
+    }
+    
+    class Adapter {
+        -adaptee: Adaptee
+        +request
+    }
+    
+    class Adaptee {
+        +specificRequest
+    }
+    
+    Target &lt;|.. Adapter
+    Adapter o-- Adaptee
+    Client --&gt; Target
+
+    note for Target &quot;クライアントが使用する\n標準インターフェース&quot;
+    note for Adaptee &quot;既存のインターフェースを持ち\n変換が必要なクラス&quot;
+    note for Adapter &quot;Targetインターフェースを実装し\nAdapteeのメソッドを呼び出す&quot;
+    note for Client &quot;Targetインターフェースを通じて\n処理を行うクラス&quot;
+
+    note &quot;Adapter パターンの目的：\n互換性のないインターフェース間の\n橋渡しをする&quot;
+</pre>
+<h3 id="22-主要コンポーネント"><a class="header" href="#22-主要コンポーネント">2.2 主要コンポーネント</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>コンポーネント</th><th>種類</th><th>責務</th><th>関連</th></tr></thead><tbody>
+<tr><td>Target</td><td>インターフェース</td><td>クライアントが使用する標準インターフェースを定義</td><td>Adapterに実装される</td></tr>
+<tr><td>Client</td><td>クラス</td><td>Targetインターフェースを通じて処理を行う</td><td>Targetを使用</td></tr>
+<tr><td>Adaptee</td><td>クラス</td><td>既存のインターフェースを持ち、変換が必要</td><td>Adapterに使用される</td></tr>
+<tr><td>Adapter</td><td>クラス</td><td>TargetインターフェースとAdapteeの橋渡しを行う</td><td>Targetを実装、Adapteeを使用</td></tr>
+</tbody></table>
+</div>
+<h3 id="23-相互作用"><a class="header" href="#23-相互作用">2.3 相互作用</a></h3>
+<ul>
+<li>Clientは常にTargetインターフェースを通じて操作を行う</li>
+<li>AdapterはTargetインターフェースを実装し、Clientからのリクエストを受け取る</li>
+<li>AdapterはAdapteeのメソッドを呼び出し、必要な変換を行う</li>
+<li>Clientは変換プロセスや実際の実装クラス（Adaptee）を意識することなく処理を行える</li>
+<li>Adapterは一つまたは複数のAdapteeのインスタンスを使用して機能を提供する</li>
+</ul>
+<h2 id="3-振る舞い"><a class="header" href="#3-振る舞い">3. 振る舞い</a></h2>
+<h3 id="31-シーケンス図"><a class="header" href="#31-シーケンス図">3.1 シーケンス図</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Adapter
+    participant Adaptee
+    
+    Client-&gt;&gt;Adapter: request
+    activate Adapter
+    Adapter-&gt;&gt;Adaptee: specificRequest
+    activate Adaptee
+    Adaptee--&gt;&gt;Adapter: 結果
+    deactivate Adaptee
+    Note over Adapter: 結果の変換処理
+    Adapter--&gt;&gt;Client: 変換された結果
+    deactivate Adapter
+</pre>
+<h3 id="32-プロセスフロー"><a class="header" href="#32-プロセスフロー">3.2 プロセスフロー</a></h3>
+<pre class="mermaid">flowchart TD
+    A[開始] --&gt; B[Clientが生成される]
+    B --&gt; C[Adapteeが生成される]
+    C --&gt; D[Adapterが生成される&lt;br&gt;Adapteeへの参照を保持]
+    D --&gt; E[ClientがAdapterのrequestを呼び出す]
+    E --&gt; F[AdapterがAdapteeのspecificRequestを呼び出す]
+    F --&gt; G[Adapterが結果を変換]
+    G --&gt; H[変換された結果がClientに返される]
+    H --&gt; I[終了]
+</pre>
+<h3 id="33-重要なシナリオ"><a class="header" href="#33-重要なシナリオ">3.3 重要なシナリオ</a></h3>
+<h4 id="シナリオ1-メディアプレーヤーの拡張"><a class="header" href="#シナリオ1-メディアプレーヤーの拡張">シナリオ1: メディアプレーヤーの拡張</a></h4>
+<ol>
+<li>ユーザーがAudioPlayerを作成する</li>
+<li>ユーザーが様々な形式の音声ファイルを再生しようとする</li>
+<li>WAV形式はAudioPlayerが直接サポートしているため、そのまま再生される</li>
+<li>MP3やMP4形式はサポート外だが、MediaAdapterを通じて再生できる</li>
+<li>MediaAdapterは適切な専用プレーヤー（Mp3PlayerやMp4Player）を内部で使用</li>
+<li>PDFなどの非メディア形式は再生できないというメッセージが表示される</li>
+</ol>
+<h4 id="シナリオ2-レガシーシステムの統合"><a class="header" href="#シナリオ2-レガシーシステムの統合">シナリオ2: レガシーシステムの統合</a></h4>
+<ol>
+<li>既存のシステムが古いデータベースAPIを使用している</li>
+<li>新しいデータベースに移行する必要があるが、コードベース全体の変更は避けたい</li>
+<li>新しいデータベースAPIに対するアダプターを作成</li>
+<li>既存のコードは変更せず、アダプターを通じて新しいデータベースにアクセスできる</li>
+<li>システムの他の部分は変更の影響を受けない</li>
+</ol>
+<h2 id="4-実装詳細"><a class="header" href="#4-実装詳細">4. 実装詳細</a></h2>
+<h3 id="41-主要インターフェースクラス"><a class="header" href="#41-主要インターフェースクラス">4.1 主要インターフェース・クラス</a></h3>
+<pre><code class="language-typescript">/**
+ * Target インターフェース - クライアントが使用する標準インターフェース
+ */
+interface MediaPlayer {
+  /**
+   * メディアファイルを再生する
+   * @param fileName ファイル名
+   * @param fileType ファイルタイプ
+   */
+  play(fileName: string, fileType: string): void;
+}
+
+/**
+ * Adaptee - 既存のインターフェースを持つクラス（mp4プレーヤー）
+ */
+class Mp4Player {
+  /**
+   * MP4ファイルを再生する
+   * @param fileName ファイル名
+   */
+  playMp4(fileName: string): void {
+    console.log(`MP4プレーヤーでMP4ファイル "${fileName}" を再生中...`);
+  }
+}
+
+/**
+ * Adaptee - 既存のインターフェースを持つクラス（mp3プレーヤー）
+ */
+class Mp3Player {
+  /**
+   * MP3ファイルを再生する
+   * @param fileName ファイル名
+   */
+  playMp3(fileName: string): void {
+    console.log(`MP3プレーヤーでMP3ファイル "${fileName}" を再生中...`);
+  }
+}
+
+/**
+ * Adapter - 標準インターフェースを実装し、既存クラスにアダプトする
+ */
+class MediaAdapter implements MediaPlayer {
+  private mp4Player: Mp4Player;
+  private mp3Player: Mp3Player;
+
+  /**
+   * コンストラクタ - 必要に応じてアダプター先のクラスを初期化
+   * @param audioType オーディオタイプ
+   */
+  constructor(audioType: string) {
+    if (audioType === 'mp4') {
+      this.mp4Player = new Mp4Player();
+    } else if (audioType === 'mp3') {
+      this.mp3Player = new Mp3Player();
+    }
+  }
+
+  /**
+   * Targetインターフェースのメソッドを実装
+   * 適切なAdapteeの対応するメソッドに変換して呼び出す
+   * @param fileName ファイル名
+   * @param fileType ファイルタイプ
+   */
+  play(fileName: string, fileType: string): void {
+    if (fileType === 'mp4') {
+      this.mp4Player.playMp4(fileName);
+    } else if (fileType === 'mp3') {
+      this.mp3Player.playMp3(fileName);
+    } else {
+      console.log(`未対応のファイル形式です: ${fileType}`);
+    }
+  }
+}
+
+/**
+ * Client - MediaPlayerインターフェースを使用するクラス
+ */
+class AudioPlayer implements MediaPlayer {
+  private mediaAdapter: MediaAdapter | null = null;
+
+  /**
+   * オーディオファイルを再生する
+   * 標準形式（wav）は直接処理し、その他の形式はアダプターを使用
+   * @param fileName ファイル名
+   * @param fileType ファイルタイプ
+   */
+  play(fileName: string, fileType: string): void {
+    // ネイティブ形式の処理
+    if (fileType === 'wav') {
+      console.log(`WAVファイル "${fileName}" を再生中...`);
+    }
+    // MP3形式とMP4形式はアダプターを使用
+    else if (fileType === 'mp3' || fileType === 'mp4') {
+      this.mediaAdapter = new MediaAdapter(fileType);
+      this.mediaAdapter.play(fileName, fileType);
+    }
+    // その他の形式はサポートしない
+    else {
+      console.log(`${fileType}形式は再生できません。`);
+    }
+  }
+}
+</code></pre>
+<h3 id="42-使用例"><a class="header" href="#42-使用例">4.2 使用例</a></h3>
+<pre><code class="language-typescript">/**
+ * クライアントコード
+ */
+function clientCode() {
+  // オーディオプレーヤーの作成
+  const audioPlayer = new AudioPlayer();
+  
+  // 異なる形式の音声ファイルを再生
+  audioPlayer.play('sample.wav', 'wav');    // WAVはネイティブにサポート
+  audioPlayer.play('music.mp3', 'mp3');     // MP3はアダプターを使用
+  audioPlayer.play('video.mp4', 'mp4');     // MP4はアダプターを使用
+  audioPlayer.play('document.pdf', 'pdf');  // PDFは未対応
+}
+
+// クライアントコードを実行
+clientCode();
+
+// 出力結果:
+// WAVファイル "sample.wav" を再生中...
+// MP3プレーヤーでMP3ファイル "music.mp3" を再生中...
+// MP4プレーヤーでMP4ファイル "video.mp4" を再生中...
+// pdf形式は再生できません。
+</code></pre>
+<h2 id="5-パターンのバリエーション"><a class="header" href="#5-パターンのバリエーション">5. パターンのバリエーション</a></h2>
+<h3 id="51-クラスアダプター"><a class="header" href="#51-クラスアダプター">5.1 クラスアダプター</a></h3>
+<p>多重継承をサポートする言語で使用され、TargetクラスとAdapteeクラスの両方を継承して実装します。</p>
+<pre><code class="language-typescript">// 疑似コード（TypeScriptは多重継承をサポートしていないため）
+class ClassAdapter extends Target, Adaptee {
+  request() {
+    // Adapteeのメソッドを使ってTargetのインターフェースを実装
+    return this.specificRequest();
+  }
+}
+</code></pre>
+<h3 id="52-オブジェクトアダプター"><a class="header" href="#52-オブジェクトアダプター">5.2 オブジェクトアダプター</a></h3>
+<p>コンポジションを使用して実装するパターンで、AdapteeのインスタンスをAdapterクラス内部に保持します。前述の例はオブジェクトアダプターの実装例です。</p>
+<pre><code class="language-typescript">class ObjectAdapter implements Target {
+  private adaptee: Adaptee;
+  
+  constructor(adaptee: Adaptee) {
+    this.adaptee = adaptee;
+  }
+  
+  request() {
+    // Adapteeのメソッドを呼び出してTargetのインターフェースを実装
+    return this.adaptee.specificRequest();
+  }
+}
+</code></pre>
+<h3 id="53-双方向アダプター"><a class="header" href="#53-双方向アダプター">5.3 双方向アダプター</a></h3>
+<p>両方のインターフェースを実装し、相互に変換可能なアダプターです。</p>
+<pre><code class="language-typescript">class TwoWayAdapter implements Target, Adaptee {
+  private target: Target;
+  private adaptee: Adaptee;
+  
+  constructor(target: Target, adaptee: Adaptee) {
+    this.target = target;
+    this.adaptee = adaptee;
+  }
+  
+  // Target インターフェースの実装
+  request() {
+    return this.adaptee.specificRequest();
+  }
+  
+  // Adaptee インターフェースの実装
+  specificRequest() {
+    return this.target.request();
+  }
+}
+</code></pre>
+<h2 id="6-評価"><a class="header" href="#6-評価">6. 評価</a></h2>
+<h3 id="61-メリット"><a class="header" href="#61-メリット">6.1 メリット</a></h3>
+<ul>
+<li><strong>単一責任の原則</strong>: インターフェース変換のロジックを分離することでコードの責任を明確にする</li>
+<li><strong>オープン/クローズドの原則</strong>: 既存のコードを変更せずに新しいアダプターを追加できる</li>
+<li><strong>再利用性の向上</strong>: 既存のクラスを再利用できる</li>
+<li><strong>クライアントとの分離</strong>: クライアントは標準インターフェースのみを使用するため、実装の詳細から分離される</li>
+<li><strong>段階的な移行</strong>: レガシーシステムから新システムへの段階的な移行を可能にする</li>
+</ul>
+<h3 id="62-デメリット"><a class="header" href="#62-デメリット">6.2 デメリット</a></h3>
+<ul>
+<li><strong>コードの複雑性</strong>: 追加のクラスとインターフェースが必要となり、コードの複雑さが増す</li>
+<li><strong>パフォーマンスのオーバーヘッド</strong>: アダプターを経由するため、直接メソッドを呼び出す場合と比べてわずかなオーバーヘッドが発生する</li>
+<li><strong>すべての機能に対応できない場合</strong>: Adapteeのすべての機能をTargetインターフェースにマッピングできない場合がある</li>
+<li><strong>デバッグの難しさ</strong>: 変換処理が入ることでデバッグが複雑になる場合がある</li>
+</ul>
+<h3 id="63-適用場面"><a class="header" href="#63-適用場面">6.3 適用場面</a></h3>
+<ul>
+<li>既存のクラスを使いたいが、そのインターフェースが現在のシステムのインターフェースと互換性がない場合</li>
+<li>既存のサブクラスを再利用したいが、親クラスのインターフェースを変更することはできない場合</li>
+<li>レガシーコードと新しいコードを統合したい場合</li>
+<li>複数の既存のサブクラスに共通の機能を追加したいが、継承による変更が現実的でない場合</li>
+<li>外部ライブラリやAPIをアプリケーションに統合する必要がある場合</li>
+</ul>
+<h2 id="7-関連パターン"><a class="header" href="#7-関連パターン">7. 関連パターン</a></h2>
+<ul>
+<li><strong>Bridge</strong>: Adapterは異なるインターフェース間の互換性を後付けで解決するのに対し、Bridgeは事前設計でインターフェースと実装を分離する</li>
+<li><strong>Decorator</strong>: Decoratorはオブジェクトの機能を拡張するが、Adapterはインターフェースを変換する</li>
+<li><strong>Facade</strong>: Facadeは複雑なサブシステムに対してシンプルなインターフェースを提供するが、Adapterは既存のインターフェースを別のインターフェースに変換する</li>
+<li><strong>Proxy</strong>: ProxyはAdapteeのように異なるインターフェースを提供せず、同じインターフェースを維持しながらアクセスを制御する</li>
+<li><strong>Mediator</strong>: Mediatorは多対多の関係を管理するのに対し、Adapterは1対1の関係に焦点を当てる</li>
+</ul>
+<h2 id="8-参考資料"><a class="header" href="#8-参考資料">8. 参考資料</a></h2>
+<h3 id="81-内部リンク"><a class="header" href="#81-内部リンク">8.1 内部リンク</a></h3>
+<ul>
+<li><a href="../../src/structural/adapter">ソースコードへのリンク</a></li>
+<li><a href="../../tests/structural/adapter">テストコードへのリンク</a></li>
+</ul>
+<h3 id="82-外部リンク"><a class="header" href="#82-外部リンク">8.2 外部リンク</a></h3>
+<ul>
+<li><a href="https://refactoring.guru/ja/design-patterns/adapter">リファクタリング・グル - Adapterパターン</a></li>
+<li><a href="https://www.oreilly.co.jp/books/9784873119762/">Head First デザインパターン</a></li>
+<li><a href="https://www.amazon.co.jp/dp/0201633612">Gang of Four デザインパターン - Adapter</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/patterns/creational/singleton.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/structural/bridge.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/patterns/creational/singleton.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/structural/bridge.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

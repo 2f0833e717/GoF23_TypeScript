@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>testing guidelines - TypeScriptによるデザインパターン実装ガイド</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="TypeScriptで実装するGoF23デザインパターン解説ドキュメント">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TypeScriptによるデザインパターン実装ガイド</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/2f0833e717/gof23-typescript/edit/main/./System-design/guides/implementation/testing-guidelines.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="テスト方針"><a class="header" href="#テスト方針">テスト方針</a></h1>
+<p>このドキュメントでは、GoF23デザインパターンTypeScript実装プロジェクトのテスト方針とベストプラクティスについて説明します。</p>
+<h2 id="1-テスト種類と範囲"><a class="header" href="#1-テスト種類と範囲">1. テスト種類と範囲</a></h2>
+<ul>
+<li><strong>単体テスト</strong>: 各クラス/コンポーネントの機能を個別にテスト</li>
+<li><strong>統合テスト</strong>: パターンの実装が連携して動作することを確認</li>
+<li><strong>E2Eテスト</strong>: 具体的なユースケースでの動作を確認</li>
+<li><strong>パフォーマンステスト</strong>: 重要な操作の性能を検証</li>
+<li><strong>バウンダリテスト</strong>: エッジケースと境界値をテスト</li>
+</ul>
+<h2 id="2-テスト実装指針"><a class="header" href="#2-テスト実装指針">2. テスト実装指針</a></h2>
+<ul>
+<li>テストサイズの原則: 小さく、高速で、独立したテストを作成する</li>
+<li>1テストファイルにつき1クラス/コンポーネントのテスト</li>
+<li>AAA (Arrange-Act-Assert) パターンに従う</li>
+<li>モックやスタブを適切に使用する</li>
+<li>エッジケースとバリエーションをカバーする</li>
+<li>テストケースには明確な名前を付ける</li>
+<li>テストカバレッジ80%以上を目指す</li>
+<li>データ駆動テストを活用して複数のシナリオをテスト</li>
+</ul>
+<h2 id="3-テストライブラリの活用"><a class="header" href="#3-テストライブラリの活用">3. テストライブラリの活用</a></h2>
+<ul>
+<li><strong>Jest</strong>: 主要なテストフレームワーク</li>
+<li><strong>ts-jest</strong>: TypeScriptサポート</li>
+<li><strong>jest-extended</strong>: アサーション機能の拡張</li>
+<li><strong>@testing-library</strong>: UI/DOMテスト</li>
+<li><strong>supertest</strong>: APIテスト</li>
+<li><strong>nock/msw</strong>: HTTPモック</li>
+<li><strong>faker/chance</strong>: テストデータ生成</li>
+</ul>
+<h2 id="4-モックとスタブ"><a class="header" href="#4-モックとスタブ">4. モックとスタブ</a></h2>
+<ul>
+<li>外部依存をモックして単体テストを分離する</li>
+<li>適切なレベルでモックを作成（メソッドレベル、モジュールレベル、サービスレベル）</li>
+<li>モックの振る舞いを詳細に指定（戻り値、例外、非同期動作）</li>
+<li>コンテキストに応じてスパイを使用して呼び出しを検証</li>
+<li>Jest のモック機能を活用（jest.fn(), jest.mock()）</li>
+<li>依存性注入を使用してテスト可能なコードを設計</li>
+</ul>
+<h2 id="5-テストファイル命名と配置"><a class="header" href="#5-テストファイル命名と配置">5. テストファイル命名と配置</a></h2>
+<ul>
+<li>テストファイル名は <code>{テスト対象}.test.ts</code> とする</li>
+<li>ディレクトリ構造は実装と一致させる</li>
+<li>例:
+<pre><code>tests/
+├── behavioral/
+│   └── observer/
+│       ├── Subject.test.ts
+│       ├── ConcreteSubject.test.ts
+│       └── integration.test.ts  # 統合テスト
+</code></pre>
+</li>
+</ul>
+<h2 id="6-継続的テスト"><a class="header" href="#6-継続的テスト">6. 継続的テスト</a></h2>
+<ul>
+<li>CI/CDパイプラインでテストを自動実行</li>
+<li>プルリクエスト時にテストを実行し品質を確保</li>
+<li>定期的なテスト実行でリグレッションを検出</li>
+<li>テストカバレッジレポートを生成して分析</li>
+<li>テスト実行時間を監視し、遅いテストを最適化</li>
+</ul>
+<h2 id="7-パターン固有のテスト戦略"><a class="header" href="#7-パターン固有のテスト戦略">7. パターン固有のテスト戦略</a></h2>
+<h3 id="71-生成パターンのテスト"><a class="header" href="#71-生成パターンのテスト">7.1 生成パターンのテスト</a></h3>
+<ul>
+<li>シングルトン: インスタンスの唯一性の検証</li>
+<li>ファクトリーメソッド: 正しい型のオブジェクトが生成されることの確認</li>
+<li>抽象ファクトリー: 関連オブジェクト群の一貫性の検証</li>
+<li>ビルダー: 構築プロセスと生成物の整合性の確認</li>
+<li>プロトタイプ: クローンの深いコピーの検証</li>
+</ul>
+<h3 id="72-構造パターンのテスト"><a class="header" href="#72-構造パターンのテスト">7.2 構造パターンのテスト</a></h3>
+<ul>
+<li>アダプター: インターフェース変換の正確性の検証</li>
+<li>ブリッジ: 抽象と実装の分離の確認</li>
+<li>コンポジット: 単一オブジェクトとコンポジットの同一操作の検証</li>
+<li>デコレーター: 機能追加の累積的効果の確認</li>
+<li>ファサード: 簡略化されたインターフェースの動作確認</li>
+<li>フライウェイト: メモリ使用量の最適化の検証</li>
+<li>プロキシ: 本物のオブジェクトと同等の振る舞いの確認</li>
+</ul>
+<h3 id="73-振る舞いパターンのテスト"><a class="header" href="#73-振る舞いパターンのテスト">7.3 振る舞いパターンのテスト</a></h3>
+<ul>
+<li>責任連鎖: 要求の適切な処理者への伝播の検証</li>
+<li>コマンド: 実行、履歴管理、アンドゥ機能の確認</li>
+<li>インタープリター: 文法解析と実行の正確性の検証</li>
+<li>イテレーター: コレクション要素の順次アクセスの確認</li>
+<li>メディエーター: オブジェクト間通信の集中管理の検証</li>
+<li>メメント: 状態の保存と復元の正確性の確認</li>
+<li>オブザーバー: 状態変化時の通知の検証</li>
+<li>ステート: 状態に応じた振る舞いの変化の確認</li>
+<li>ストラテジー: アルゴリズムの交換可能性の検証</li>
+<li>テンプレートメソッド: 骨格アルゴリズムとフックメソッドの連携確認</li>
+<li>ビジター: 要素構造と操作の分離の検証</li>
+</ul>
+<h2 id="8-テスト品質の評価"><a class="header" href="#8-テスト品質の評価">8. テスト品質の評価</a></h2>
+<ul>
+<li>カバレッジだけでなく、テストの質も重視する</li>
+<li>エッジケースのカバー率を評価する</li>
+<li>失敗シナリオのテストを含める</li>
+<li>非機能要件（パフォーマンス、セキュリティ）のテストを含める</li>
+<li>テストの保守性を定期的に評価する</li>
+<li>テストコードのコードレビューを実施する</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../System-design/guides/implementation/setup-guide.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../System-design/patterns/behavioral/chain-of-responsibility.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../System-design/guides/implementation/setup-guide.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../System-design/patterns/behavioral/chain-of-responsibility.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../mermaid.min.js"></script>
+        <script src="../../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>
