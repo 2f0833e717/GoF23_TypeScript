@@ -1,0 +1,23 @@
+name: Create TypeScript Design Patterns Diagram
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  generate_diagram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      
+      - name: Update repository diagram
+        uses: githubocto/repo-visualizer@main
+        with:
+          output_dir: "docs/CodeViz"
+          excluded_paths: "node_modules,.git,.github,.venv,coverage,logs,docs/book,docs/api"
+          commit_message: "docs: リポジトリ構造図を更新"
+          root_path: "src"
+          artifact_name: "repo-diagram" 

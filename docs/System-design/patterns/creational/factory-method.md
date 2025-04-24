@@ -138,17 +138,17 @@ flowchart TD
  * Product インターフェース - ファクトリーメソッドによって生成される製品の共通インターフェース
  */
 interface Vehicle {
-  /**
+    /**
    * 乗り物の種類を返す
    */
   getType(): string;
   
   /**
    * 乗り物の説明を返す
-   */
+     */
   getDescription(): string;
-  
-  /**
+
+/**
    * 乗り物を運転する
    */
   drive(): void;
@@ -160,15 +160,15 @@ interface Vehicle {
 class Car implements Vehicle {
   private brand: string;
   
-  /**
+    /**
    * 車のブランドを指定して初期化
    * @param brand 車のブランド名
    */
   constructor(brand: string) {
     this.brand = brand;
   }
-  
-  /**
+
+    /**
    * 乗り物の種類を返す
    * @returns 「車」という文字列
    */
@@ -189,7 +189,7 @@ class Car implements Vehicle {
    */
   drive(): void {
     console.log(`${this.getDescription()}を運転しています。`);
-  }
+    }
 }
 
 /**
@@ -199,7 +199,7 @@ class Motorcycle implements Vehicle {
   private model: string;
   private engineSize: number;
   
-  /**
+/**
    * バイクのモデルとエンジンサイズを指定して初期化
    * @param model バイクのモデル名
    * @param engineSize エンジンサイズ（cc）
@@ -209,7 +209,7 @@ class Motorcycle implements Vehicle {
     this.engineSize = engineSize;
   }
   
-  /**
+    /**
    * 乗り物の種類を返す
    * @returns 「バイク」という文字列
    */
@@ -220,7 +220,7 @@ class Motorcycle implements Vehicle {
   /**
    * バイクの説明を返す
    * @returns モデル名とエンジンサイズを含む説明文
-   */
+     */
   getDescription(): string {
     return `${this.model} ${this.engineSize}ccのバイク`;
   }
@@ -230,14 +230,14 @@ class Motorcycle implements Vehicle {
    */
   drive(): void {
     console.log(`${this.getDescription()}を運転しています。`);
-  }
+    }
 }
 
 /**
  * Creator - ファクトリーメソッドを宣言する抽象クラス
  */
 abstract class VehicleFactory {
-  /**
+    /**
    * ファクトリーメソッド - サブクラスで実装される
    * @returns 生成された乗り物オブジェクト
    */
@@ -257,7 +257,7 @@ abstract class VehicleFactory {
     console.log('テスト走行を行います...');
     vehicle.drive();
     console.log('配送完了！');
-  }
+    }
 }
 
 /**
@@ -275,13 +275,13 @@ class CarFactory extends VehicleFactory {
     this.brand = brand;
   }
   
-  /**
+    /**
    * ファクトリーメソッドの実装 - 車を生成
    * @returns 生成された車オブジェクト
-   */
+     */
   createVehicle(): Vehicle {
     return new Car(this.brand);
-  }
+    }
 }
 
 /**
@@ -308,7 +308,7 @@ class MotorcycleFactory extends VehicleFactory {
    */
   createVehicle(): Vehicle {
     return new Motorcycle(this.model, this.engineSize);
-  }
+    }
 }
 ```
 
@@ -331,7 +331,7 @@ function clientCode() {
   hondaFactory.deliverVehicle();
   
   console.log('\n');
-  
+
   // バイクの生成と配送
   console.log('--- バイクの配送 ---');
   const kawasakiFactory = new MotorcycleFactory('Ninja', 1000);

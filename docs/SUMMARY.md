@@ -7,6 +7,7 @@
       - [architecture overview](System-design/guides/architecture/architecture-overview.md)
       - [continuous improvement](System-design/guides/architecture/continuous-improvement.md)
       - [dependencies](System-design/guides/architecture/dependencies.md)
+      - [dependency visualization](System-design/guides/architecture/dependency-visualization.md)
       - [develop guidelines](System-design/guides/architecture/develop-guidelines.md)
       - [documentation guidelines](System-design/guides/architecture/documentation-guidelines.md)
       - [modules](System-design/guides/architecture/modules.md)

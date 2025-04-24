@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>モジュール依存関係</title>
+  <style>
+      .node:active path,
+.node:hover path,
+.node.current path,
+.node:active polygon,
+.node:hover polygon,
+.node.current polygon {
+  stroke: fuchsia;
+  stroke-width: 2;
+}
+
+.edge:active path,
+.edge:hover path,
+.edge.current path,
+.edge:active ellipse,
+.edge:hover ellipse,
+.edge.current ellipse {
+  stroke: url(#edgeGradient);
+  stroke-width: 3;
+  stroke-opacity: 1;
+}
+
+.edge:active polygon,
+.edge:hover polygon,
+.edge.current polygon {
+  stroke: fuchsia;
+  stroke-width: 3;
+  fill: fuchsia;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+
+.edge:active text,
+.edge:hover text {
+  fill: fuchsia;
+}
+
+.cluster path {
+  stroke-width: 3;
+}
+
+.cluster:active path,
+.cluster:hover path {
+  fill: #ffff0011;
+}
+
+div.hint {
+  background-color: #000000aa;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  border-radius: 1rem;
+  position: fixed;
+  top: calc(50% - 4em);
+  right: calc(50% - 10em);
+  border: none;
+  padding: 1em 3em 1em 1em;
+}
+
+.hint button {
+  position: absolute;
+  font-weight: bolder;
+  right: 0.6em;
+  top: 0.6em;
+  color: inherit;
+  background-color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 1em;
+  margin-left: 0.6em;
+}
+
+.hint a {
+  color: inherit;
+}
+
+#button_help {
+  color: white;
+  background-color: #00000011;
+  border-radius: 1em;
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  font-size: 24pt;
+  font-weight: bolder;
+  width: 2em;
+  height: 2em;
+  border: none;
+}
+
+#button_help:hover {
+  cursor: pointer;
+  background-color: #00000077;
+}
+
+@media print {
+  #button_help {
+    display: none;
+  }
+
+  div.hint {
+    display: none;
+  }
+}
+
+    </style>
+  <style>
+    :root {
+      --bg-color: #1e1e1e;
+      --header-bg: #333;
+      --graph-bg: #000;
+      --text-color: #fff;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    
+    .header {
+      background-color: var(--header-bg);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .title {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    
+    .graph-container {
+      background-color: var(--graph-bg);
+      overflow: auto;
+      height: calc(100vh - 50px);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="title">モジュール依存関係</h1>
+  </div>
+  
+  <div class="graph-container" id="graph-container">
+    <button id="button_help">?</button>
+    <div id="hints" class="hint" style="display: none">
+      <button id="close-hints">x</button>
+      <span id="hint-text"></span>
+      <ul>
+        <li><b>Hover</b> - highlight</li>
+        <li><b>Right-click</b> - pin highlight</li>
+        <li><b>ESC</b> - clear</li>
+      </ul>
+    </div>
+    <svg width="483pt" height="2022pt"
+ viewBox="0.00 0.00 483.00 2022.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 2018)">
+<title>dependency&#45;cruiser output</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-2018 479,-2018 479,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_..</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M166,-8C166,-8 283,-8 283,-8 289,-8 295,-14 295,-20 295,-20 295,-337 295,-337 295,-343 289,-349 283,-349 283,-349 166,-349 166,-349 160,-349 154,-343 154,-337 154,-337 154,-20 154,-20 154,-14 160,-8 166,-8"/>
+<text text-anchor="middle" x="224.5" y="-336.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">..</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_../..</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M174,-16C174,-16 275,-16 275,-16 281,-16 287,-22 287,-28 287,-28 287,-299 287,-299 287,-305 281,-311 275,-311 275,-311 174,-311 174,-311 168,-311 162,-305 162,-299 162,-299 162,-28 162,-28 162,-22 168,-16 174,-16"/>
+<text text-anchor="middle" x="224.5" y="-298.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">..</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_../../src</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M182,-24C182,-24 267,-24 267,-24 273,-24 279,-30 279,-36 279,-36 279,-261 279,-261 279,-267 273,-273 267,-273 267,-273 182,-273 182,-273 176,-273 170,-267 170,-261 170,-261 170,-36 170,-36 170,-30 176,-24 182,-24"/>
+<text text-anchor="middle" x="224.5" y="-260.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">src</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_../../src/behavioral</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M190,-32C190,-32 259,-32 259,-32 265,-32 271,-38 271,-44 271,-44 271,-223 271,-223 271,-229 265,-235 259,-235 259,-235 190,-235 190,-235 184,-235 178,-229 178,-223 178,-223 178,-44 178,-44 178,-38 184,-32 190,-32"/>
+<text text-anchor="middle" x="224.5" y="-222.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">behavioral</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_../../src/behavioral/command</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M198,-82C198,-82 251,-82 251,-82 257,-82 263,-88 263,-94 263,-94 263,-170 263,-170 263,-176 257,-182 251,-182 251,-182 198,-182 198,-182 192,-182 186,-176 186,-170 186,-170 186,-94 186,-94 186,-88 192,-82 198,-82"/>
+<text text-anchor="start" x="203.12" y="-169.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">command</text>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_examples</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M20,-53C20,-53 134,-53 134,-53 140,-53 146,-59 146,-65 146,-65 146,-970 146,-970 146,-976 140,-982 134,-982 134,-982 20,-982 20,-982 14,-982 8,-976 8,-970 8,-970 8,-65 8,-65 8,-59 14,-53 20,-53"/>
+<text text-anchor="middle" x="77" y="-969.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">examples</text>
+</g>
+<g id="clust7" class="cluster">
+<title>cluster_examples/behavioral</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M28,-61C28,-61 126,-61 126,-61 132,-61 138,-67 138,-73 138,-73 138,-428 138,-428 138,-434 132,-440 126,-440 126,-440 28,-440 28,-440 22,-440 16,-434 16,-428 16,-428 16,-73 16,-73 16,-67 22,-61 28,-61"/>
+<text text-anchor="middle" x="77" y="-427.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">behavioral</text>
+</g>
+<g id="clust8" class="cluster">
+<title>cluster_examples/creational</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M41.88,-448C41.88,-448 112.12,-448 112.12,-448 118.12,-448 124.12,-454 124.12,-460 124.12,-460 124.12,-669 124.12,-669 124.12,-675 118.12,-681 112.12,-681 112.12,-681 41.88,-681 41.88,-681 35.88,-681 29.88,-675 29.88,-669 29.88,-669 29.88,-460 29.88,-460 29.88,-454 35.88,-448 41.88,-448"/>
+<text text-anchor="middle" x="77" y="-668.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">creational</text>
+</g>
+<g id="clust9" class="cluster">
+<title>cluster_examples/creational/prototype</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M52.75,-559C52.75,-559 101.25,-559 101.25,-559 107.25,-559 113.25,-565 113.25,-571 113.25,-571 113.25,-616 113.25,-616 113.25,-622 107.25,-628 101.25,-628 101.25,-628 52.75,-628 52.75,-628 46.75,-628 40.75,-622 40.75,-616 40.75,-616 40.75,-571 40.75,-571 40.75,-565 46.75,-559 52.75,-559"/>
+<text text-anchor="start" x="56.38" y="-615.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">prototype</text>
+</g>
+<g id="clust10" class="cluster">
+<title>cluster_examples/structural</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M52,-689C52,-689 102,-689 102,-689 108,-689 114,-695 114,-701 114,-701 114,-932 114,-932 114,-938 108,-944 102,-944 102,-944 52,-944 52,-944 46,-944 40,-938 40,-932 40,-932 40,-701 40,-701 40,-695 46,-689 52,-689"/>
+<text text-anchor="middle" x="77" y="-931.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">structural</text>
+</g>
+<g id="clust11" class="cluster">
+<title>cluster_src</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M167.5,-357C167.5,-357 455,-357 455,-357 461,-357 467,-363 467,-369 467,-369 467,-1730 467,-1730 467,-1736 461,-1742 455,-1742 455,-1742 167.5,-1742 167.5,-1742 161.5,-1742 155.5,-1736 155.5,-1730 155.5,-1730 155.5,-369 155.5,-369 155.5,-363 161.5,-357 167.5,-357"/>
+<text text-anchor="middle" x="311.25" y="-1729.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">src</text>
+</g>
+<g id="clust12" class="cluster">
+<title>cluster_src/behavioral</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M175.5,-365C175.5,-365 361,-365 361,-365 367,-365 373,-371 373,-377 373,-377 373,-873 373,-873 373,-879 367,-885 361,-885 361,-885 175.5,-885 175.5,-885 169.5,-885 163.5,-879 163.5,-873 163.5,-873 163.5,-377 163.5,-377 163.5,-371 169.5,-365 175.5,-365"/>
+<text text-anchor="middle" x="268.25" y="-872.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">behavioral</text>
+</g>
+<g id="clust13" class="cluster">
+<title>cluster_src/behavioral/command</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M198,-671C198,-671 327.8,-671 327.8,-671 333.8,-671 339.8,-677 339.8,-683 339.8,-683 339.8,-743 339.8,-743 339.8,-749 333.8,-755 327.8,-755 327.8,-755 198,-755 198,-755 192,-755 186,-749 186,-743 186,-743 186,-683 186,-683 186,-677 192,-671 198,-671"/>
+<text text-anchor="start" x="241.52" y="-742.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">command</text>
+</g>
+<g id="clust14" class="cluster">
+<title>cluster_src/behavioral/strategy</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M200.62,-492C200.62,-492 353,-492 353,-492 359,-492 365,-498 365,-504 365,-504 365,-549 365,-549 365,-555 359,-561 353,-561 353,-561 200.62,-561 200.62,-561 194.62,-561 188.62,-555 188.62,-549 188.62,-549 188.62,-504 188.62,-504 188.62,-498 194.62,-492 200.62,-492"/>
+<text text-anchor="start" x="258.81" y="-548.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">strategy</text>
+</g>
+<g id="clust15" class="cluster">
+<title>cluster_src/behavioral/visitor</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M201.5,-595C201.5,-595 247.5,-595 247.5,-595 253.5,-595 259.5,-601 259.5,-607 259.5,-607 259.5,-651 259.5,-651 259.5,-657 253.5,-663 247.5,-663 247.5,-663 201.5,-663 201.5,-663 195.5,-663 189.5,-657 189.5,-651 189.5,-651 189.5,-607 189.5,-607 189.5,-601 195.5,-595 201.5,-595"/>
+<text text-anchor="start" x="211" y="-650.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">visitor</text>
+</g>
+<g id="clust16" class="cluster">
+<title>cluster_src/common</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M200.62,-893C200.62,-893 248.38,-893 248.38,-893 254.38,-893 260.38,-899 260.38,-905 260.38,-905 260.38,-950 260.38,-950 260.38,-956 254.38,-962 248.38,-962 248.38,-962 200.62,-962 200.62,-962 194.62,-962 188.62,-956 188.62,-950 188.62,-950 188.62,-905 188.62,-905 188.62,-899 194.62,-893 200.62,-893"/>
+<text text-anchor="middle" x="224.5" y="-949.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">common</text>
+</g>
+<g id="clust17" class="cluster">
+<title>cluster_src/creational</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M189.38,-970C189.38,-970 259.62,-970 259.62,-970 265.62,-970 271.62,-976 271.62,-982 271.62,-982 271.62,-1191 271.62,-1191 271.62,-1197 265.62,-1203 259.62,-1203 259.62,-1203 189.38,-1203 189.38,-1203 183.38,-1203 177.38,-1197 177.38,-1191 177.38,-1191 177.38,-982 177.38,-982 177.38,-976 183.38,-970 189.38,-970"/>
+<text text-anchor="middle" x="224.5" y="-1190.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">creational</text>
+</g>
+<g id="clust18" class="cluster">
+<title>cluster_src/creational/prototype</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M200.25,-1066C200.25,-1066 248.75,-1066 248.75,-1066 254.75,-1066 260.75,-1072 260.75,-1078 260.75,-1078 260.75,-1123 260.75,-1123 260.75,-1129 254.75,-1135 248.75,-1135 248.75,-1135 200.25,-1135 200.25,-1135 194.25,-1135 188.25,-1129 188.25,-1123 188.25,-1123 188.25,-1078 188.25,-1078 188.25,-1072 194.25,-1066 200.25,-1066"/>
+<text text-anchor="start" x="203.88" y="-1122.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">prototype</text>
+</g>
+<g id="clust19" class="cluster">
+<title>cluster_src/structural</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M181,-1211C181,-1211 447,-1211 447,-1211 453,-1211 459,-1217 459,-1223 459,-1223 459,-1692 459,-1692 459,-1698 453,-1704 447,-1704 447,-1704 181,-1704 181,-1704 175,-1704 169,-1698 169,-1692 169,-1692 169,-1223 169,-1223 169,-1217 175,-1211 181,-1211"/>
+<text text-anchor="middle" x="314" y="-1691.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">structural</text>
+</g>
+<g id="clust20" class="cluster">
+<title>cluster_src/structural/adapter</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M201.5,-1429C201.5,-1429 247.5,-1429 247.5,-1429 253.5,-1429 259.5,-1435 259.5,-1441 259.5,-1441 259.5,-1547 259.5,-1547 259.5,-1553 253.5,-1559 247.5,-1559 247.5,-1559 201.5,-1559 201.5,-1559 195.5,-1559 189.5,-1553 189.5,-1547 189.5,-1547 189.5,-1441 189.5,-1441 189.5,-1435 195.5,-1429 201.5,-1429"/>
+<text text-anchor="start" x="208" y="-1546.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">adapter</text>
+</g>
+<g id="clust21" class="cluster">
+<title>cluster_src/structural/bridge</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M189,-1567C189,-1567 260,-1567 260,-1567 266,-1567 272,-1573 272,-1579 272,-1579 272,-1654 272,-1654 272,-1660 266,-1666 260,-1666 260,-1666 189,-1666 189,-1666 183,-1666 177,-1660 177,-1654 177,-1654 177,-1579 177,-1579 177,-1573 183,-1567 189,-1567"/>
+<text text-anchor="start" x="211" y="-1653.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">bridge</text>
+</g>
+<g id="clust22" class="cluster">
+<title>cluster_src/structural/facade</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M226.7,-1245C226.7,-1245 439,-1245 439,-1245 445,-1245 451,-1251 451,-1257 451,-1257 451,-1321 451,-1321 451,-1327 445,-1333 439,-1333 439,-1333 226.7,-1333 226.7,-1333 220.7,-1333 214.7,-1327 214.7,-1321 214.7,-1321 214.7,-1257 214.7,-1257 214.7,-1251 220.7,-1245 226.7,-1245"/>
+<text text-anchor="start" x="318.23" y="-1320.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">facade</text>
+</g>
+<g id="clust23" class="cluster">
+<title>cluster_src/structural/facade/subsystem</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M332.2,-1253C332.2,-1253 431,-1253 431,-1253 437,-1253 443,-1259 443,-1265 443,-1265 443,-1294 443,-1294 443,-1300 437,-1306 431,-1306 431,-1306 332.2,-1306 332.2,-1306 326.2,-1306 320.2,-1300 320.2,-1294 320.2,-1294 320.2,-1265 320.2,-1265 320.2,-1259 326.2,-1253 332.2,-1253"/>
+<text text-anchor="start" x="357.6" y="-1293.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">subsystem</text>
+</g>
+<g id="clust24" class="cluster">
+<title>cluster_tests</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M20,-990C20,-990 134,-990 134,-990 140,-990 146,-996 146,-1002 146,-1002 146,-1994 146,-1994 146,-2000 140,-2006 134,-2006 134,-2006 20,-2006 20,-2006 14,-2006 8,-2000 8,-1994 8,-1994 8,-1002 8,-1002 8,-996 14,-990 20,-990"/>
+<text text-anchor="middle" x="77" y="-1993.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">tests</text>
+</g>
+<g id="clust25" class="cluster">
+<title>cluster_tests/behavioral</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M28,-998C28,-998 126,-998 126,-998 132,-998 138,-1004 138,-1010 138,-1010 138,-1365 138,-1365 138,-1371 132,-1377 126,-1377 126,-1377 28,-1377 28,-1377 22,-1377 16,-1371 16,-1365 16,-1365 16,-1010 16,-1010 16,-1004 22,-998 28,-998"/>
+<text text-anchor="middle" x="77" y="-1364.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">behavioral</text>
+</g>
+<g id="clust26" class="cluster">
+<title>cluster_tests/creational</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M41.88,-1385C41.88,-1385 112.12,-1385 112.12,-1385 118.12,-1385 124.12,-1391 124.12,-1397 124.12,-1397 124.12,-1606 124.12,-1606 124.12,-1612 118.12,-1618 112.12,-1618 112.12,-1618 41.88,-1618 41.88,-1618 35.88,-1618 29.88,-1612 29.88,-1606 29.88,-1606 29.88,-1397 29.88,-1397 29.88,-1391 35.88,-1385 41.88,-1385"/>
+<text text-anchor="middle" x="77" y="-1605.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">creational</text>
+</g>
+<g id="clust27" class="cluster">
+<title>cluster_tests/creational/prototype</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M52.75,-1496C52.75,-1496 101.25,-1496 101.25,-1496 107.25,-1496 113.25,-1502 113.25,-1508 113.25,-1508 113.25,-1553 113.25,-1553 113.25,-1559 107.25,-1565 101.25,-1565 101.25,-1565 52.75,-1565 52.75,-1565 46.75,-1565 40.75,-1559 40.75,-1553 40.75,-1553 40.75,-1508 40.75,-1508 40.75,-1502 46.75,-1496 52.75,-1496"/>
+<text text-anchor="start" x="56.38" y="-1552.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">prototype</text>
+</g>
+<g id="clust28" class="cluster">
+<title>cluster_tests/structural</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M38,-1626C38,-1626 116,-1626 116,-1626 122,-1626 128,-1632 128,-1638 128,-1638 128,-1956 128,-1956 128,-1962 122,-1968 116,-1968 116,-1968 38,-1968 38,-1968 32,-1968 26,-1962 26,-1956 26,-1956 26,-1638 26,-1638 26,-1632 32,-1626 38,-1626"/>
+<text text-anchor="middle" x="77" y="-1955.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">structural</text>
+</g>
+<g id="clust29" class="cluster">
+<title>cluster_tests/structural/facade</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M46,-1768C46,-1768 108,-1768 108,-1768 114,-1768 120,-1774 120,-1780 120,-1780 120,-1872 120,-1872 120,-1878 114,-1884 108,-1884 108,-1884 46,-1884 46,-1884 40,-1884 34,-1878 34,-1872 34,-1872 34,-1780 34,-1780 34,-1774 40,-1768 46,-1768"/>
+<text text-anchor="start" x="62.38" y="-1871.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">facade</text>
+</g>
+<g id="clust30" class="cluster">
+<title>cluster_tests/structural/facade/subsystem</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M54,-1788C54,-1788 100,-1788 100,-1788 106,-1788 112,-1794 112,-1800 112,-1800 112,-1845 112,-1845 112,-1851 106,-1857 100,-1857 100,-1857 54,-1857 54,-1857 48,-1857 42,-1851 42,-1845 42,-1845 42,-1800 42,-1800 42,-1794 48,-1788 54,-1788"/>
+<text text-anchor="start" x="53" y="-1844.45" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">subsystem</text>
+</g>
+<!-- . -->
+<g id="node1" class="node">
+<title>.</title>
+<g id="a_node1"><a xlink:href="https://nodejs.org/api/..html" xlink:title=".">
+<polygon fill="#ffffcc" stroke="grey" points="357,-1770.25 305.06,-1770.25 303,-1768.19 303,-1751.75 354.94,-1751.75 357,-1753.81 357,-1770.25"/>
+<polyline fill="none" stroke="grey" points="354.94,-1768.19 303,-1768.19"/>
+<polyline fill="none" stroke="grey" points="354.94,-1768.19 354.94,-1751.75"/>
+<polyline fill="none" stroke="grey" points="354.94,-1768.19 357,-1770.25"/>
+<text text-anchor="middle" x="330" y="-1757.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="grey">.</text>
+</a>
+</g>
+</g>
+<!-- .. -->
+<!-- ../.. -->
+<!-- ../../src -->
+<!-- ../../src/behavioral -->
+<!-- ../../src/behavioral/command -->
+<!-- ../../src/behavioral/command/commands -->
+<g id="node7" class="node">
+<title>../../src/behavioral/command/commands</title>
+<g id="a_node7"><a xlink:title="commands">
+<polygon fill="#ffffcc" stroke="black" points="255,-124.25 196.06,-124.25 194,-122.19 194,-105.75 252.94,-105.75 255,-107.81 255,-124.25"/>
+<polyline fill="none" stroke="black" points="252.94,-122.19 194,-122.19"/>
+<polyline fill="none" stroke="black" points="252.94,-122.19 252.94,-105.75"/>
+<polyline fill="none" stroke="black" points="252.94,-122.19 255,-124.25"/>
+<text text-anchor="start" x="202" y="-111.7" font-family="Helvetica,sans-Serif" font-size="9.00">commands</text>
+</a>
+</g>
+</g>
+<!-- ../../src/behavioral/command/devices -->
+<g id="node8" class="node">
+<title>../../src/behavioral/command/devices</title>
+<g id="a_node8"><a xlink:title="devices">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-155.25 199.56,-155.25 197.5,-153.19 197.5,-136.75 249.44,-136.75 251.5,-138.81 251.5,-155.25"/>
+<polyline fill="none" stroke="black" points="249.44,-153.19 197.5,-153.19"/>
+<polyline fill="none" stroke="black" points="249.44,-153.19 249.44,-136.75"/>
+<polyline fill="none" stroke="black" points="249.44,-153.19 251.5,-155.25"/>
+<text text-anchor="start" x="208.75" y="-142.7" font-family="Helvetica,sans-Serif" font-size="9.00">devices</text>
+</a>
+</g>
+</g>
+<!-- ../../src/behavioral/iterator -->
+<g id="node9" class="node">
+<title>../../src/behavioral/iterator</title>
+<g id="a_node9"><a xlink:title="iterator">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-208.25 199.56,-208.25 197.5,-206.19 197.5,-189.75 249.44,-189.75 251.5,-191.81 251.5,-208.25"/>
+<polyline fill="none" stroke="black" points="249.44,-206.19 197.5,-206.19"/>
+<polyline fill="none" stroke="black" points="249.44,-206.19 249.44,-189.75"/>
+<polyline fill="none" stroke="black" points="249.44,-206.19 251.5,-208.25"/>
+<text text-anchor="start" x="210.25" y="-195.7" font-family="Helvetica,sans-Serif" font-size="9.00">iterator</text>
+</a>
+</g>
+</g>
+<!-- ../../src/behavioral/mediator -->
+<g id="node10" class="node">
+<title>../../src/behavioral/mediator</title>
+<g id="a_node10"><a xlink:title="mediator">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-58.25 199.56,-58.25 197.5,-56.19 197.5,-39.75 249.44,-39.75 251.5,-41.81 251.5,-58.25"/>
+<polyline fill="none" stroke="black" points="249.44,-56.19 197.5,-56.19"/>
+<polyline fill="none" stroke="black" points="249.44,-56.19 249.44,-39.75"/>
+<polyline fill="none" stroke="black" points="249.44,-56.19 251.5,-58.25"/>
+<text text-anchor="start" x="206.5" y="-45.7" font-family="Helvetica,sans-Serif" font-size="9.00">mediator</text>
+</a>
+</g>
+</g>
+<!-- examples -->
+<!-- examples/behavioral -->
+<!-- examples/behavioral/chain&#45;of&#45;responsibility -->
+<g id="node13" class="node">
+<title>examples/behavioral/chain&#45;of&#45;responsibility</title>
+<g id="a_node13"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/chain-of-responsibility" xlink:title="chain&#45;of&#45;responsibility">
+<polygon fill="#ffffcc" stroke="black" points="130,-351.25 26.06,-351.25 24,-349.19 24,-332.75 127.94,-332.75 130,-334.81 130,-351.25"/>
+<polyline fill="none" stroke="black" points="127.94,-349.19 24,-349.19"/>
+<polyline fill="none" stroke="black" points="127.94,-349.19 127.94,-332.75"/>
+<polyline fill="none" stroke="black" points="127.94,-349.19 130,-351.25"/>
+<text text-anchor="start" x="32" y="-338.7" font-family="Helvetica,sans-Serif" font-size="9.00">chain&#45;of&#45;responsibility</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/chain&#45;of&#45;responsibility -->
+<g id="node14" class="node">
+<title>src/behavioral/chain&#45;of&#45;responsibility</title>
+<g id="a_node14"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/chain-of-responsibility" xlink:title="chain&#45;of&#45;responsibility">
+<polygon fill="#ffffcc" stroke="black" points="277.5,-587.25 173.56,-587.25 171.5,-585.19 171.5,-568.75 275.44,-568.75 277.5,-570.81 277.5,-587.25"/>
+<polyline fill="none" stroke="black" points="275.44,-585.19 171.5,-585.19"/>
+<polyline fill="none" stroke="black" points="275.44,-585.19 275.44,-568.75"/>
+<polyline fill="none" stroke="black" points="275.44,-585.19 277.5,-587.25"/>
+<text text-anchor="start" x="179.5" y="-574.7" font-family="Helvetica,sans-Serif" font-size="9.00">chain&#45;of&#45;responsibility</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/chain&#45;of&#45;responsibility&#45;&gt;src/behavioral/chain&#45;of&#45;responsibility -->
+<g id="edge1" class="edge">
+<title>examples/behavioral/chain&#45;of&#45;responsibility&#45;&gt;src/behavioral/chain&#45;of&#45;responsibility</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M129,-351.5C129,-394.61 129,-569.77 129,-569.77 129,-569.77 164.95,-569.77 164.95,-569.77"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="169.95,-569.78 164.95,-572.03 168.67,-569.78 164.95,-569.78 164.95,-569.78 164.95,-569.78 168.67,-569.78 164.95,-567.53 169.95,-569.78"/>
+</g>
+<!-- examples/behavioral/command -->
+<g id="node15" class="node">
+<title>examples/behavioral/command</title>
+<g id="a_node15"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/command" xlink:title="command">
+<polygon fill="#ffffcc" stroke="black" points="105.25,-134.25 50.81,-134.25 48.75,-132.19 48.75,-115.75 103.19,-115.75 105.25,-117.81 105.25,-134.25"/>
+<polyline fill="none" stroke="black" points="103.19,-132.19 48.75,-132.19"/>
+<polyline fill="none" stroke="black" points="103.19,-132.19 103.19,-115.75"/>
+<polyline fill="none" stroke="black" points="103.19,-132.19 105.25,-134.25"/>
+<text text-anchor="start" x="56.75" y="-121.7" font-family="Helvetica,sans-Serif" font-size="9.00">command</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/command&#45;&gt;../../src/behavioral/command -->
+<g id="edge4" class="edge">
+<title>examples/behavioral/command&#45;&gt;../../src/behavioral/command</title>
+<g id="a_edge4"><a xlink:title="not&#45;to&#45;unresolvable">
+<path fill="none" stroke="red" d="M105.48,-118.58C112.47,-118.58 118,-118.58 118,-118.58 118,-118.58 118,-92 118,-92 118,-92 216.06,-92 216.06,-92"/>
+<polygon fill="red" stroke="red" points="221.06,-92 216.06,-94.25 219.78,-92 216.06,-92 216.06,-92 216.06,-92 219.78,-92 216.06,-89.75 221.06,-92"/>
+</a>
+</g>
+<text text-anchor="middle" x="187.22" y="-93.95" font-family="Helvetica,sans-Serif" font-size="9.00" fill="red">not&#45;to&#45;unresolvable</text>
+</g>
+<!-- examples/behavioral/command&#45;&gt;../../src/behavioral/command/commands -->
+<g id="edge2" class="edge">
+<title>examples/behavioral/command&#45;&gt;../../src/behavioral/command/commands</title>
+<g id="a_edge2"><a xlink:title="not&#45;to&#45;unresolvable">
+<path fill="none" stroke="red" d="M105.44,-121.42C105.44,-121.42 187.38,-121.42 187.38,-121.42"/>
+<polygon fill="red" stroke="red" points="192.38,-121.42 187.38,-123.67 191.1,-121.42 187.38,-121.42 187.38,-121.42 187.38,-121.42 191.1,-121.42 187.38,-119.17 192.38,-121.42"/>
+</a>
+</g>
+<text text-anchor="middle" x="186.16" y="-123.37" font-family="Helvetica,sans-Serif" font-size="9.00" fill="red">not&#45;to&#45;unresolvable</text>
+</g>
+<!-- examples/behavioral/command&#45;&gt;../../src/behavioral/command/devices -->
+<g id="edge3" class="edge">
+<title>examples/behavioral/command&#45;&gt;../../src/behavioral/command/devices</title>
+<g id="a_edge3"><a xlink:title="not&#45;to&#45;unresolvable">
+<path fill="none" stroke="red" d="M105.69,-129.25C148.47,-129.25 224,-129.25 224,-129.25 224,-129.25 224,-130.23 224,-130.23"/>
+<polygon fill="red" stroke="red" points="224,-135.23 221.75,-130.23 224,-133.95 224,-130.23 224,-130.23 224,-130.23 224,-133.95 226.25,-130.23 224,-135.23"/>
+</a>
+</g>
+<text text-anchor="middle" x="125.59" y="-131.2" font-family="Helvetica,sans-Serif" font-size="9.00" fill="red">not&#45;to&#45;unresolvable</text>
+</g>
+<!-- examples/behavioral/interpreter -->
+<g id="node16" class="node">
+<title>examples/behavioral/interpreter</title>
+<g id="a_node16"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/interpreter" xlink:title="interpreter">
+<polygon fill="#ffffcc" stroke="black" points="106,-196.25 50.06,-196.25 48,-194.19 48,-177.75 103.94,-177.75 106,-179.81 106,-196.25"/>
+<polyline fill="none" stroke="black" points="103.94,-194.19 48,-194.19"/>
+<polyline fill="none" stroke="black" points="103.94,-194.19 103.94,-177.75"/>
+<polyline fill="none" stroke="black" points="103.94,-194.19 106,-196.25"/>
+<text text-anchor="start" x="56" y="-183.7" font-family="Helvetica,sans-Serif" font-size="9.00">interpreter</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/interpreter -->
+<g id="node17" class="node">
+<title>src/behavioral/interpreter</title>
+<g id="a_node17"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/interpreter" xlink:title="interpreter">
+<polygon fill="#ffffcc" stroke="black" points="253.5,-391.25 197.56,-391.25 195.5,-389.19 195.5,-372.75 251.44,-372.75 253.5,-374.81 253.5,-391.25"/>
+<polyline fill="none" stroke="black" points="251.44,-389.19 195.5,-389.19"/>
+<polyline fill="none" stroke="black" points="251.44,-389.19 251.44,-372.75"/>
+<polyline fill="none" stroke="black" points="251.44,-389.19 253.5,-391.25"/>
+<text text-anchor="start" x="203.5" y="-378.7" font-family="Helvetica,sans-Serif" font-size="9.00">interpreter</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/interpreter&#45;&gt;src/behavioral/interpreter -->
+<g id="edge5" class="edge">
+<title>examples/behavioral/interpreter&#45;&gt;src/behavioral/interpreter</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M106.36,-183.75C133.29,-183.75 169,-183.75 169,-183.75 169,-183.75 169,-379.08 169,-379.08 169,-379.08 188.91,-379.08 188.91,-379.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="193.91,-379.08 188.91,-381.33 192.62,-379.08 188.91,-379.08 188.91,-379.08 188.91,-379.08 192.62,-379.08 188.91,-376.83 193.91,-379.08"/>
+</g>
+<!-- examples/behavioral/iterator -->
+<g id="node18" class="node">
+<title>examples/behavioral/iterator</title>
+<g id="a_node18"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/iterator" xlink:title="iterator">
+<polygon fill="#ffffcc" stroke="black" points="104,-165.25 52.06,-165.25 50,-163.19 50,-146.75 101.94,-146.75 104,-148.81 104,-165.25"/>
+<polyline fill="none" stroke="black" points="101.94,-163.19 50,-163.19"/>
+<polyline fill="none" stroke="black" points="101.94,-163.19 101.94,-146.75"/>
+<polyline fill="none" stroke="black" points="101.94,-163.19 104,-165.25"/>
+<text text-anchor="start" x="62.75" y="-152.7" font-family="Helvetica,sans-Serif" font-size="9.00">iterator</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/iterator&#45;&gt;../../src/behavioral/iterator -->
+<g id="edge6" class="edge">
+<title>examples/behavioral/iterator&#45;&gt;../../src/behavioral/iterator</title>
+<g id="a_edge6"><a xlink:title="not&#45;to&#45;unresolvable">
+<path fill="none" stroke="red" d="M104.31,-160.25C146.82,-160.25 224,-160.25 224,-160.25 224,-160.25 224,-183.4 224,-183.4"/>
+<polygon fill="red" stroke="red" points="224,-188.4 221.75,-183.4 224,-187.12 224,-183.4 224,-183.4 224,-183.4 224,-187.12 226.25,-183.4 224,-188.4"/>
+</a>
+</g>
+<text text-anchor="middle" x="215.48" y="-156.95" font-family="Helvetica,sans-Serif" font-size="9.00" fill="red">not&#45;to&#45;unresolvable</text>
+</g>
+<!-- examples/behavioral/mediator -->
+<g id="node19" class="node">
+<title>examples/behavioral/mediator</title>
+<g id="a_node19"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/mediator" xlink:title="mediator">
+<polygon fill="#ffffcc" stroke="black" points="104,-103.25 52.06,-103.25 50,-101.19 50,-84.75 101.94,-84.75 104,-86.81 104,-103.25"/>
+<polyline fill="none" stroke="black" points="101.94,-101.19 50,-101.19"/>
+<polyline fill="none" stroke="black" points="101.94,-101.19 101.94,-84.75"/>
+<polyline fill="none" stroke="black" points="101.94,-101.19 104,-103.25"/>
+<text text-anchor="start" x="59" y="-90.7" font-family="Helvetica,sans-Serif" font-size="9.00">mediator</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/mediator&#45;&gt;../../src/behavioral/mediator -->
+<g id="edge7" class="edge">
+<title>examples/behavioral/mediator&#45;&gt;../../src/behavioral/mediator</title>
+<g id="a_edge7"><a xlink:title="not&#45;to&#45;unresolvable">
+<path fill="none" stroke="red" d="M91,-84.46C91,-71.25 91,-49 91,-49 91,-49 190.94,-49 190.94,-49"/>
+<polygon fill="red" stroke="red" points="195.94,-49 190.94,-51.25 194.66,-49 190.94,-49 190.94,-49 190.94,-49 194.66,-49 190.94,-46.75 195.94,-49"/>
+</a>
+</g>
+<text text-anchor="middle" x="83.49" y="-40.45" font-family="Helvetica,sans-Serif" font-size="9.00" fill="red">not&#45;to&#45;unresolvable</text>
+</g>
+<!-- examples/behavioral/memento -->
+<g id="node20" class="node">
+<title>examples/behavioral/memento</title>
+<g id="a_node20"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/memento" xlink:title="memento">
+<polygon fill="#ffffcc" stroke="black" points="104.12,-227.25 51.93,-227.25 49.88,-225.19 49.88,-208.75 102.07,-208.75 104.12,-210.81 104.12,-227.25"/>
+<polyline fill="none" stroke="black" points="102.07,-225.19 49.88,-225.19"/>
+<polyline fill="none" stroke="black" points="102.07,-225.19 102.07,-208.75"/>
+<polyline fill="none" stroke="black" points="102.07,-225.19 104.12,-227.25"/>
+<text text-anchor="start" x="57.88" y="-214.7" font-family="Helvetica,sans-Serif" font-size="9.00">memento</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/memento -->
+<g id="node21" class="node">
+<title>src/behavioral/memento</title>
+<g id="a_node21"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/memento" xlink:title="memento">
+<polygon fill="#ccffcc" stroke="orange" points="251.62,-422.25 199.43,-422.25 197.38,-420.19 197.38,-403.75 249.57,-403.75 251.62,-405.81 251.62,-422.25"/>
+<polyline fill="none" stroke="orange" points="249.57,-420.19 197.38,-420.19"/>
+<polyline fill="none" stroke="orange" points="249.57,-420.19 249.57,-403.75"/>
+<polyline fill="none" stroke="orange" points="249.57,-420.19 251.62,-422.25"/>
+<text text-anchor="start" x="205.38" y="-409.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">memento</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/memento&#45;&gt;src/behavioral/memento -->
+<g id="edge8" class="edge">
+<title>examples/behavioral/memento&#45;&gt;src/behavioral/memento</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.49,-218C130.96,-218 167,-218 167,-218 167,-218 167,-406.92 167,-406.92 167,-406.92 190.88,-406.92 190.88,-406.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.88,-406.92 190.88,-409.17 194.6,-406.92 190.88,-406.92 190.88,-406.92 190.88,-406.92 194.6,-406.92 190.88,-404.67 195.88,-406.92"/>
+</g>
+<!-- examples/behavioral/observer -->
+<g id="node22" class="node">
+<title>examples/behavioral/observer</title>
+<g id="a_node22"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/observer" xlink:title="observer">
+<polygon fill="#ffffcc" stroke="black" points="104,-258.25 52.06,-258.25 50,-256.19 50,-239.75 101.94,-239.75 104,-241.81 104,-258.25"/>
+<polyline fill="none" stroke="black" points="101.94,-256.19 50,-256.19"/>
+<polyline fill="none" stroke="black" points="101.94,-256.19 101.94,-239.75"/>
+<polyline fill="none" stroke="black" points="101.94,-256.19 104,-258.25"/>
+<text text-anchor="start" x="59" y="-245.7" font-family="Helvetica,sans-Serif" font-size="9.00">observer</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/observer -->
+<g id="node23" class="node">
+<title>src/behavioral/observer</title>
+<g id="a_node23"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/observer" xlink:title="observer">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-453.25 199.56,-453.25 197.5,-451.19 197.5,-434.75 249.44,-434.75 251.5,-436.81 251.5,-453.25"/>
+<polyline fill="none" stroke="black" points="249.44,-451.19 197.5,-451.19"/>
+<polyline fill="none" stroke="black" points="249.44,-451.19 249.44,-434.75"/>
+<polyline fill="none" stroke="black" points="249.44,-451.19 251.5,-453.25"/>
+<text text-anchor="start" x="206.5" y="-440.7" font-family="Helvetica,sans-Serif" font-size="9.00">observer</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/observer&#45;&gt;src/behavioral/observer -->
+<g id="edge9" class="edge">
+<title>examples/behavioral/observer&#45;&gt;src/behavioral/observer</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.22,-252.53C136.51,-252.53 186,-252.53 186,-252.53 186,-252.53 186,-440.92 186,-440.92 186,-440.92 191.12,-440.92 191.12,-440.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.12,-440.92 191.12,-443.17 194.84,-440.92 191.12,-440.92 191.12,-440.92 191.12,-440.92 194.84,-440.92 191.12,-438.67 196.12,-440.92"/>
+</g>
+<!-- examples/behavioral/state -->
+<g id="node24" class="node">
+<title>examples/behavioral/state</title>
+<g id="a_node24"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/state" xlink:title="state">
+<polygon fill="#ffffcc" stroke="black" points="104,-289.25 52.06,-289.25 50,-287.19 50,-270.75 101.94,-270.75 104,-272.81 104,-289.25"/>
+<polyline fill="none" stroke="black" points="101.94,-287.19 50,-287.19"/>
+<polyline fill="none" stroke="black" points="101.94,-287.19 101.94,-270.75"/>
+<polyline fill="none" stroke="black" points="101.94,-287.19 104,-289.25"/>
+<text text-anchor="start" x="67.25" y="-276.7" font-family="Helvetica,sans-Serif" font-size="9.00">state</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/state -->
+<g id="node25" class="node">
+<title>src/behavioral/state</title>
+<g id="a_node25"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/state" xlink:title="state">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-484.25 199.56,-484.25 197.5,-482.19 197.5,-465.75 249.44,-465.75 251.5,-467.81 251.5,-484.25"/>
+<polyline fill="none" stroke="black" points="249.44,-482.19 197.5,-482.19"/>
+<polyline fill="none" stroke="black" points="249.44,-482.19 249.44,-465.75"/>
+<polyline fill="none" stroke="black" points="249.44,-482.19 251.5,-484.25"/>
+<text text-anchor="start" x="214.75" y="-471.7" font-family="Helvetica,sans-Serif" font-size="9.00">state</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/state&#45;&gt;src/behavioral/state -->
+<g id="edge10" class="edge">
+<title>examples/behavioral/state&#45;&gt;src/behavioral/state</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.36,-275.98C130.19,-275.98 165,-275.98 165,-275.98 165,-275.98 165,-471.42 165,-471.42 165,-471.42 190.97,-471.42 190.97,-471.42"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.97,-471.42 190.97,-473.67 194.69,-471.42 190.97,-471.42 190.97,-471.42 190.97,-471.42 194.69,-471.42 190.97,-469.17 195.97,-471.42"/>
+</g>
+<!-- examples/behavioral/strategy -->
+<g id="node26" class="node">
+<title>examples/behavioral/strategy</title>
+<g id="a_node26"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/strategy" xlink:title="strategy">
+<polygon fill="#ffffcc" stroke="black" points="104,-320.25 52.06,-320.25 50,-318.19 50,-301.75 101.94,-301.75 104,-303.81 104,-320.25"/>
+<polyline fill="none" stroke="black" points="101.94,-318.19 50,-318.19"/>
+<polyline fill="none" stroke="black" points="101.94,-318.19 101.94,-301.75"/>
+<polyline fill="none" stroke="black" points="101.94,-318.19 104,-320.25"/>
+<text text-anchor="start" x="60.88" y="-307.7" font-family="Helvetica,sans-Serif" font-size="9.00">strategy</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/strategy -->
+<!-- examples/behavioral/strategy&#45;&gt;src/behavioral/strategy -->
+<g id="edge11" class="edge">
+<title>examples/behavioral/strategy&#45;&gt;src/behavioral/strategy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.21,-319.73C129.41,-319.73 163,-319.73 163,-319.73 163,-319.73 163,-500.98 163,-500.98 163,-500.98 216.24,-500.98 216.24,-500.98"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="221.24,-500.98 216.24,-503.23 219.95,-500.98 216.24,-500.98 216.24,-500.98 216.24,-500.98 219.95,-500.98 216.24,-498.73 221.24,-500.98"/>
+</g>
+<!-- src/behavioral/strategy/strategies -->
+<g id="node28" class="node">
+<title>src/behavioral/strategy/strategies</title>
+<g id="a_node28"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/strategy/strategies" xlink:title="strategies">
+<polygon fill="#ffffcc" stroke="black" points="252.38,-534.25 198.68,-534.25 196.62,-532.19 196.62,-515.75 250.32,-515.75 252.38,-517.81 252.38,-534.25"/>
+<polyline fill="none" stroke="black" points="250.32,-532.19 196.62,-532.19"/>
+<polyline fill="none" stroke="black" points="250.32,-532.19 250.32,-515.75"/>
+<polyline fill="none" stroke="black" points="250.32,-532.19 252.38,-534.25"/>
+<text text-anchor="start" x="204.62" y="-521.7" font-family="Helvetica,sans-Serif" font-size="9.00">strategies</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/strategy&#45;&gt;src/behavioral/strategy/strategies -->
+<g id="edge12" class="edge">
+<title>examples/behavioral/strategy&#45;&gt;src/behavioral/strategy/strategies</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.33,-310.48C134.55,-310.48 179,-310.48 179,-310.48 179,-310.48 179,-524.42 179,-524.42 179,-524.42 189.98,-524.42 189.98,-524.42"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.98,-524.42 189.98,-526.67 193.7,-524.42 189.98,-524.42 189.98,-524.42 189.98,-524.42 193.7,-524.42 189.98,-522.17 194.98,-524.42"/>
+</g>
+<!-- src/behavioral/strategy/utils -->
+<g id="node71" class="node">
+<title>src/behavioral/strategy/utils</title>
+<g id="a_node71"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/strategy/utils" xlink:title="utils">
+<polygon fill="#ffffcc" stroke="black" points="357,-526.25 305.06,-526.25 303,-524.19 303,-507.75 354.94,-507.75 357,-509.81 357,-526.25"/>
+<polyline fill="none" stroke="black" points="354.94,-524.19 303,-524.19"/>
+<polyline fill="none" stroke="black" points="354.94,-524.19 354.94,-507.75"/>
+<polyline fill="none" stroke="black" points="354.94,-524.19 357,-526.25"/>
+<text text-anchor="start" x="321.75" y="-513.7" font-family="Helvetica,sans-Serif" font-size="9.00">utils</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/strategy&#45;&gt;src/behavioral/strategy/utils -->
+<g id="edge34" class="edge">
+<title>src/behavioral/strategy&#45;&gt;src/behavioral/strategy/utils</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M224,-504.14C224,-507.36 224,-513.08 224,-513.08 224,-513.08 296.48,-513.08 296.48,-513.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="301.48,-513.08 296.48,-515.33 300.2,-513.08 296.48,-513.08 296.48,-513.08 296.48,-513.08 300.2,-513.08 296.48,-510.83 301.48,-513.08"/>
+</g>
+<!-- src/behavioral/strategy/strategies&#45;&gt;src/behavioral/strategy/utils -->
+<g id="edge35" class="edge">
+<title>src/behavioral/strategy/strategies&#45;&gt;src/behavioral/strategy/utils</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M252.77,-521C252.77,-521 296.52,-521 296.52,-521"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="301.52,-521 296.52,-523.25 300.24,-521 296.52,-521 296.52,-521 296.52,-521 300.24,-521 296.52,-518.75 301.52,-521"/>
+</g>
+<!-- examples/behavioral/template&#45;method -->
+<g id="node29" class="node">
+<title>examples/behavioral/template&#45;method</title>
+<g id="a_node29"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/template-method" xlink:title="template&#45;method">
+<polygon fill="#ffffcc" stroke="black" points="119.5,-413.25 36.56,-413.25 34.5,-411.19 34.5,-394.75 117.44,-394.75 119.5,-396.81 119.5,-413.25"/>
+<polyline fill="none" stroke="black" points="117.44,-411.19 34.5,-411.19"/>
+<polyline fill="none" stroke="black" points="117.44,-411.19 117.44,-394.75"/>
+<polyline fill="none" stroke="black" points="117.44,-411.19 119.5,-413.25"/>
+<text text-anchor="start" x="42.5" y="-400.7" font-family="Helvetica,sans-Serif" font-size="9.00">template&#45;method</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/template&#45;method&#45;&gt;. -->
+<g id="edge14" class="edge">
+<title>examples/behavioral/template&#45;method&#45;&gt;.</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" stroke-opacity="0.200000" d="M119.79,-399.25C126.89,-399.25 132,-399.25 132,-399.25 132,-399.25 132,-1756 132,-1756 132,-1756 296.67,-1756 296.67,-1756"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="301.67,-1756 296.67,-1758.25 300.38,-1756 296.67,-1756 296.67,-1756 296.67,-1756 300.38,-1756 296.67,-1753.75 301.67,-1756"/>
+</g>
+<!-- src/behavioral/template&#45;method -->
+<g id="node30" class="node">
+<title>src/behavioral/template&#45;method</title>
+<g id="a_node30"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/template-method" xlink:title="template&#45;method">
+<polygon fill="#ffffcc" stroke="black" points="267,-781.25 184.06,-781.25 182,-779.19 182,-762.75 264.94,-762.75 267,-764.81 267,-781.25"/>
+<polyline fill="none" stroke="black" points="264.94,-779.19 182,-779.19"/>
+<polyline fill="none" stroke="black" points="264.94,-779.19 264.94,-762.75"/>
+<polyline fill="none" stroke="black" points="264.94,-779.19 267,-781.25"/>
+<text text-anchor="start" x="190" y="-768.7" font-family="Helvetica,sans-Serif" font-size="9.00">template&#45;method</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/template&#45;method&#45;&gt;src/behavioral/template&#45;method -->
+<g id="edge13" class="edge">
+<title>examples/behavioral/template&#45;method&#45;&gt;src/behavioral/template&#45;method</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M119.87,-410.08C139.3,-410.08 158,-410.08 158,-410.08 158,-410.08 158,-766.75 158,-766.75 158,-766.75 175.41,-766.75 175.41,-766.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="180.41,-766.75 175.41,-769 179.13,-766.75 175.41,-766.75 175.41,-766.75 175.41,-766.75 179.13,-766.75 175.41,-764.5 180.41,-766.75"/>
+</g>
+<!-- src/behavioral/template&#45;method&#45;&gt;. -->
+<g id="edge36" class="edge">
+<title>src/behavioral/template&#45;method&#45;&gt;.</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" stroke-opacity="0.200000" d="M267.26,-772C293.46,-772 322,-772 322,-772 322,-772 322,-1745.31 322,-1745.31"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="322,-1750.31 319.75,-1745.31 322,-1749.03 322,-1745.31 322,-1745.31 322,-1745.31 322,-1749.03 324.25,-1745.31 322,-1750.31"/>
+</g>
+<!-- examples/behavioral/visitor -->
+<g id="node31" class="node">
+<title>examples/behavioral/visitor</title>
+<g id="a_node31"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/behavioral/visitor" xlink:title="visitor">
+<polygon fill="#ffffcc" stroke="black" points="104,-382.25 52.06,-382.25 50,-380.19 50,-363.75 101.94,-363.75 104,-365.81 104,-382.25"/>
+<polyline fill="none" stroke="black" points="101.94,-380.19 50,-380.19"/>
+<polyline fill="none" stroke="black" points="101.94,-380.19 101.94,-363.75"/>
+<polyline fill="none" stroke="black" points="101.94,-380.19 104,-382.25"/>
+<text text-anchor="start" x="65" y="-369.7" font-family="Helvetica,sans-Serif" font-size="9.00">visitor</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/visitor/visitors -->
+<g id="node32" class="node">
+<title>src/behavioral/visitor/visitors</title>
+<g id="a_node32"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/visitor/visitors" xlink:title="visitors">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-621.25 199.56,-621.25 197.5,-619.19 197.5,-602.75 249.44,-602.75 251.5,-604.81 251.5,-621.25"/>
+<polyline fill="none" stroke="black" points="249.44,-619.19 197.5,-619.19"/>
+<polyline fill="none" stroke="black" points="249.44,-619.19 249.44,-602.75"/>
+<polyline fill="none" stroke="black" points="249.44,-619.19 251.5,-621.25"/>
+<text text-anchor="start" x="210.25" y="-608.7" font-family="Helvetica,sans-Serif" font-size="9.00">visitors</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/visitor&#45;&gt;src/behavioral/visitor/visitors -->
+<g id="edge15" class="edge">
+<title>examples/behavioral/visitor&#45;&gt;src/behavioral/visitor/visitors</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.29,-375.92C116.42,-375.92 128,-375.92 128,-375.92 128,-375.92 128,-612 128,-612 128,-612 190.89,-612 190.89,-612"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.89,-612 190.89,-614.25 194.61,-612 190.89,-612 190.89,-612 190.89,-612 194.61,-612 190.89,-609.75 195.89,-612"/>
+</g>
+<!-- src/structural/composite -->
+<g id="node33" class="node">
+<title>src/structural/composite</title>
+<g id="a_node33"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/composite" xlink:title="composite">
+<polygon fill="#ccffcc" stroke="orange" points="253.5,-1237.25 197.56,-1237.25 195.5,-1235.19 195.5,-1218.75 251.44,-1218.75 253.5,-1220.81 253.5,-1237.25"/>
+<polyline fill="none" stroke="orange" points="251.44,-1235.19 195.5,-1235.19"/>
+<polyline fill="none" stroke="orange" points="251.44,-1235.19 251.44,-1218.75"/>
+<polyline fill="none" stroke="orange" points="251.44,-1235.19 253.5,-1237.25"/>
+<text text-anchor="start" x="203.5" y="-1224.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">composite</text>
+</a>
+</g>
+</g>
+<!-- examples/behavioral/visitor&#45;&gt;src/structural/composite -->
+<g id="edge16" class="edge">
+<title>examples/behavioral/visitor&#45;&gt;src/structural/composite</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.42,-368.25C163.39,-368.25 297,-368.25 297,-368.25 297,-368.25 297,-1228 297,-1228 297,-1228 260.21,-1228 260.21,-1228"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="255.21,-1228 260.21,-1225.75 256.49,-1228 260.21,-1228 260.21,-1228 260.21,-1228 256.49,-1228 260.21,-1230.25 255.21,-1228"/>
+</g>
+<!-- examples/creational -->
+<!-- examples/creational/abstract&#45;factory -->
+<g id="node35" class="node">
+<title>examples/creational/abstract&#45;factory</title>
+<g id="a_node35"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/creational/abstract-factory" xlink:title="abstract&#45;factory">
+<polygon fill="#ffffcc" stroke="black" points="116.12,-654.25 39.93,-654.25 37.88,-652.19 37.88,-635.75 114.07,-635.75 116.12,-637.81 116.12,-654.25"/>
+<polyline fill="none" stroke="black" points="114.07,-652.19 37.88,-652.19"/>
+<polyline fill="none" stroke="black" points="114.07,-652.19 114.07,-635.75"/>
+<polyline fill="none" stroke="black" points="114.07,-652.19 116.12,-654.25"/>
+<text text-anchor="start" x="45.88" y="-641.7" font-family="Helvetica,sans-Serif" font-size="9.00">abstract&#45;factory</text>
+</a>
+</g>
+</g>
+<!-- src/creational/abstract&#45;factory -->
+<g id="node36" class="node">
+<title>src/creational/abstract&#45;factory</title>
+<g id="a_node36"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/creational/abstract-factory" xlink:title="abstract&#45;factory">
+<polygon fill="#ccffcc" stroke="orange" points="263.62,-1161.25 187.43,-1161.25 185.38,-1159.19 185.38,-1142.75 261.57,-1142.75 263.62,-1144.81 263.62,-1161.25"/>
+<polyline fill="none" stroke="orange" points="261.57,-1159.19 185.38,-1159.19"/>
+<polyline fill="none" stroke="orange" points="261.57,-1159.19 261.57,-1142.75"/>
+<polyline fill="none" stroke="orange" points="261.57,-1159.19 263.62,-1161.25"/>
+<text text-anchor="start" x="193.38" y="-1148.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">abstract&#45;factory</text>
+</a>
+</g>
+</g>
+<!-- examples/creational/abstract&#45;factory&#45;&gt;src/creational/abstract&#45;factory -->
+<g id="edge17" class="edge">
+<title>examples/creational/abstract&#45;factory&#45;&gt;src/creational/abstract&#45;factory</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M111,-654.31C111,-723.58 111,-1156.08 111,-1156.08 111,-1156.08 178.9,-1156.08 178.9,-1156.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="183.9,-1156.08 178.9,-1158.33 182.62,-1156.08 178.9,-1156.08 178.9,-1156.08 178.9,-1156.08 182.62,-1156.08 178.9,-1153.83 183.9,-1156.08"/>
+</g>
+<!-- examples/creational/builder -->
+<g id="node37" class="node">
+<title>examples/creational/builder</title>
+<g id="a_node37"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/creational/builder" xlink:title="builder">
+<polygon fill="#ffffcc" stroke="black" points="104,-474.25 52.06,-474.25 50,-472.19 50,-455.75 101.94,-455.75 104,-457.81 104,-474.25"/>
+<polyline fill="none" stroke="black" points="101.94,-472.19 50,-472.19"/>
+<polyline fill="none" stroke="black" points="101.94,-472.19 101.94,-455.75"/>
+<polyline fill="none" stroke="black" points="101.94,-472.19 104,-474.25"/>
+<text text-anchor="start" x="62.75" y="-461.7" font-family="Helvetica,sans-Serif" font-size="9.00">builder</text>
+</a>
+</g>
+</g>
+<!-- src/creational/builder -->
+<g id="node38" class="node">
+<title>src/creational/builder</title>
+<g id="a_node38"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/creational/builder" xlink:title="builder">
+<polygon fill="#ccffcc" stroke="orange" points="251.5,-996.25 199.56,-996.25 197.5,-994.19 197.5,-977.75 249.44,-977.75 251.5,-979.81 251.5,-996.25"/>
+<polyline fill="none" stroke="orange" points="249.44,-994.19 197.5,-994.19"/>
+<polyline fill="none" stroke="orange" points="249.44,-994.19 249.44,-977.75"/>
+<polyline fill="none" stroke="orange" points="249.44,-994.19 251.5,-996.25"/>
+<text text-anchor="start" x="210.25" y="-983.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">builder</text>
+</a>
+</g>
+</g>
+<!-- examples/creational/builder&#45;&gt;src/creational/builder -->
+<g id="edge18" class="edge">
+<title>examples/creational/builder&#45;&gt;src/creational/builder</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-468.58C115.59,-468.58 126,-468.58 126,-468.58 126,-468.58 126,-983.92 126,-983.92 126,-983.92 190.84,-983.92 190.84,-983.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.84,-983.92 190.84,-986.17 194.56,-983.92 190.84,-983.92 190.84,-983.92 190.84,-983.92 194.56,-983.92 190.84,-981.67 195.84,-983.92"/>
+</g>
+<!-- examples/creational/factory&#45;method -->
+<g id="node39" class="node">
+<title>examples/creational/factory&#45;method</title>
+<g id="a_node39"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/creational/factory-method" xlink:title="factory&#45;method">
+<polygon fill="#ffffcc" stroke="black" points="115.38,-520.25 40.68,-520.25 38.62,-518.19 38.62,-501.75 113.32,-501.75 115.38,-503.81 115.38,-520.25"/>
+<polyline fill="none" stroke="black" points="113.32,-518.19 38.62,-518.19"/>
+<polyline fill="none" stroke="black" points="113.32,-518.19 113.32,-501.75"/>
+<polyline fill="none" stroke="black" points="113.32,-518.19 115.38,-520.25"/>
+<text text-anchor="start" x="46.62" y="-507.7" font-family="Helvetica,sans-Serif" font-size="9.00">factory&#45;method</text>
+</a>
+</g>
+</g>
+<!-- src/creational/factory&#45;method -->
+<g id="node40" class="node">
+<title>src/creational/factory&#45;method</title>
+<g id="a_node40"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/creational/factory-method" xlink:title="factory&#45;method">
+<polygon fill="#ccffcc" stroke="orange" points="262.88,-1027.25 188.18,-1027.25 186.12,-1025.19 186.12,-1008.75 260.82,-1008.75 262.88,-1010.81 262.88,-1027.25"/>
+<polyline fill="none" stroke="orange" points="260.82,-1025.19 186.12,-1025.19"/>
+<polyline fill="none" stroke="orange" points="260.82,-1025.19 260.82,-1008.75"/>
+<polyline fill="none" stroke="orange" points="260.82,-1025.19 262.88,-1027.25"/>
+<text text-anchor="start" x="194.12" y="-1014.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">factory&#45;method</text>
+</a>
+</g>
+</g>
+<!-- examples/creational/factory&#45;method&#45;&gt;src/creational/factory&#45;method -->
+<g id="edge19" class="edge">
+<title>examples/creational/factory&#45;method&#45;&gt;src/creational/factory&#45;method</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M115.77,-510.42C131.04,-510.42 145,-510.42 145,-510.42 145,-510.42 145,-1013.78 145,-1013.78 145,-1013.78 179.46,-1013.78 179.46,-1013.78"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="184.46,-1013.78 179.46,-1016.03 183.18,-1013.78 179.46,-1013.78 179.46,-1013.78 179.46,-1013.78 183.18,-1013.78 179.46,-1011.53 184.46,-1013.78"/>
+</g>
+<!-- examples/creational/prototype -->
+<!-- src/creational/prototype -->
+<!-- examples/creational/prototype&#45;&gt;src/creational/prototype -->
+<g id="edge20" class="edge">
+<title>examples/creational/prototype&#45;&gt;src/creational/prototype</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M78.84,-567.98C99.66,-567.98 290,-567.98 290,-567.98 290,-567.98 290,-1076 290,-1076 290,-1076 232.9,-1076 232.9,-1076"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="227.9,-1076 232.9,-1073.75 229.18,-1076 232.9,-1076 232.9,-1076 232.9,-1076 229.18,-1076 232.9,-1078.25 227.9,-1076"/>
+</g>
+<!-- examples/creational/prototype/document -->
+<g id="node43" class="node">
+<title>examples/creational/prototype/document</title>
+<g id="a_node43"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/creational/prototype/document" xlink:title="document">
+<polygon fill="#ffffcc" stroke="black" points="105.25,-601.25 50.81,-601.25 48.75,-599.19 48.75,-582.75 103.19,-582.75 105.25,-584.81 105.25,-601.25"/>
+<polyline fill="none" stroke="black" points="103.19,-599.19 48.75,-599.19"/>
+<polyline fill="none" stroke="black" points="103.19,-599.19 103.19,-582.75"/>
+<polyline fill="none" stroke="black" points="103.19,-599.19 105.25,-601.25"/>
+<text text-anchor="start" x="56.75" y="-588.7" font-family="Helvetica,sans-Serif" font-size="9.00">document</text>
+</a>
+</g>
+</g>
+<!-- src/creational/prototype/document -->
+<g id="node44" class="node">
+<title>src/creational/prototype/document</title>
+<g id="a_node44"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/creational/prototype/document" xlink:title="document">
+<polygon fill="#ffffcc" stroke="black" points="252.75,-1108.25 198.31,-1108.25 196.25,-1106.19 196.25,-1089.75 250.69,-1089.75 252.75,-1091.81 252.75,-1108.25"/>
+<polyline fill="none" stroke="black" points="250.69,-1106.19 196.25,-1106.19"/>
+<polyline fill="none" stroke="black" points="250.69,-1106.19 250.69,-1089.75"/>
+<polyline fill="none" stroke="black" points="250.69,-1106.19 252.75,-1108.25"/>
+<text text-anchor="start" x="204.25" y="-1095.7" font-family="Helvetica,sans-Serif" font-size="9.00">document</text>
+</a>
+</g>
+</g>
+<!-- examples/creational/prototype/document&#45;&gt;src/creational/prototype/document -->
+<g id="edge21" class="edge">
+<title>examples/creational/prototype/document&#45;&gt;src/creational/prototype/document</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M105.69,-594.25C115.48,-594.25 124,-594.25 124,-594.25 124,-594.25 124,-1093.92 124,-1093.92 124,-1093.92 189.75,-1093.92 189.75,-1093.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.75,-1093.92 189.75,-1096.17 193.47,-1093.92 189.75,-1093.92 189.75,-1093.92 189.75,-1093.92 193.47,-1093.92 189.75,-1091.67 194.75,-1093.92"/>
+</g>
+<!-- examples/creational/singleton -->
+<g id="node45" class="node">
+<title>examples/creational/singleton</title>
+<g id="a_node45"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/creational/singleton" xlink:title="singleton">
+<polygon fill="#ffffcc" stroke="black" points="104,-551.25 52.06,-551.25 50,-549.19 50,-532.75 101.94,-532.75 104,-534.81 104,-551.25"/>
+<polyline fill="none" stroke="black" points="101.94,-549.19 50,-549.19"/>
+<polyline fill="none" stroke="black" points="101.94,-549.19 101.94,-532.75"/>
+<polyline fill="none" stroke="black" points="101.94,-549.19 104,-551.25"/>
+<text text-anchor="start" x="58.25" y="-538.7" font-family="Helvetica,sans-Serif" font-size="9.00">singleton</text>
+</a>
+</g>
+</g>
+<!-- src/creational/singleton -->
+<g id="node46" class="node">
+<title>src/creational/singleton</title>
+<g id="a_node46"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/creational/singleton" xlink:title="singleton">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-1058.25 199.56,-1058.25 197.5,-1056.19 197.5,-1039.75 249.44,-1039.75 251.5,-1041.81 251.5,-1058.25"/>
+<polyline fill="none" stroke="black" points="249.44,-1056.19 197.5,-1056.19"/>
+<polyline fill="none" stroke="black" points="249.44,-1056.19 249.44,-1039.75"/>
+<polyline fill="none" stroke="black" points="249.44,-1056.19 251.5,-1058.25"/>
+<text text-anchor="start" x="205.75" y="-1045.7" font-family="Helvetica,sans-Serif" font-size="9.00">singleton</text>
+</a>
+</g>
+</g>
+<!-- examples/creational/singleton&#45;&gt;src/creational/singleton -->
+<g id="edge22" class="edge">
+<title>examples/creational/singleton&#45;&gt;src/creational/singleton</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-542.75C115.14,-542.75 125,-542.75 125,-542.75 125,-542.75 125,-1044.42 125,-1044.42 125,-1044.42 190.83,-1044.42 190.83,-1044.42"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.83,-1044.42 190.83,-1046.67 194.55,-1044.42 190.83,-1044.42 190.83,-1044.42 190.83,-1044.42 194.55,-1044.42 190.83,-1042.17 195.83,-1044.42"/>
+</g>
+<!-- examples/structural -->
+<!-- examples/structural/adapter -->
+<g id="node48" class="node">
+<title>examples/structural/adapter</title>
+<g id="a_node48"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/adapter" xlink:title="adapter">
+<polygon fill="#ffffcc" stroke="black" points="104,-886.25 52.06,-886.25 50,-884.19 50,-867.75 101.94,-867.75 104,-869.81 104,-886.25"/>
+<polyline fill="none" stroke="black" points="101.94,-884.19 50,-884.19"/>
+<polyline fill="none" stroke="black" points="101.94,-884.19 101.94,-867.75"/>
+<polyline fill="none" stroke="black" points="101.94,-884.19 104,-886.25"/>
+<text text-anchor="start" x="61.25" y="-873.7" font-family="Helvetica,sans-Serif" font-size="9.00">adapter</text>
+</a>
+</g>
+</g>
+<!-- src/structural/adapter/adapter -->
+<g id="node49" class="node">
+<title>src/structural/adapter/adapter</title>
+<g id="a_node49"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/adapter/adapter" xlink:title="adapter">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-1486.25 199.56,-1486.25 197.5,-1484.19 197.5,-1467.75 249.44,-1467.75 251.5,-1469.81 251.5,-1486.25"/>
+<polyline fill="none" stroke="black" points="249.44,-1484.19 197.5,-1484.19"/>
+<polyline fill="none" stroke="black" points="249.44,-1484.19 249.44,-1467.75"/>
+<polyline fill="none" stroke="black" points="249.44,-1484.19 251.5,-1486.25"/>
+<text text-anchor="start" x="208.75" y="-1473.7" font-family="Helvetica,sans-Serif" font-size="9.00">adapter</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/adapter&#45;&gt;src/structural/adapter/adapter -->
+<g id="edge23" class="edge">
+<title>examples/structural/adapter&#45;&gt;src/structural/adapter/adapter</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.25,-877C158.11,-877 273,-877 273,-877 273,-877 273,-1477 273,-1477 273,-1477 258.09,-1477 258.09,-1477"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="253.09,-1477 258.09,-1474.75 254.37,-1477 258.09,-1477 258.09,-1477 258.09,-1477 254.37,-1477 258.09,-1479.25 253.09,-1477"/>
+</g>
+<!-- src/structural/adapter/legacy -->
+<g id="node50" class="node">
+<title>src/structural/adapter/legacy</title>
+<g id="a_node50"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/adapter/legacy" xlink:title="legacy">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-1517.25 199.56,-1517.25 197.5,-1515.19 197.5,-1498.75 249.44,-1498.75 251.5,-1500.81 251.5,-1517.25"/>
+<polyline fill="none" stroke="black" points="249.44,-1515.19 197.5,-1515.19"/>
+<polyline fill="none" stroke="black" points="249.44,-1515.19 249.44,-1498.75"/>
+<polyline fill="none" stroke="black" points="249.44,-1515.19 251.5,-1517.25"/>
+<text text-anchor="start" x="211" y="-1504.7" font-family="Helvetica,sans-Serif" font-size="9.00">legacy</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/adapter&#45;&gt;src/structural/adapter/legacy -->
+<g id="edge24" class="edge">
+<title>examples/structural/adapter&#45;&gt;src/structural/adapter/legacy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.12,-872.38C158.34,-872.38 275,-872.38 275,-872.38 275,-872.38 275,-1508 275,-1508 275,-1508 258.04,-1508 258.04,-1508"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="253.04,-1508 258.04,-1505.75 254.32,-1508 258.04,-1508 258.04,-1508 258.04,-1508 254.32,-1508 258.04,-1510.25 253.04,-1508"/>
+</g>
+<!-- src/structural/adapter/modern -->
+<g id="node51" class="node">
+<title>src/structural/adapter/modern</title>
+<g id="a_node51"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/adapter/modern" xlink:title="modern">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-1455.25 199.56,-1455.25 197.5,-1453.19 197.5,-1436.75 249.44,-1436.75 251.5,-1438.81 251.5,-1455.25"/>
+<polyline fill="none" stroke="black" points="249.44,-1453.19 197.5,-1453.19"/>
+<polyline fill="none" stroke="black" points="249.44,-1453.19 249.44,-1436.75"/>
+<polyline fill="none" stroke="black" points="249.44,-1453.19 251.5,-1455.25"/>
+<text text-anchor="start" x="208.75" y="-1442.7" font-family="Helvetica,sans-Serif" font-size="9.00">modern</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/adapter&#45;&gt;src/structural/adapter/modern -->
+<g id="edge25" class="edge">
+<title>examples/structural/adapter&#45;&gt;src/structural/adapter/modern</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.5,-881.62C119.07,-881.62 134,-881.62 134,-881.62 134,-881.62 134,-1444.25 134,-1444.25 134,-1444.25 191.13,-1444.25 191.13,-1444.25"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.13,-1444.25 191.13,-1446.5 194.85,-1444.25 191.13,-1444.25 191.13,-1444.25 191.13,-1444.25 194.85,-1444.25 191.13,-1442 196.13,-1444.25"/>
+</g>
+<!-- examples/structural/bridge -->
+<g id="node52" class="node">
+<title>examples/structural/bridge</title>
+<g id="a_node52"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/bridge" xlink:title="bridge">
+<polygon fill="#ffffcc" stroke="black" points="104,-917.25 52.06,-917.25 50,-915.19 50,-898.75 101.94,-898.75 104,-900.81 104,-917.25"/>
+<polyline fill="none" stroke="black" points="101.94,-915.19 50,-915.19"/>
+<polyline fill="none" stroke="black" points="101.94,-915.19 101.94,-898.75"/>
+<polyline fill="none" stroke="black" points="101.94,-915.19 104,-917.25"/>
+<text text-anchor="start" x="63.88" y="-904.7" font-family="Helvetica,sans-Serif" font-size="9.00">bridge</text>
+</a>
+</g>
+</g>
+<!-- src/structural/bridge/abstraction -->
+<g id="node53" class="node">
+<title>src/structural/bridge/abstraction</title>
+<g id="a_node53"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/bridge/abstraction" xlink:title="abstraction">
+<polygon fill="#ffffcc" stroke="black" points="255,-1593.25 196.06,-1593.25 194,-1591.19 194,-1574.75 252.94,-1574.75 255,-1576.81 255,-1593.25"/>
+<polyline fill="none" stroke="black" points="252.94,-1591.19 194,-1591.19"/>
+<polyline fill="none" stroke="black" points="252.94,-1591.19 252.94,-1574.75"/>
+<polyline fill="none" stroke="black" points="252.94,-1591.19 255,-1593.25"/>
+<text text-anchor="start" x="202" y="-1580.7" font-family="Helvetica,sans-Serif" font-size="9.00">abstraction</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/bridge&#45;&gt;src/structural/bridge/abstraction -->
+<g id="edge26" class="edge">
+<title>examples/structural/bridge&#45;&gt;src/structural/bridge/abstraction</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.1,-912.77C157.03,-912.77 269,-912.77 269,-912.77 269,-912.77 269,-1584 269,-1584 269,-1584 261.63,-1584 261.63,-1584"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="256.63,-1584 261.63,-1581.75 257.91,-1584 261.63,-1584 261.63,-1584 261.63,-1584 257.91,-1584 261.63,-1586.25 256.63,-1584"/>
+</g>
+<!-- src/structural/bridge/implementation -->
+<g id="node54" class="node">
+<title>src/structural/bridge/implementation</title>
+<g id="a_node54"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/bridge/implementation" xlink:title="implementation">
+<polygon fill="#ffffcc" stroke="black" points="264,-1624.25 187.06,-1624.25 185,-1622.19 185,-1605.75 261.94,-1605.75 264,-1607.81 264,-1624.25"/>
+<polyline fill="none" stroke="black" points="261.94,-1622.19 185,-1622.19"/>
+<polyline fill="none" stroke="black" points="261.94,-1622.19 261.94,-1605.75"/>
+<polyline fill="none" stroke="black" points="261.94,-1622.19 264,-1624.25"/>
+<text text-anchor="start" x="193" y="-1611.7" font-family="Helvetica,sans-Serif" font-size="9.00">implementation</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/bridge&#45;&gt;src/structural/bridge/implementation -->
+<g id="edge27" class="edge">
+<title>examples/structural/bridge&#45;&gt;src/structural/bridge/implementation</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.49,-908.78C160.8,-908.78 284,-908.78 284,-908.78 284,-908.78 284,-1615 284,-1615 284,-1615 270.41,-1615 270.41,-1615"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="265.41,-1615 270.41,-1612.75 266.69,-1615 270.41,-1615 270.41,-1615 270.41,-1615 266.69,-1615 270.41,-1617.25 265.41,-1615"/>
+</g>
+<!-- examples/structural/composite -->
+<g id="node55" class="node">
+<title>examples/structural/composite</title>
+<g id="a_node55"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/composite" xlink:title="composite">
+<polygon fill="#ffffcc" stroke="black" points="106,-731.25 50.06,-731.25 48,-729.19 48,-712.75 103.94,-712.75 106,-714.81 106,-731.25"/>
+<polyline fill="none" stroke="black" points="103.94,-729.19 48,-729.19"/>
+<polyline fill="none" stroke="black" points="103.94,-729.19 103.94,-712.75"/>
+<polyline fill="none" stroke="black" points="103.94,-729.19 106,-731.25"/>
+<text text-anchor="start" x="56" y="-718.7" font-family="Helvetica,sans-Serif" font-size="9.00">composite</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/composite&#45;&gt;src/structural/composite -->
+<g id="edge28" class="edge">
+<title>examples/structural/composite&#45;&gt;src/structural/composite</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M106.46,-723.08C135.96,-723.08 177,-723.08 177,-723.08 177,-723.08 177,-1229.92 177,-1229.92 177,-1229.92 189.01,-1229.92 189.01,-1229.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.01,-1229.92 189.01,-1232.17 192.73,-1229.92 189.01,-1229.92 189.01,-1229.92 189.01,-1229.92 192.73,-1229.92 189.01,-1227.67 194.01,-1229.92"/>
+</g>
+<!-- examples/structural/decorator -->
+<g id="node56" class="node">
+<title>examples/structural/decorator</title>
+<g id="a_node56"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/decorator" xlink:title="decorator">
+<polygon fill="#ffffcc" stroke="black" points="104.5,-855.25 51.56,-855.25 49.5,-853.19 49.5,-836.75 102.44,-836.75 104.5,-838.81 104.5,-855.25"/>
+<polyline fill="none" stroke="black" points="102.44,-853.19 49.5,-853.19"/>
+<polyline fill="none" stroke="black" points="102.44,-853.19 102.44,-836.75"/>
+<polyline fill="none" stroke="black" points="102.44,-853.19 104.5,-855.25"/>
+<text text-anchor="start" x="57.5" y="-842.7" font-family="Helvetica,sans-Serif" font-size="9.00">decorator</text>
+</a>
+</g>
+</g>
+<!-- src/structural/decorator -->
+<g id="node57" class="node">
+<title>src/structural/decorator</title>
+<g id="a_node57"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/decorator" xlink:title="decorator">
+<polygon fill="#ccffcc" stroke="orange" points="252,-1421.25 199.06,-1421.25 197,-1419.19 197,-1402.75 249.94,-1402.75 252,-1404.81 252,-1421.25"/>
+<polyline fill="none" stroke="orange" points="249.94,-1419.19 197,-1419.19"/>
+<polyline fill="none" stroke="orange" points="249.94,-1419.19 249.94,-1402.75"/>
+<polyline fill="none" stroke="orange" points="249.94,-1419.19 252,-1421.25"/>
+<text text-anchor="start" x="205" y="-1408.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">decorator</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/decorator&#45;&gt;src/structural/decorator -->
+<g id="edge29" class="edge">
+<title>examples/structural/decorator&#45;&gt;src/structural/decorator</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.89,-844.92C120.56,-844.92 137,-844.92 137,-844.92 137,-844.92 137,-1407 137,-1407 137,-1407 190.6,-1407 190.6,-1407"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.6,-1407 190.6,-1409.25 194.31,-1407 190.6,-1407 190.6,-1407 190.6,-1407 194.31,-1407 190.6,-1404.75 195.6,-1407"/>
+</g>
+<!-- src/structural/decorator&#45;&gt;. -->
+<g id="edge37" class="edge">
+<title>src/structural/decorator&#45;&gt;.</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" stroke-opacity="0.200000" d="M252.17,-1412C276.81,-1412 309,-1412 309,-1412 309,-1412 309,-1745.08 309,-1745.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="309,-1750.08 306.75,-1745.08 309,-1748.8 309,-1745.08 309,-1745.08 309,-1745.08 309,-1748.8 311.25,-1745.08 309,-1750.08"/>
+</g>
+<!-- examples/structural/facade -->
+<g id="node58" class="node">
+<title>examples/structural/facade</title>
+<g id="a_node58"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/facade" xlink:title="facade">
+<polygon fill="#ffffcc" stroke="black" points="104,-762.25 52.06,-762.25 50,-760.19 50,-743.75 101.94,-743.75 104,-745.81 104,-762.25"/>
+<polyline fill="none" stroke="black" points="101.94,-760.19 50,-760.19"/>
+<polyline fill="none" stroke="black" points="101.94,-760.19 101.94,-743.75"/>
+<polyline fill="none" stroke="black" points="101.94,-760.19 104,-762.25"/>
+<text text-anchor="start" x="63.12" y="-749.7" font-family="Helvetica,sans-Serif" font-size="9.00">facade</text>
+</a>
+</g>
+</g>
+<!-- src/structural/facade -->
+<!-- examples/structural/facade&#45;&gt;src/structural/facade -->
+<g id="edge30" class="edge">
+<title>examples/structural/facade&#45;&gt;src/structural/facade</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.28,-753C132.97,-753 174,-753 174,-753 174,-753 174,-1253.55 174,-1253.55 174,-1253.55 224,-1253.55 224,-1253.55 224,-1253.55 224,-1261.76 224,-1261.76"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="224,-1266.76 221.75,-1261.76 224,-1265.48 224,-1261.76 224,-1261.76 224,-1261.76 224,-1265.48 226.25,-1261.76 224,-1266.76"/>
+</g>
+<!-- src/structural/facade/subsystem -->
+<!-- src/structural/facade&#45;&gt;src/structural/facade/subsystem -->
+<g id="edge38" class="edge">
+<title>src/structural/facade&#45;&gt;src/structural/facade/subsystem</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M226.7,-1270C226.7,-1270 321.59,-1270 321.59,-1270"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="326.59,-1270 321.59,-1272.25 325.31,-1270 321.59,-1270 321.59,-1270 321.59,-1270 325.31,-1270 321.59,-1267.75 326.59,-1270"/>
+</g>
+<!-- examples/structural/flyweight -->
+<g id="node60" class="node">
+<title>examples/structural/flyweight</title>
+<g id="a_node60"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/flyweight" xlink:title="flyweight">
+<polygon fill="#ffffcc" stroke="black" points="104,-793.25 52.06,-793.25 50,-791.19 50,-774.75 101.94,-774.75 104,-776.81 104,-793.25"/>
+<polyline fill="none" stroke="black" points="101.94,-791.19 50,-791.19"/>
+<polyline fill="none" stroke="black" points="101.94,-791.19 101.94,-774.75"/>
+<polyline fill="none" stroke="black" points="101.94,-791.19 104,-793.25"/>
+<text text-anchor="start" x="59" y="-780.7" font-family="Helvetica,sans-Serif" font-size="9.00">flyweight</text>
+</a>
+</g>
+</g>
+<!-- src/structural/flyweight -->
+<g id="node61" class="node">
+<title>src/structural/flyweight</title>
+<g id="a_node61"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/flyweight" xlink:title="flyweight">
+<polygon fill="#ccffcc" stroke="orange" points="251.5,-1359.25 199.56,-1359.25 197.5,-1357.19 197.5,-1340.75 249.44,-1340.75 251.5,-1342.81 251.5,-1359.25"/>
+<polyline fill="none" stroke="orange" points="249.44,-1357.19 197.5,-1357.19"/>
+<polyline fill="none" stroke="orange" points="249.44,-1357.19 249.44,-1340.75"/>
+<polyline fill="none" stroke="orange" points="249.44,-1357.19 251.5,-1359.25"/>
+<text text-anchor="start" x="206.5" y="-1346.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">flyweight</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/flyweight&#45;&gt;src/structural/flyweight -->
+<g id="edge31" class="edge">
+<title>examples/structural/flyweight&#45;&gt;src/structural/flyweight</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.25,-787.23C132.63,-787.23 173,-787.23 173,-787.23 173,-787.23 173,-1345.5 173,-1345.5 173,-1345.5 191.02,-1345.5 191.02,-1345.5"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.02,-1345.5 191.02,-1347.75 194.74,-1345.5 191.02,-1345.5 191.02,-1345.5 191.02,-1345.5 194.74,-1345.5 191.02,-1343.25 196.02,-1345.5"/>
+</g>
+<!-- examples/structural/proxy -->
+<g id="node62" class="node">
+<title>examples/structural/proxy</title>
+<g id="a_node62"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/examples/structural/proxy" xlink:title="proxy">
+<polygon fill="#ffffcc" stroke="black" points="104,-824.25 52.06,-824.25 50,-822.19 50,-805.75 101.94,-805.75 104,-807.81 104,-824.25"/>
+<polyline fill="none" stroke="black" points="101.94,-822.19 50,-822.19"/>
+<polyline fill="none" stroke="black" points="101.94,-822.19 101.94,-805.75"/>
+<polyline fill="none" stroke="black" points="101.94,-822.19 104,-824.25"/>
+<text text-anchor="start" x="65.75" y="-811.7" font-family="Helvetica,sans-Serif" font-size="9.00">proxy</text>
+</a>
+</g>
+</g>
+<!-- src/structural/proxy -->
+<g id="node63" class="node">
+<title>src/structural/proxy</title>
+<g id="a_node63"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/proxy" xlink:title="proxy">
+<polygon fill="#ccffcc" stroke="orange" points="251.5,-1390.25 199.56,-1390.25 197.5,-1388.19 197.5,-1371.75 249.44,-1371.75 251.5,-1373.81 251.5,-1390.25"/>
+<polyline fill="none" stroke="orange" points="249.44,-1388.19 197.5,-1388.19"/>
+<polyline fill="none" stroke="orange" points="249.44,-1388.19 249.44,-1371.75"/>
+<polyline fill="none" stroke="orange" points="249.44,-1388.19 251.5,-1390.25"/>
+<text text-anchor="start" x="213.25" y="-1377.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">proxy</text>
+</a>
+</g>
+</g>
+<!-- examples/structural/proxy&#45;&gt;src/structural/proxy -->
+<g id="edge32" class="edge">
+<title>examples/structural/proxy&#45;&gt;src/structural/proxy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-813.92C120.98,-813.92 139,-813.92 139,-813.92 139,-813.92 139,-1377.92 139,-1377.92 139,-1377.92 191.23,-1377.92 191.23,-1377.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.23,-1377.92 191.23,-1380.17 194.95,-1377.92 191.23,-1377.92 191.23,-1377.92 191.23,-1377.92 194.95,-1377.92 191.23,-1375.67 196.23,-1377.92"/>
+</g>
+<!-- src -->
+<!-- src/behavioral -->
+<!-- src/behavioral/command -->
+<!-- src/behavioral/command/commands -->
+<g id="node67" class="node">
+<title>src/behavioral/command/commands</title>
+<g id="a_node67"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/command/commands" xlink:title="commands">
+<polygon fill="#ffffcc" stroke="black" points="255,-697.25 196.06,-697.25 194,-695.19 194,-678.75 252.94,-678.75 255,-680.81 255,-697.25"/>
+<polyline fill="none" stroke="black" points="252.94,-695.19 194,-695.19"/>
+<polyline fill="none" stroke="black" points="252.94,-695.19 252.94,-678.75"/>
+<polyline fill="none" stroke="black" points="252.94,-695.19 255,-697.25"/>
+<text text-anchor="start" x="202" y="-684.7" font-family="Helvetica,sans-Serif" font-size="9.00">commands</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/command/commands&#45;&gt;src/behavioral/command -->
+<g id="edge33" class="edge">
+<title>src/behavioral/command/commands&#45;&gt;src/behavioral/command</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M255.3,-688C286.44,-688 330,-688 330,-688 330,-688 330,-698.75 330,-698.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="330,-703.75 327.75,-698.75 330,-702.47 330,-698.75 330,-698.75 330,-698.75 330,-702.47 332.25,-698.75 330,-703.75"/>
+</g>
+<!-- src/behavioral/command/devices -->
+<g id="node68" class="node">
+<title>src/behavioral/command/devices</title>
+<g id="a_node68"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/command/devices" xlink:title="devices">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-728.25 199.56,-728.25 197.5,-726.19 197.5,-709.75 249.44,-709.75 251.5,-711.81 251.5,-728.25"/>
+<polyline fill="none" stroke="black" points="249.44,-726.19 197.5,-726.19"/>
+<polyline fill="none" stroke="black" points="249.44,-726.19 249.44,-709.75"/>
+<polyline fill="none" stroke="black" points="249.44,-726.19 251.5,-728.25"/>
+<text text-anchor="start" x="208.75" y="-715.7" font-family="Helvetica,sans-Serif" font-size="9.00">devices</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/iterator -->
+<g id="node69" class="node">
+<title>src/behavioral/iterator</title>
+<g id="a_node69"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/iterator" xlink:title="iterator">
+<polygon fill="#ffffcc" stroke="orange" points="251.5,-827.25 199.56,-827.25 197.5,-825.19 197.5,-808.75 249.44,-808.75 251.5,-810.81 251.5,-827.25"/>
+<polyline fill="none" stroke="orange" points="249.44,-825.19 197.5,-825.19"/>
+<polyline fill="none" stroke="orange" points="249.44,-825.19 249.44,-808.75"/>
+<polyline fill="none" stroke="orange" points="249.44,-825.19 251.5,-827.25"/>
+<text text-anchor="start" x="210.25" y="-814.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">iterator</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/mediator -->
+<g id="node70" class="node">
+<title>src/behavioral/mediator</title>
+<g id="a_node70"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/behavioral/mediator" xlink:title="mediator">
+<polygon fill="#ffffcc" stroke="black" points="251.5,-858.25 199.56,-858.25 197.5,-856.19 197.5,-839.75 249.44,-839.75 251.5,-841.81 251.5,-858.25"/>
+<polyline fill="none" stroke="black" points="249.44,-856.19 197.5,-856.19"/>
+<polyline fill="none" stroke="black" points="249.44,-856.19 249.44,-839.75"/>
+<polyline fill="none" stroke="black" points="249.44,-856.19 251.5,-858.25"/>
+<text text-anchor="start" x="206.5" y="-845.7" font-family="Helvetica,sans-Serif" font-size="9.00">mediator</text>
+</a>
+</g>
+</g>
+<!-- src/behavioral/visitor -->
+<!-- src/common -->
+<!-- src/common/interfaces -->
+<g id="node74" class="node">
+<title>src/common/interfaces</title>
+<g id="a_node74"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/common/interfaces" xlink:title="interfaces">
+<polygon fill="#ccffcc" stroke="orange" points="252.38,-935.25 198.68,-935.25 196.62,-933.19 196.62,-916.75 250.32,-916.75 252.38,-918.81 252.38,-935.25"/>
+<polyline fill="none" stroke="orange" points="250.32,-933.19 196.62,-933.19"/>
+<polyline fill="none" stroke="orange" points="250.32,-933.19 250.32,-916.75"/>
+<polyline fill="none" stroke="orange" points="250.32,-933.19 252.38,-935.25"/>
+<text text-anchor="start" x="204.62" y="-922.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">interfaces</text>
+</a>
+</g>
+</g>
+<!-- src/creational -->
+<!-- src/structural -->
+<!-- src/structural/adapter -->
+<!-- src/structural/bridge -->
+<!-- src/structural/facade/subsystem/codecs -->
+<g id="node80" class="node">
+<title>src/structural/facade/subsystem/codecs</title>
+<g id="a_node80"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/src/structural/facade/subsystem/codecs" xlink:title="codecs">
+<polygon fill="#ccffcc" stroke="orange" points="435,-1279.25 383.06,-1279.25 381,-1277.19 381,-1260.75 432.94,-1260.75 435,-1262.81 435,-1279.25"/>
+<polyline fill="none" stroke="orange" points="432.94,-1277.19 381,-1277.19"/>
+<polyline fill="none" stroke="orange" points="432.94,-1277.19 432.94,-1260.75"/>
+<polyline fill="none" stroke="orange" points="432.94,-1277.19 435,-1279.25"/>
+<text text-anchor="start" x="393.38" y="-1266.7" font-family="Helvetica,sans-Serif" font-size="9.00" fill="orange">codecs</text>
+</a>
+</g>
+</g>
+<!-- src/structural/facade/subsystem&#45;&gt;src/structural/facade/subsystem/codecs -->
+<g id="edge39" class="edge">
+<title>src/structural/facade/subsystem&#45;&gt;src/structural/facade/subsystem/codecs</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M332.25,-1270C332.25,-1270 374.32,-1270 374.32,-1270"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="379.32,-1270 374.32,-1272.25 378.03,-1270 374.32,-1270 374.32,-1270 374.32,-1270 378.03,-1270 374.32,-1267.75 379.32,-1270"/>
+</g>
+<!-- tests -->
+<!-- tests/behavioral -->
+<!-- tests/behavioral/chain&#45;of&#45;responsibility -->
+<g id="node83" class="node">
+<title>tests/behavioral/chain&#45;of&#45;responsibility</title>
+<g id="a_node83"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/chain-of-responsibility" xlink:title="chain&#45;of&#45;responsibility">
+<polygon fill="#ffffcc" stroke="black" points="130,-1195.25 26.06,-1195.25 24,-1193.19 24,-1176.75 127.94,-1176.75 130,-1178.81 130,-1195.25"/>
+<polyline fill="none" stroke="black" points="127.94,-1193.19 24,-1193.19"/>
+<polyline fill="none" stroke="black" points="127.94,-1193.19 127.94,-1176.75"/>
+<polyline fill="none" stroke="black" points="127.94,-1193.19 130,-1195.25"/>
+<text text-anchor="start" x="32" y="-1182.7" font-family="Helvetica,sans-Serif" font-size="9.00">chain&#45;of&#45;responsibility</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/chain&#45;of&#45;responsibility&#45;&gt;src/behavioral/chain&#45;of&#45;responsibility -->
+<g id="edge40" class="edge">
+<title>tests/behavioral/chain&#45;of&#45;responsibility&#45;&gt;src/behavioral/chain&#45;of&#45;responsibility</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M123,-1176.43C123,-1098.92 123,-576.77 123,-576.77 123,-576.77 164.86,-576.77 164.86,-576.77"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="169.86,-576.78 164.86,-579.03 168.57,-576.78 164.86,-576.78 164.86,-576.78 164.86,-576.78 168.57,-576.78 164.86,-574.53 169.86,-576.78"/>
+</g>
+<!-- tests/behavioral/command -->
+<g id="node84" class="node">
+<title>tests/behavioral/command</title>
+<g id="a_node84"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/command" xlink:title="command">
+<polygon fill="#ffffcc" stroke="black" points="105.25,-1257.25 50.81,-1257.25 48.75,-1255.19 48.75,-1238.75 103.19,-1238.75 105.25,-1240.81 105.25,-1257.25"/>
+<polyline fill="none" stroke="black" points="103.19,-1255.19 48.75,-1255.19"/>
+<polyline fill="none" stroke="black" points="103.19,-1255.19 103.19,-1238.75"/>
+<polyline fill="none" stroke="black" points="103.19,-1255.19 105.25,-1257.25"/>
+<text text-anchor="start" x="56.75" y="-1244.7" font-family="Helvetica,sans-Serif" font-size="9.00">command</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/command&#45;&gt;src/behavioral/command -->
+<g id="edge43" class="edge">
+<title>tests/behavioral/command&#45;&gt;src/behavioral/command</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M105.53,-1249.85C171.7,-1249.85 330,-1249.85 330,-1249.85 330,-1249.85 330,-715.18 330,-715.18"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="330,-710.18 332.25,-715.18 330,-711.47 330,-715.18 330,-715.18 330,-715.18 330,-711.47 327.75,-715.18 330,-710.18"/>
+</g>
+<!-- tests/behavioral/command&#45;&gt;src/behavioral/command/commands -->
+<g id="edge41" class="edge">
+<title>tests/behavioral/command&#45;&gt;src/behavioral/command/commands</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M105.63,-1242.45C122.67,-1242.45 141,-1242.45 141,-1242.45 141,-1242.45 141,-687.98 141,-687.98 141,-687.98 187.66,-687.98 187.66,-687.98"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="192.66,-687.98 187.66,-690.23 191.38,-687.98 187.66,-687.98 187.66,-687.98 187.66,-687.98 191.38,-687.98 187.66,-685.73 192.66,-687.98"/>
+</g>
+<!-- tests/behavioral/command&#45;&gt;src/behavioral/command/devices -->
+<g id="edge42" class="edge">
+<title>tests/behavioral/command&#45;&gt;src/behavioral/command/devices</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M105.37,-1246.15C123.26,-1246.15 143,-1246.15 143,-1246.15 143,-1246.15 143,-717.92 143,-717.92 143,-717.92 191.14,-717.92 191.14,-717.92"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.14,-717.92 191.14,-720.17 194.86,-717.92 191.14,-717.92 191.14,-717.92 191.14,-717.92 194.86,-717.92 191.14,-715.67 196.14,-717.92"/>
+</g>
+<!-- tests/behavioral/interpreter -->
+<g id="node85" class="node">
+<title>tests/behavioral/interpreter</title>
+<g id="a_node85"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/interpreter" xlink:title="interpreter">
+<polygon fill="#ffffcc" stroke="black" points="106,-1040.25 50.06,-1040.25 48,-1038.19 48,-1021.75 103.94,-1021.75 106,-1023.81 106,-1040.25"/>
+<polyline fill="none" stroke="black" points="103.94,-1038.19 48,-1038.19"/>
+<polyline fill="none" stroke="black" points="103.94,-1038.19 103.94,-1021.75"/>
+<polyline fill="none" stroke="black" points="103.94,-1038.19 106,-1040.25"/>
+<text text-anchor="start" x="56" y="-1027.7" font-family="Helvetica,sans-Serif" font-size="9.00">interpreter</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/interpreter&#45;&gt;src/behavioral/interpreter -->
+<g id="edge44" class="edge">
+<title>tests/behavioral/interpreter&#45;&gt;src/behavioral/interpreter</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M47.74,-1031C39.14,-1031 32,-1031 32,-1031 32,-1031 32,-386.75 32,-386.75 32,-386.75 189.04,-386.75 189.04,-386.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.04,-386.75 189.05,-389 192.76,-386.75 189.04,-386.75 189.04,-386.75 189.04,-386.75 192.76,-386.75 189.04,-384.5 194.04,-386.75"/>
+</g>
+<!-- tests/behavioral/iterator -->
+<g id="node86" class="node">
+<title>tests/behavioral/iterator</title>
+<g id="a_node86"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/iterator" xlink:title="iterator">
+<polygon fill="#ffffcc" stroke="black" points="104,-1319.25 52.06,-1319.25 50,-1317.19 50,-1300.75 101.94,-1300.75 104,-1302.81 104,-1319.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1317.19 50,-1317.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1317.19 101.94,-1300.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1317.19 104,-1319.25"/>
+<text text-anchor="start" x="62.75" y="-1306.7" font-family="Helvetica,sans-Serif" font-size="9.00">iterator</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/iterator&#45;&gt;src/behavioral/iterator -->
+<g id="edge45" class="edge">
+<title>tests/behavioral/iterator&#45;&gt;src/behavioral/iterator</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.26,-1310C123.92,-1310 147,-1310 147,-1310 147,-1310 147,-819.08 147,-819.08 147,-819.08 191.18,-819.08 191.18,-819.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="196.18,-819.08 191.18,-821.33 194.89,-819.08 191.18,-819.08 191.18,-819.08 191.18,-819.08 194.89,-819.08 191.18,-816.83 196.18,-819.08"/>
+</g>
+<!-- tests/behavioral/mediator -->
+<g id="node87" class="node">
+<title>tests/behavioral/mediator</title>
+<g id="a_node87"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/mediator" xlink:title="mediator">
+<polygon fill="#ffffcc" stroke="black" points="104,-1350.25 52.06,-1350.25 50,-1348.19 50,-1331.75 101.94,-1331.75 104,-1333.81 104,-1350.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1348.19 50,-1348.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1348.19 101.94,-1331.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1348.19 104,-1350.25"/>
+<text text-anchor="start" x="59" y="-1337.7" font-family="Helvetica,sans-Serif" font-size="9.00">mediator</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/mediator&#45;&gt;src/behavioral/mediator -->
+<g id="edge46" class="edge">
+<title>tests/behavioral/mediator&#45;&gt;src/behavioral/mediator</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.18,-1336.25C124.94,-1336.25 150,-1336.25 150,-1336.25 150,-1336.25 150,-850.08 150,-850.08 150,-850.08 190.96,-850.08 190.96,-850.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.96,-850.08 190.96,-852.33 194.68,-850.08 190.96,-850.08 190.96,-850.08 190.96,-850.08 194.68,-850.08 190.96,-847.83 195.96,-850.08"/>
+</g>
+<!-- tests/behavioral/memento -->
+<g id="node88" class="node">
+<title>tests/behavioral/memento</title>
+<g id="a_node88"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/memento" xlink:title="memento">
+<polygon fill="#ffffcc" stroke="black" points="104.12,-1071.25 51.93,-1071.25 49.88,-1069.19 49.88,-1052.75 102.07,-1052.75 104.12,-1054.81 104.12,-1071.25"/>
+<polyline fill="none" stroke="black" points="102.07,-1069.19 49.88,-1069.19"/>
+<polyline fill="none" stroke="black" points="102.07,-1069.19 102.07,-1052.75"/>
+<polyline fill="none" stroke="black" points="102.07,-1069.19 104.12,-1071.25"/>
+<text text-anchor="start" x="57.88" y="-1058.7" font-family="Helvetica,sans-Serif" font-size="9.00">memento</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/memento&#45;&gt;src/behavioral/memento -->
+<g id="edge47" class="edge">
+<title>tests/behavioral/memento&#45;&gt;src/behavioral/memento</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M49.63,-1062C38.41,-1062 28,-1062 28,-1062 28,-1062 28,-417.75 28,-417.75 28,-417.75 190.96,-417.75 190.96,-417.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.96,-417.75 190.96,-420 194.68,-417.75 190.96,-417.75 190.96,-417.75 190.96,-417.75 194.68,-417.75 190.96,-415.5 195.96,-417.75"/>
+</g>
+<!-- tests/behavioral/observer -->
+<g id="node89" class="node">
+<title>tests/behavioral/observer</title>
+<g id="a_node89"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/observer" xlink:title="observer">
+<polygon fill="#ffffcc" stroke="black" points="104,-1102.25 52.06,-1102.25 50,-1100.19 50,-1083.75 101.94,-1083.75 104,-1085.81 104,-1102.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1100.19 50,-1100.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1100.19 101.94,-1083.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1100.19 104,-1102.25"/>
+<text text-anchor="start" x="59" y="-1089.7" font-family="Helvetica,sans-Serif" font-size="9.00">observer</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/observer&#45;&gt;src/behavioral/observer -->
+<g id="edge48" class="edge">
+<title>tests/behavioral/observer&#45;&gt;src/behavioral/observer</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M49.66,-1093C39.32,-1093 30,-1093 30,-1093 30,-1093 30,-447.08 30,-447.08 30,-447.08 190.83,-447.08 190.83,-447.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.83,-447.08 190.83,-449.33 194.55,-447.08 190.83,-447.08 190.83,-447.08 190.83,-447.08 194.55,-447.08 190.83,-444.83 195.83,-447.08"/>
+</g>
+<!-- tests/behavioral/state -->
+<g id="node90" class="node">
+<title>tests/behavioral/state</title>
+<g id="a_node90"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/state" xlink:title="state">
+<polygon fill="#ffffcc" stroke="black" points="104,-1133.25 52.06,-1133.25 50,-1131.19 50,-1114.75 101.94,-1114.75 104,-1116.81 104,-1133.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1131.19 50,-1131.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1131.19 101.94,-1114.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1131.19 104,-1133.25"/>
+<text text-anchor="start" x="67.25" y="-1120.7" font-family="Helvetica,sans-Serif" font-size="9.00">state</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/state&#45;&gt;src/behavioral/state -->
+<g id="edge49" class="edge">
+<title>tests/behavioral/state&#45;&gt;src/behavioral/state</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-1124C113.31,-1124 121,-1124 121,-1124 121,-1124 121,-479.25 121,-479.25 121,-479.25 190.82,-479.25 190.82,-479.25"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.82,-479.25 190.82,-481.5 194.54,-479.25 190.82,-479.25 190.82,-479.25 190.82,-479.25 194.54,-479.25 190.82,-477 195.82,-479.25"/>
+</g>
+<!-- tests/behavioral/strategy -->
+<g id="node91" class="node">
+<title>tests/behavioral/strategy</title>
+<g id="a_node91"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/strategy" xlink:title="strategy">
+<polygon fill="#ffffcc" stroke="black" points="104,-1164.25 52.06,-1164.25 50,-1162.19 50,-1145.75 101.94,-1145.75 104,-1147.81 104,-1164.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1162.19 50,-1162.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1162.19 101.94,-1145.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1162.19 104,-1164.25"/>
+<text text-anchor="start" x="60.88" y="-1151.7" font-family="Helvetica,sans-Serif" font-size="9.00">strategy</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/strategy&#45;&gt;src/behavioral/strategy -->
+<g id="edge50" class="edge">
+<title>tests/behavioral/strategy&#45;&gt;src/behavioral/strategy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M49.71,-1155C37.58,-1155 26,-1155 26,-1155 26,-1155 26,-495 26,-495 26,-495 224,-495 224,-495 224,-495 224,-495.48 224,-495.48"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="224,-498.57 221.75,-493.57 224,-497.29 224,-493.57 224,-493.57 224,-493.57 224,-497.29 226.25,-493.57 224,-498.57"/>
+</g>
+<!-- tests/behavioral/strategy&#45;&gt;src/behavioral/strategy/strategies -->
+<g id="edge51" class="edge">
+<title>tests/behavioral/strategy&#45;&gt;src/behavioral/strategy/strategies</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.47,-1150.92C113.84,-1150.92 122,-1150.92 122,-1150.92 122,-1150.92 122,-528.58 122,-528.58 122,-528.58 190,-528.58 190,-528.58"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195,-528.58 190,-530.83 193.72,-528.58 190,-528.58 190,-528.58 190,-528.58 193.72,-528.58 190,-526.33 195,-528.58"/>
+</g>
+<!-- tests/behavioral/template&#45;method -->
+<g id="node92" class="node">
+<title>tests/behavioral/template&#45;method</title>
+<g id="a_node92"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/template-method" xlink:title="template&#45;method">
+<polygon fill="#ffffcc" stroke="black" points="119.5,-1288.25 36.56,-1288.25 34.5,-1286.19 34.5,-1269.75 117.44,-1269.75 119.5,-1271.81 119.5,-1288.25"/>
+<polyline fill="none" stroke="black" points="117.44,-1286.19 34.5,-1286.19"/>
+<polyline fill="none" stroke="black" points="117.44,-1286.19 117.44,-1269.75"/>
+<polyline fill="none" stroke="black" points="117.44,-1286.19 119.5,-1288.25"/>
+<text text-anchor="start" x="42.5" y="-1275.7" font-family="Helvetica,sans-Serif" font-size="9.00">template&#45;method</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/template&#45;method&#45;&gt;. -->
+<g id="edge53" class="edge">
+<title>tests/behavioral/template&#45;method&#45;&gt;.</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" stroke-opacity="0.200000" d="M119.73,-1283.75C188.47,-1283.75 316,-1283.75 316,-1283.75 316,-1283.75 316,-1745.25 316,-1745.25"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="316,-1750.25 313.75,-1745.25 316,-1748.97 316,-1745.25 316,-1745.25 316,-1745.25 316,-1748.97 318.25,-1745.25 316,-1750.25"/>
+</g>
+<!-- tests/behavioral/template&#45;method&#45;&gt;src/behavioral/template&#45;method -->
+<g id="edge52" class="edge">
+<title>tests/behavioral/template&#45;method&#45;&gt;src/behavioral/template&#45;method</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M119.98,-1275.53C146.32,-1275.53 175,-1275.53 175,-1275.53 175,-1275.53 175,-770.75 175,-770.75 175,-770.75 175.69,-770.75 175.69,-770.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="180.66,-770.75 175.66,-773 179.38,-770.75 175.66,-770.75 175.66,-770.75 175.66,-770.75 179.38,-770.75 175.66,-768.5 180.66,-770.75"/>
+</g>
+<!-- tests/behavioral/visitor -->
+<g id="node93" class="node">
+<title>tests/behavioral/visitor</title>
+<g id="a_node93"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/behavioral/visitor" xlink:title="visitor">
+<polygon fill="#ffffcc" stroke="black" points="104,-1226.25 52.06,-1226.25 50,-1224.19 50,-1207.75 101.94,-1207.75 104,-1209.81 104,-1226.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1224.19 50,-1224.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1224.19 101.94,-1207.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1224.19 104,-1226.25"/>
+<text text-anchor="start" x="65" y="-1213.7" font-family="Helvetica,sans-Serif" font-size="9.00">visitor</text>
+</a>
+</g>
+</g>
+<!-- tests/behavioral/visitor&#45;&gt;src/behavioral/visitor/visitors -->
+<g id="edge54" class="edge">
+<title>tests/behavioral/visitor&#45;&gt;src/behavioral/visitor/visitors</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.38,-1213.25C157.86,-1213.25 271,-1213.25 271,-1213.25 271,-1213.25 271,-612 271,-612 271,-612 258.04,-612 258.04,-612"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="253.04,-612 258.04,-609.75 254.32,-612 258.04,-612 258.04,-612 258.04,-612 254.32,-612 258.04,-614.25 253.04,-612"/>
+</g>
+<!-- tests/behavioral/visitor&#45;&gt;src/structural/composite -->
+<g id="edge55" class="edge">
+<title>tests/behavioral/visitor&#45;&gt;src/structural/composite</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.4,-1222.5C104.4,-1222.5 189.01,-1222.5 189.01,-1222.5"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.01,-1222.5 189.01,-1224.75 192.73,-1222.5 189.01,-1222.5 189.01,-1222.5 189.01,-1222.5 192.73,-1222.5 189.01,-1220.25 194.01,-1222.5"/>
+</g>
+<!-- tests/creational -->
+<!-- tests/creational/abstract&#45;factory -->
+<g id="node95" class="node">
+<title>tests/creational/abstract&#45;factory</title>
+<g id="a_node95"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/creational/abstract-factory" xlink:title="abstract&#45;factory">
+<polygon fill="#ffffcc" stroke="black" points="116.12,-1591.25 39.93,-1591.25 37.88,-1589.19 37.88,-1572.75 114.07,-1572.75 116.12,-1574.81 116.12,-1591.25"/>
+<polyline fill="none" stroke="black" points="114.07,-1589.19 37.88,-1589.19"/>
+<polyline fill="none" stroke="black" points="114.07,-1589.19 114.07,-1572.75"/>
+<polyline fill="none" stroke="black" points="114.07,-1589.19 116.12,-1591.25"/>
+<text text-anchor="start" x="45.88" y="-1578.7" font-family="Helvetica,sans-Serif" font-size="9.00">abstract&#45;factory</text>
+</a>
+</g>
+</g>
+<!-- tests/creational/abstract&#45;factory&#45;&gt;src/creational/abstract&#45;factory -->
+<g id="edge56" class="edge">
+<title>tests/creational/abstract&#45;factory&#45;&gt;src/creational/abstract&#45;factory</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M116.52,-1580.25C149.11,-1580.25 190,-1580.25 190,-1580.25 190,-1580.25 190,-1167.97 190,-1167.97"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="190,-1162.97 192.25,-1167.97 190,-1164.25 190,-1167.97 190,-1167.97 190,-1167.97 190,-1164.25 187.75,-1167.97 190,-1162.97"/>
+</g>
+<!-- tests/creational/builder -->
+<g id="node96" class="node">
+<title>tests/creational/builder</title>
+<g id="a_node96"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/creational/builder" xlink:title="builder">
+<polygon fill="#ffffcc" stroke="black" points="104,-1411.25 52.06,-1411.25 50,-1409.19 50,-1392.75 101.94,-1392.75 104,-1394.81 104,-1411.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1409.19 50,-1409.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1409.19 101.94,-1392.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1409.19 104,-1411.25"/>
+<text text-anchor="start" x="62.75" y="-1398.7" font-family="Helvetica,sans-Serif" font-size="9.00">builder</text>
+</a>
+</g>
+</g>
+<!-- tests/creational/builder&#45;&gt;src/creational/builder -->
+<g id="edge57" class="edge">
+<title>tests/creational/builder&#45;&gt;src/creational/builder</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.08,-1397.75C125.56,-1397.75 152,-1397.75 152,-1397.75 152,-1397.75 152,-990.08 152,-990.08 152,-990.08 190.87,-990.08 190.87,-990.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.87,-990.08 190.87,-992.33 194.59,-990.08 190.87,-990.08 190.87,-990.08 190.87,-990.08 194.59,-990.08 190.87,-987.83 195.87,-990.08"/>
+</g>
+<!-- tests/creational/factory&#45;method -->
+<g id="node97" class="node">
+<title>tests/creational/factory&#45;method</title>
+<g id="a_node97"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/creational/factory-method" xlink:title="factory&#45;method">
+<polygon fill="#ffffcc" stroke="black" points="115.38,-1457.25 40.68,-1457.25 38.62,-1455.19 38.62,-1438.75 113.32,-1438.75 115.38,-1440.81 115.38,-1457.25"/>
+<polyline fill="none" stroke="black" points="113.32,-1455.19 38.62,-1455.19"/>
+<polyline fill="none" stroke="black" points="113.32,-1455.19 113.32,-1438.75"/>
+<polyline fill="none" stroke="black" points="113.32,-1455.19 115.38,-1457.25"/>
+<text text-anchor="start" x="46.62" y="-1444.7" font-family="Helvetica,sans-Serif" font-size="9.00">factory&#45;method</text>
+</a>
+</g>
+</g>
+<!-- tests/creational/factory&#45;method&#45;&gt;src/creational/factory&#45;method -->
+<g id="edge58" class="edge">
+<title>tests/creational/factory&#45;method&#45;&gt;src/creational/factory&#45;method</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M115.5,-1449.75C134.75,-1449.75 154,-1449.75 154,-1449.75 154,-1449.75 154,-1017.77 154,-1017.77 154,-1017.77 179.73,-1017.77 179.73,-1017.77"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="184.73,-1017.77 179.73,-1020.02 183.45,-1017.77 179.73,-1017.77 179.73,-1017.77 179.73,-1017.77 183.45,-1017.77 179.73,-1015.52 184.73,-1017.77"/>
+</g>
+<!-- tests/creational/prototype -->
+<!-- tests/creational/prototype&#45;&gt;src/creational/prototype -->
+<g id="edge59" class="edge">
+<title>tests/creational/prototype&#45;&gt;src/creational/prototype</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M74.95,-1506C63.31,-1506 6,-1506 6,-1506 6,-1506 6,-1076 6,-1076 6,-1076 216.39,-1076 216.39,-1076"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="221.39,-1076 216.39,-1078.25 220.11,-1076 216.39,-1076 216.39,-1076 216.39,-1076 220.11,-1076 216.39,-1073.75 221.39,-1076"/>
+</g>
+<!-- tests/creational/prototype/document -->
+<g id="node99" class="node">
+<title>tests/creational/prototype/document</title>
+<g id="a_node99"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/creational/prototype/document" xlink:title="document">
+<polygon fill="#ffffcc" stroke="black" points="105.25,-1538.25 50.81,-1538.25 48.75,-1536.19 48.75,-1519.75 103.19,-1519.75 105.25,-1521.81 105.25,-1538.25"/>
+<polyline fill="none" stroke="black" points="103.19,-1536.19 48.75,-1536.19"/>
+<polyline fill="none" stroke="black" points="103.19,-1536.19 103.19,-1519.75"/>
+<polyline fill="none" stroke="black" points="103.19,-1536.19 105.25,-1538.25"/>
+<text text-anchor="start" x="56.75" y="-1525.7" font-family="Helvetica,sans-Serif" font-size="9.00">document</text>
+</a>
+</g>
+</g>
+<!-- tests/creational/prototype/document&#45;&gt;src/creational/prototype/document -->
+<g id="edge60" class="edge">
+<title>tests/creational/prototype/document&#45;&gt;src/creational/prototype/document</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M105.68,-1524.47C135.85,-1524.47 179,-1524.47 179,-1524.47 179,-1524.47 179,-1098.08 179,-1098.08 179,-1098.08 189.72,-1098.08 189.72,-1098.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="194.72,-1098.08 189.72,-1100.33 193.44,-1098.08 189.72,-1098.08 189.72,-1098.08 189.72,-1098.08 193.44,-1098.08 189.72,-1095.83 194.72,-1098.08"/>
+</g>
+<!-- tests/creational/singleton -->
+<g id="node100" class="node">
+<title>tests/creational/singleton</title>
+<g id="a_node100"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/creational/singleton" xlink:title="singleton">
+<polygon fill="#ffffcc" stroke="black" points="104,-1488.25 52.06,-1488.25 50,-1486.19 50,-1469.75 101.94,-1469.75 104,-1471.81 104,-1488.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1486.19 50,-1486.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1486.19 101.94,-1469.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1486.19 104,-1488.25"/>
+<text text-anchor="start" x="58.25" y="-1475.7" font-family="Helvetica,sans-Serif" font-size="9.00">singleton</text>
+</a>
+</g>
+</g>
+<!-- tests/creational/singleton&#45;&gt;src/creational/singleton -->
+<g id="edge61" class="edge">
+<title>tests/creational/singleton&#45;&gt;src/creational/singleton</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.33,-1475.25C134.24,-1475.25 178,-1475.25 178,-1475.25 178,-1475.25 178,-1048.58 178,-1048.58 178,-1048.58 190.96,-1048.58 190.96,-1048.58"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.96,-1048.58 190.96,-1050.83 194.68,-1048.58 190.96,-1048.58 190.96,-1048.58 190.96,-1048.58 194.68,-1048.58 190.96,-1046.33 195.96,-1048.58"/>
+</g>
+<!-- tests/structural -->
+<!-- tests/structural/adapter -->
+<g id="node102" class="node">
+<title>tests/structural/adapter</title>
+<g id="a_node102"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/adapter" xlink:title="adapter">
+<polygon fill="#ffffcc" stroke="black" points="104,-1760.25 52.06,-1760.25 50,-1758.19 50,-1741.75 101.94,-1741.75 104,-1743.81 104,-1760.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1758.19 50,-1758.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1758.19 101.94,-1741.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1758.19 104,-1760.25"/>
+<text text-anchor="start" x="61.25" y="-1747.7" font-family="Helvetica,sans-Serif" font-size="9.00">adapter</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/adapter&#45;&gt;src/structural/adapter/adapter -->
+<g id="edge63" class="edge">
+<title>tests/structural/adapter&#45;&gt;src/structural/adapter/adapter</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-1744.25C115.14,-1744.25 125,-1744.25 125,-1744.25 125,-1744.25 125,-1480.75 125,-1480.75 125,-1480.75 190.83,-1480.75 190.83,-1480.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.83,-1480.75 190.83,-1483 194.55,-1480.75 190.83,-1480.75 190.83,-1480.75 190.83,-1480.75 194.55,-1480.75 190.83,-1478.5 195.83,-1480.75"/>
+</g>
+<!-- tests/structural/adapter&#45;&gt;src/structural/adapter/legacy -->
+<g id="edge64" class="edge">
+<title>tests/structural/adapter&#45;&gt;src/structural/adapter/legacy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-1746.75C115.59,-1746.75 126,-1746.75 126,-1746.75 126,-1746.75 126,-1512.53 126,-1512.53 126,-1512.53 190.84,-1512.53 190.84,-1512.53"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.84,-1512.53 190.84,-1514.78 194.56,-1512.53 190.84,-1512.53 190.84,-1512.53 190.84,-1512.53 194.56,-1512.53 190.84,-1510.28 195.84,-1512.53"/>
+</g>
+<!-- tests/structural/adapter&#45;&gt;src/structural/adapter -->
+<g id="edge62" class="edge">
+<title>tests/structural/adapter&#45;&gt;src/structural/adapter</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.04,-1749.25C128.6,-1749.25 161,-1749.25 161,-1749.25 161,-1749.25 161,-1531 161,-1531 161,-1531 216.17,-1531 216.17,-1531"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="221.17,-1531 216.17,-1533.25 219.89,-1531 216.17,-1531 216.17,-1531 216.17,-1531 219.89,-1531 216.17,-1528.75 221.17,-1531"/>
+</g>
+<!-- tests/structural/bridge -->
+<g id="node103" class="node">
+<title>tests/structural/bridge</title>
+<g id="a_node103"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/bridge" xlink:title="bridge">
+<polygon fill="#ffffcc" stroke="black" points="104,-1910.25 52.06,-1910.25 50,-1908.19 50,-1891.75 101.94,-1891.75 104,-1893.81 104,-1910.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1908.19 50,-1908.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1908.19 101.94,-1891.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1908.19 104,-1910.25"/>
+<text text-anchor="start" x="63.88" y="-1897.7" font-family="Helvetica,sans-Serif" font-size="9.00">bridge</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/bridge&#45;&gt;src/structural/bridge/abstraction -->
+<g id="edge65" class="edge">
+<title>tests/structural/bridge&#45;&gt;src/structural/bridge/abstraction</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.29,-1897.92C116.42,-1897.92 128,-1897.92 128,-1897.92 128,-1897.92 128,-1585.75 128,-1585.75 128,-1585.75 187.48,-1585.75 187.48,-1585.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="192.48,-1585.75 187.48,-1588 191.2,-1585.75 187.48,-1585.75 187.48,-1585.75 187.48,-1585.75 191.2,-1585.75 187.48,-1583.5 192.48,-1585.75"/>
+</g>
+<!-- tests/structural/bridge&#45;&gt;src/structural/bridge/implementation -->
+<g id="edge66" class="edge">
+<title>tests/structural/bridge&#45;&gt;src/structural/bridge/implementation</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.24,-1904.08C141.56,-1904.08 204,-1904.08 204,-1904.08 204,-1904.08 204,-1630.84 204,-1630.84"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="204,-1625.84 206.25,-1630.84 204,-1627.12 204,-1630.84 204,-1630.84 204,-1630.84 204,-1627.12 201.75,-1630.84 204,-1625.84"/>
+</g>
+<!-- tests/structural/composite -->
+<g id="node104" class="node">
+<title>tests/structural/composite</title>
+<g id="a_node104"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/composite" xlink:title="composite">
+<polygon fill="#ffffcc" stroke="black" points="106,-1652.25 50.06,-1652.25 48,-1650.19 48,-1633.75 103.94,-1633.75 106,-1635.81 106,-1652.25"/>
+<polyline fill="none" stroke="black" points="103.94,-1650.19 48,-1650.19"/>
+<polyline fill="none" stroke="black" points="103.94,-1650.19 103.94,-1633.75"/>
+<polyline fill="none" stroke="black" points="103.94,-1650.19 106,-1652.25"/>
+<text text-anchor="start" x="56" y="-1639.7" font-family="Helvetica,sans-Serif" font-size="9.00">composite</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/composite&#45;&gt;src/structural/composite -->
+<g id="edge67" class="edge">
+<title>tests/structural/composite&#45;&gt;src/structural/composite</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M106.42,-1646.03C128.88,-1646.03 156,-1646.03 156,-1646.03 156,-1646.03 156,-1233.58 156,-1233.58 156,-1233.58 188.83,-1233.58 188.83,-1233.58"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="193.83,-1233.58 188.83,-1235.83 192.55,-1233.58 188.83,-1233.58 188.83,-1233.58 188.83,-1233.58 192.55,-1233.58 188.83,-1231.33 193.83,-1233.58"/>
+</g>
+<!-- tests/structural/decorator -->
+<g id="node105" class="node">
+<title>tests/structural/decorator</title>
+<g id="a_node105"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/decorator" xlink:title="decorator">
+<polygon fill="#ffffcc" stroke="black" points="104.5,-1941.25 51.56,-1941.25 49.5,-1939.19 49.5,-1922.75 102.44,-1922.75 104.5,-1924.81 104.5,-1941.25"/>
+<polyline fill="none" stroke="black" points="102.44,-1939.19 49.5,-1939.19"/>
+<polyline fill="none" stroke="black" points="102.44,-1939.19 102.44,-1922.75"/>
+<polyline fill="none" stroke="black" points="102.44,-1939.19 104.5,-1941.25"/>
+<text text-anchor="start" x="57.5" y="-1928.7" font-family="Helvetica,sans-Serif" font-size="9.00">decorator</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/decorator&#45;&gt;. -->
+<g id="edge69" class="edge">
+<title>tests/structural/decorator&#45;&gt;.</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" stroke-opacity="0.200000" d="M104.56,-1935.08C170.13,-1935.08 330,-1935.08 330,-1935.08 330,-1935.08 330,-1776.83 330,-1776.83"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="330,-1771.83 332.25,-1776.83 330,-1773.11 330,-1776.83 330,-1776.83 330,-1776.83 330,-1773.11 327.75,-1776.83 330,-1771.83"/>
+</g>
+<!-- tests/structural/decorator&#45;&gt;src/structural/decorator -->
+<g id="edge68" class="edge">
+<title>tests/structural/decorator&#45;&gt;src/structural/decorator</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.82,-1928.92C114.51,-1928.92 123,-1928.92 123,-1928.92 123,-1928.92 123,-1416.25 123,-1416.25 123,-1416.25 190.55,-1416.25 190.55,-1416.25"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.55,-1416.25 190.55,-1418.5 194.26,-1416.25 190.55,-1416.25 190.55,-1416.25 190.55,-1416.25 194.26,-1416.25 190.55,-1414 195.55,-1416.25"/>
+</g>
+<!-- tests/structural/facade -->
+<!-- tests/structural/facade&#45;&gt;src/structural/facade -->
+<g id="edge70" class="edge">
+<title>tests/structural/facade&#45;&gt;src/structural/facade</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M74.94,-1778C65.75,-1778 29,-1778 29,-1778 29,-1778 29,-1268.97 29,-1268.97 29,-1268.97 216.59,-1268.97 216.59,-1268.97"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="221.59,-1268.98 216.59,-1271.23 220.31,-1268.98 216.59,-1268.98 216.59,-1268.98 216.59,-1268.98 220.31,-1268.98 216.59,-1266.73 221.59,-1268.98"/>
+</g>
+<!-- tests/structural/facade/subsystem -->
+<!-- tests/structural/facade/subsystem/codecs -->
+<g id="node108" class="node">
+<title>tests/structural/facade/subsystem/codecs</title>
+<g id="a_node108"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/facade/subsystem/codecs" xlink:title="codecs">
+<polygon fill="#ffffcc" stroke="black" points="104,-1830.25 52.06,-1830.25 50,-1828.19 50,-1811.75 101.94,-1811.75 104,-1813.81 104,-1830.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1828.19 50,-1828.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1828.19 101.94,-1811.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1828.19 104,-1830.25"/>
+<text text-anchor="start" x="62.38" y="-1817.7" font-family="Helvetica,sans-Serif" font-size="9.00">codecs</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/facade/subsystem/codecs&#45;&gt;src/structural/facade/subsystem/codecs -->
+<g id="edge71" class="edge">
+<title>tests/structural/facade/subsystem/codecs&#45;&gt;src/structural/facade/subsystem/codecs</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-1821C183.67,-1821 408,-1821 408,-1821 408,-1821 408,-1285.78 408,-1285.78"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="408,-1280.78 410.25,-1285.78 408,-1282.06 408,-1285.78 408,-1285.78 408,-1285.78 408,-1282.06 405.75,-1285.78 408,-1280.78"/>
+</g>
+<!-- tests/structural/flyweight -->
+<g id="node109" class="node">
+<title>tests/structural/flyweight</title>
+<g id="a_node109"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/flyweight" xlink:title="flyweight">
+<polygon fill="#ffffcc" stroke="black" points="104,-1698.25 52.06,-1698.25 50,-1696.19 50,-1679.75 101.94,-1679.75 104,-1681.81 104,-1698.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1696.19 50,-1696.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1696.19 101.94,-1679.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1696.19 104,-1698.25"/>
+<text text-anchor="start" x="59" y="-1685.7" font-family="Helvetica,sans-Serif" font-size="9.00">flyweight</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/flyweight&#45;&gt;src/structural/flyweight -->
+<g id="edge72" class="edge">
+<title>tests/structural/flyweight&#45;&gt;src/structural/flyweight</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.37,-1689C113.31,-1689 121,-1689 121,-1689 121,-1689 121,-1354.75 121,-1354.75 121,-1354.75 190.82,-1354.75 190.82,-1354.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.82,-1354.75 190.82,-1357 194.54,-1354.75 190.82,-1354.75 190.82,-1354.75 190.82,-1354.75 194.54,-1354.75 190.82,-1352.5 195.82,-1354.75"/>
+</g>
+<!-- tests/structural/proxy -->
+<g id="node110" class="node">
+<title>tests/structural/proxy</title>
+<g id="a_node110"><a xlink:href="vscode://file/D:/Project/Cursor/GoF23_TypeScript/tests/structural/proxy" xlink:title="proxy">
+<polygon fill="#ffffcc" stroke="black" points="104,-1729.25 52.06,-1729.25 50,-1727.19 50,-1710.75 101.94,-1710.75 104,-1712.81 104,-1729.25"/>
+<polyline fill="none" stroke="black" points="101.94,-1727.19 50,-1727.19"/>
+<polyline fill="none" stroke="black" points="101.94,-1727.19 101.94,-1710.75"/>
+<polyline fill="none" stroke="black" points="101.94,-1727.19 104,-1729.25"/>
+<text text-anchor="start" x="65.75" y="-1716.7" font-family="Helvetica,sans-Serif" font-size="9.00">proxy</text>
+</a>
+</g>
+</g>
+<!-- tests/structural/proxy&#45;&gt;src/structural/proxy -->
+<g id="edge73" class="edge">
+<title>tests/structural/proxy&#45;&gt;src/structural/proxy</title>
+<path fill="none" stroke="#000000" stroke-opacity="0.200000" d="M104.32,-1714C135.14,-1714 181,-1714 181,-1714 181,-1714 181,-1384.08 181,-1384.08 181,-1384.08 190.98,-1384.08 190.98,-1384.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-opacity="0.200000" points="195.98,-1384.08 190.98,-1386.33 194.7,-1384.08 190.98,-1384.08 190.98,-1384.08 190.98,-1384.08 194.7,-1384.08 190.98,-1381.83 195.98,-1384.08"/>
+</g>
+</g>
+</svg>
+  </div>
+  
+  <script>
+      var gMode = new Mode();
+
+var title2ElementMap = (function makeElementMap() {
+  /** @type {NodeListOf<SVGGElement>} */
+  var nodes = document.querySelectorAll(".node");
+  /** @type {NodeListOf<SVGGElement>} */
+  var edges = document.querySelectorAll(".edge");
+  return new Title2ElementMap(edges, nodes);
+})();
+
+function getHoverHandler(pTitle2ElementMap) {
+  /** @type {string} */
+  var currentHighlightedTitle = "";
+
+  /** @param {MouseEvent} pMouseEvent */
+  return function hoverHighlightHandler(pMouseEvent) {
+    var closestNodeOrEdge = pMouseEvent.target.closest(".edge, .node");
+    var closestTitleText = getTitleText(closestNodeOrEdge);
+
+    if (
+      currentHighlightedTitle !== closestTitleText &&
+      gMode.get() === gMode.HOVER
+    ) {
+      resetNodesAndEdges();
+      addHighlight(closestNodeOrEdge);
+      pTitle2ElementMap.get(closestTitleText).forEach(addHighlight);
+      currentHighlightedTitle = closestTitleText;
+    }
+  };
+}
+
+function getSelectHandler(pTitle2ElementMap) {
+  /** @type {string} */
+  var currentHighlightedTitle = "";
+
+  /** @param {MouseEvent} pMouseEvent */
+  return function selectHighlightHandler(pMouseEvent) {
+    pMouseEvent.preventDefault();
+
+    var closestNodeOrEdge = pMouseEvent.target.closest(".edge, .node");
+    var closestTitleText = getTitleText(closestNodeOrEdge);
+
+    if (closestNodeOrEdge) {
+      gMode.setToSelect();
+    } else {
+      gMode.setToHover();
+    }
+    if (currentHighlightedTitle !== closestTitleText) {
+      resetNodesAndEdges();
+      addHighlight(closestNodeOrEdge);
+      pTitle2ElementMap.get(closestTitleText).forEach(addHighlight);
+      currentHighlightedTitle = closestTitleText;
+    }
+  };
+}
+function Mode() {
+  var HOVER = 1;
+  var SELECT = 2;
+
+  function setToHover() {
+    this._mode = HOVER;
+  }
+  function setToSelect() {
+    this._mode = SELECT;
+  }
+
+  /**
+   * @returns {number}
+   */
+  function get() {
+    return this._mode || HOVER;
+  }
+
+  return {
+    HOVER: HOVER,
+    SELECT: SELECT,
+    setToHover: setToHover,
+    setToSelect: setToSelect,
+    get: get,
+  };
+}
+
+/**
+ *
+ * @param {SVGGelement[]} pEdges
+ * @param {SVGGElement[]} pNodes
+ * @return {{get: (pTitleText:string) => SVGGElement[]}}
+ */
+function Title2ElementMap(pEdges, pNodes) {
+  /* {{[key: string]: SVGGElement[]}} */
+  var elementMap = buildMap(pEdges, pNodes);
+
+  /**
+   * @param {NodeListOf<SVGGElement>} pEdges
+   * @param {NodeListOf<SVGGElement>} pNodes
+   * @return {{[key: string]: SVGGElement[]}}
+   */
+  function buildMap(pEdges, pNodes) {
+    var title2NodeMap = buildTitle2NodeMap(pNodes);
+
+    return nodeListToArray(pEdges).reduce(addEdgeToMap(title2NodeMap), {});
+  }
+  /**
+   * @param {NodeListOf<SVGGElement>} pNodes
+   * @return {{[key: string]: SVGGElement}}
+   */
+  function buildTitle2NodeMap(pNodes) {
+    return nodeListToArray(pNodes).reduce(addNodeToMap, {});
+  }
+
+  function addNodeToMap(pMap, pNode) {
+    var titleText = getTitleText(pNode);
+
+    if (titleText) {
+      pMap[titleText] = pNode;
+    }
+    return pMap;
+  }
+
+  function addEdgeToMap(pNodeMap) {
+    return function (pEdgeMap, pEdge) {
+      /** @type {string} */
+      var titleText = getTitleText(pEdge);
+
+      if (titleText) {
+        var edge = pryEdgeFromTitle(titleText);
+
+        pEdgeMap[titleText] = [pNodeMap[edge.from], pNodeMap[edge.to]];
+        (pEdgeMap[edge.from] || (pEdgeMap[edge.from] = [])).push(pEdge);
+        (pEdgeMap[edge.to] || (pEdgeMap[edge.to] = [])).push(pEdge);
+      }
+      return pEdgeMap;
+    };
+  }
+
+  /**
+   *
+   * @param {string} pString
+   * @return {{from?: string; to?:string;}}
+   */
+  function pryEdgeFromTitle(pString) {
+    var nodeNames = pString.split(/\s*->\s*/);
+
+    return {
+      from: nodeNames.shift(),
+      to: nodeNames.shift(),
+    };
+  }
+  /**
+   *
+   * @param {string} pTitleText
+   * @return {SVGGElement[]}
+   */
+  function get(pTitleText) {
+    return (pTitleText && elementMap[pTitleText]) || [];
+  }
+  return {
+    get: get,
+  };
+}
+
+/**
+ * @param {SVGGElement} pGElement
+ * @return {string?}
+ */
+function getTitleText(pGElement) {
+  /** @type {SVGTitleElement} */
+  var title = pGElement && pGElement.querySelector("title");
+  /** @type {string} */
+  var titleText = title && title.textContent;
+
+  if (titleText) {
+    titleText = titleText.trim();
+  }
+  return titleText;
+}
+
+/**
+ * @param {NodeListOf<Element>} pNodeList
+ * @return {Element[]}
+ */
+function nodeListToArray(pNodeList) {
+  var lReturnValue = [];
+
+  pNodeList.forEach(function (pElement) {
+    lReturnValue.push(pElement);
+  });
+
+  return lReturnValue;
+}
+
+function resetNodesAndEdges() {
+  nodeListToArray(document.querySelectorAll(".current")).forEach(
+    removeHighlight,
+  );
+}
+
+/**
+ * @param {SVGGElement} pGElement
+ */
+function removeHighlight(pGElement) {
+  if (pGElement && pGElement.classList) {
+    pGElement.classList.remove("current");
+  }
+}
+
+/**
+ * @param {SVGGElement} pGroup
+ */
+function addHighlight(pGroup) {
+  if (pGroup && pGroup.classList) {
+    pGroup.classList.add("current");
+  }
+}
+
+var gHints = {
+  HIDDEN: 1,
+  SHOWN: 2,
+  state: 1, // === HIDDEN
+  show: function () {
+    document.getElementById("hints").removeAttribute("style");
+    gHints.state = gHints.SHOWN;
+  },
+  hide: function () {
+    document.getElementById("hints").style = "display:none";
+    gHints.state = gHints.HIDDEN;
+  },
+  toggle: function () {
+    if ((gHints.state || gHints.HIDDEN) === gHints.HIDDEN) {
+      gHints.show();
+    } else {
+      gHints.hide();
+    }
+  },
+};
+
+/** @param {KeyboardEvent} pKeyboardEvent */
+function keyboardEventHandler(pKeyboardEvent) {
+  if (pKeyboardEvent.key === "Escape") {
+    resetNodesAndEdges();
+    gMode.setToHover();
+    gHints.hide();
+  }
+  if (pKeyboardEvent.key === "F1") {
+    pKeyboardEvent.preventDefault();
+    gHints.toggle();
+  }
+}
+
+document.addEventListener("contextmenu", getSelectHandler(title2ElementMap));
+document.addEventListener("mouseover", getHoverHandler(title2ElementMap));
+document.addEventListener("keydown", keyboardEventHandler);
+document.getElementById("close-hints").addEventListener("click", gHints.hide);
+document.getElementById("button_help").addEventListener("click", gHints.toggle);
+document.querySelector("svg").insertAdjacentHTML(
+  "afterbegin",
+  `<linearGradient id="edgeGradient">
+      <stop offset="0%" stop-color="fuchsia"/>
+      <stop offset="100%" stop-color="purple"/>
+   </linearGradient>
+  `,
+);
+
+// Add a small increment to the last value of the path to make gradients on
+// horizontal paths work. Without them all browsers I tested with (firefox,
+// chrome) do not render the gradient, but instead make the line transparent
+// (or the color of the background, I haven't looked into it that deeply,
+// but for the hack it doesn't matter which).
+function skewLineABit(lDrawingInstructions) {
+  var lLastValue = lDrawingInstructions.match(/(\d+\.?\d*)$/)[0];
+  // Smaller values than .001 _should_ work as well, but don't in all
+  // cases. Even this value is so small that it is not visible to the
+  // human eye (tested with the two I have at my disposal).
+  var lIncrement = 0.001;
+  var lNewLastValue = parseFloat(lLastValue) + lIncrement;
+
+  return lDrawingInstructions.replace(lLastValue, lNewLastValue);
+}
+
+nodeListToArray(document.querySelectorAll("path"))
+  .filter(function (pElement) {
+    return pElement.parentElement.classList.contains("edge");
+  })
+  .forEach(function (pElement) {
+    pElement.attributes.d.value = skewLineABit(pElement.attributes.d.value);
+  });
+
+    </script>
+  <script>
+    // オレンジ色のテキストを黒色に変更
+    function updateSvgColors(bgColor, pathColor) {
+      // 背景用のpolygon要素
+      document.querySelectorAll('polygon[points*="-4,4"]').forEach(polygon => {
+        polygon.setAttribute('fill', bgColor);
+      });
+      
+      // 白色の塗りつぶしを持つpath要素
+      document.querySelectorAll('path[fill="#ffffff"]').forEach(path => {
+        path.setAttribute('fill', bgColor);
+      });
+      
+      // その他の白色の要素
+      document.querySelectorAll('[fill="white"]').forEach(elem => {
+        elem.setAttribute('fill', bgColor);
+      });
+      
+      // オレンジ色のストロークを黒色に変更
+      document.querySelectorAll('[stroke="orange"]').forEach(elem => {
+        elem.setAttribute('stroke', 'black');
+      });
+      
+      // オレンジ色のテキストを黒色に変更
+      document.querySelectorAll('text[fill="orange"]').forEach(text => {
+        text.setAttribute('fill', 'black');
+      });
+    }
+    
+    // VSCodeパスの修正
+    document.querySelectorAll(".node").forEach(node => {
+      const link = node.querySelector("a");
+      if (link && link.getAttribute("xlink:href")) {
+        // リンクがあれば、不正なパスを修正
+        const href = link.getAttribute("xlink:href");
+        if (href.includes("dependency-cruiser output") || href.includes("Cursordependency-cruiser output")) {
+          // 不正なパスを検出したら修正
+          const suffix = href.split('/').slice(-4).join('/'); // ファイルパスの最後の部分を取得
+          const fixedHref = "vscode://file/" + "D:\\Project\\Cursor\\GoF23_TypeScript".replace(/\\/g, '/') + "/" + suffix.split('/').pop();
+          link.setAttribute("xlink:href", fixedHref);
+        }
+      }
+    });
+    
+    // 初期状態で背景色を設定
+    updateSvgColors('#808080', '#ffffff');
+  </script>
+</body>
+</html>

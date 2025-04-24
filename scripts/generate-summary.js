@@ -142,7 +142,7 @@ function generateSummary() {
      */
     function processDirectoryContents(dir, depth, isSystemDesign, skipApi) {
         const files = fs.readdirSync(dir);
-        
+
         // ファイルとディレクトリを分離してソート
         const sortedItems = files
             .map(file => ({
@@ -168,7 +168,7 @@ function generateSummary() {
                 
                 return a.name.localeCompare(b.name);
             });
-        
+
         // 各ディレクトリとファイルを処理
         for (const item of sortedItems) {
             // ルートのindex.mdはすでに処理済みなのでスキップ

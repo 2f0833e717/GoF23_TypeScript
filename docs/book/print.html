@@ -218,6 +218,9 @@
 <li><a href="System-design/./patterns/behavioral/template-method.html">Template Method（テンプレートメソッド）</a></li>
 <li><a href="System-design/./patterns/behavioral/visitor.html">Visitor（ビジター）</a></li>
 </ul>
+<h2 id="依存関係の可視化"><a class="header" href="#依存関係の可視化">依存関係の可視化</a></h2>
+<p>コードの依存関係を視覚的に把握するために、<code>dependency-cruiser</code>を使用した依存関係の可視化機能を提供しています。この機能により、各デザインパターンの実装間の関係性やプロジェクト全体の構造を把握しやすくなります。</p>
+<p>詳細は<a href="System-design/dependency-visualization.html">依存関係の可視化</a>を参照してください。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="アーキテクチャ概要"><a class="header" href="#アーキテクチャ概要">アーキテクチャ概要</a></h1>
 <h2 id="1-システム構成"><a class="header" href="#1-システム構成">1. システム構成</a></h2>
 <h3 id="11-全体アーキテクチャ"><a class="header" href="#11-全体アーキテクチャ">1.1 全体アーキテクチャ</a></h3>
@@ -703,9 +706,9 @@ graph TD
   "description": "TypeScriptで実装するGoF23デザインパターン",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "node dist/index.js",
+    "start": "npm run start:dev",
     "test": "jest",
     "test:runInBand": "jest --runInBand",
     "test:watch": "jest --watch",
@@ -721,15 +724,14 @@ graph TD
     "test:view:win": "npm run test &amp;&amp; npm run test:coverage:view:win",
     "test:view:wsl": "npm run test &amp;&amp; npm run test:coverage:view:wsl",
     "test:clean": "rimraf dist coverage",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "docs:api": "typedoc --entryPointStrategy expand --out docs/api src/**/*.ts --exclude \"**/*.test.ts\"",
     "book:create-summary": "node scripts/generate-summary.js",
-    "book:build:win": "cd docs &amp;&amp; ..\\scripts\\mdbook\\mdbook.exe build",
-    "book:build:wsl": "mdbook build",
-    "book:serve:win": "npx serve docs/book -p 3000",
-    "book:serve:wsl": "npx serve docs/book -p 3000",
+    "book:build:win": "powershell -Command \"cd docs; mdbook build; cd ..\"",
+    "book:build:wsl": "cd docs/ &amp;&amp; mdbook build &amp;&amp; cd ..",
+    "book:serve": "powershell -Command \"cd docs; mdbook serve --open\"",
     "book:stop:wsl": "pkill -f 'serve docs/book' || true",
     "book:clean": "rimraf docs/book",
     "book:preview:win": "node -e \"const { exec } = require('child_process'); const { existsSync } = require('fs'); const path = 'docs/book/index.html'; if (!existsSync(path)) { console.error('Error: ' + path + ' does not exist. Please run book:build first.'); process.exit(1); } exec('start ' + path, (error) =&gt; { if (error) { console.error('Error opening file:', error); process.exit(1); } });\"",
@@ -737,7 +739,18 @@ graph TD
     "book:all:win": "npm run docs:api &amp;&amp; npm run book:create-summary &amp;&amp; npm run book:build:win &amp;&amp; npm run book:preview:win",
     "book:all:wsl": "npm run docs:api &amp;&amp; npm run book:create-summary &amp;&amp; npm run book:build:wsl &amp;&amp; npm run book:preview:wsl",
     "reference:all:win": "npm run test:view:win &amp;&amp; npm run book:all:win",
-    "reference:all:wsl": "npm run test:view:wsl &amp;&amp; npm run book:all:wsl"
+    "reference:all:wsl": "npm run test:view:wsl &amp;&amp; npm run book:all:wsl",
+    "viz:setup": "npm install --save-dev dependency-cruiser",
+    "viz:dependencies:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies.dot",
+    "viz:dependencies:matrix": "depcruise --no-config --output-type html \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-matrix.html &amp;&amp; start docs/CodeViz/dependencies-matrix.html",
+    "viz:dependencies:noconfig:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-noconfig-dot.html &amp;&amp; start docs/CodeViz/dependencies-noconfig-dot.html",
+    "viz:dependencies:noconfig:ddot": "depcruise --no-config --output-type ddot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-noconfig-ddot.html &amp;&amp; start docs/CodeViz/dependencies-noconfig-ddot.html",
+    "viz:dependencies:stream:dot": "depcruise --config .dependency-cruiser.js --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-dot-stream.html",
+    "viz:dependencies:stream:ddot": "depcruise --config .dependency-cruiser.js --output-type ddot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-ddot-stream.html",
+    "viz:dependencies:wrap_html:dot": "npm run viz:dependencies:stream:dot &amp;&amp; node scripts/wrap-html.js docs/CodeViz/dependencies-dot-stream.html docs/CodeViz/dependencies-dot-wrapped.html",
+    "viz:all": "npm run viz:dependencies:dot &amp;&amp; npm run viz:dependencies:matrix &amp;&amp; npm run viz:dependencies:noconfig:dot &amp;&amp; npm run viz:dependencies:noconfig:ddot &amp;&amp; npm run viz:dependencies:stream:dot &amp;&amp; npm run viz:dependencies:stream:ddot &amp;&amp; npm run viz:dependencies:wrap_html:dot",
+    "docs:all:win": "npm run reference:all:win &amp;&amp; npm run viz:all",
+    "docs:all:wsl": "npm run reference:all:wsl &amp;&amp; npm run viz:all"
   },
   "keywords": [
     "typescript",
@@ -758,17 +771,23 @@ graph TD
     "@types/node": "^20.17.19",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
+    "@viz-js/viz": "^3.12.0",
+    "dependency-cruiser": "^16.10.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
+    "express": "^5.1.0",
+    "graphviz-cli": "^2.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.1",
+    "puppeteer": "^24.7.1",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typedoc": "^0.25.7",
-    "typedoc-plugin-markdown": "^3.17.1"
+    "typedoc-plugin-markdown": "^3.17.1",
+    "viz.js": "^2.1.2"
   },
   "dependencies": {
     "tsc": "^2.0.4"
@@ -1339,14 +1358,16 @@ describe('OrderService', () =&gt; {
 <pre><code class="language-json">{
   "scripts": {
     "clean": "rimraf dist coverage",
-    "lint": "eslint --ext .ts src",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "prebuild": "npm run clean &amp;&amp; npm run lint &amp;&amp; npm run typecheck",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npx tsc -p tsconfig.build.json",
     "postbuild": "npm run copy-assets",
     "copy-assets": "copyfiles -u 1 src/**/*.{html,css,json} dist/",
-    "docs": "typedoc --out docs/api src/",
+    "docs:api": "typedoc --entryPointStrategy expand --out docs/api src/**/*.ts --exclude \"**/*.test.ts\"",
+    "viz:dependencies:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" \"tests/**/*.ts\" \"examples/**/*.ts\" &gt; docs/CodeViz/dependencies.dot",
+    "viz:dependencies:wrap_html:dot": "npm run viz:dependencies:stream:dot &amp;&amp; node scripts/wrap-html.js docs/CodeViz/dependencies-dot-stream.html docs/CodeViz/dependencies-dot-wrapped.html &amp;&amp; start docs/CodeViz/dependencies-dot-wrapped.html",
     "predeploy": "npm run build &amp;&amp; npm run test",
     "deploy": "node scripts/deploy.js"
   }
@@ -1597,6 +1618,25 @@ npm install --lock=true
 </ul>
 </li>
 </ol>
+<h2 id="可視化ツールの活用"><a class="header" href="#可視化ツールの活用">可視化ツールの活用</a></h2>
+<p>依存関係の可視化は複雑なコードベースの理解とリファクタリングに役立ちます。このプロジェクトでは以下の可視化ツールを利用できます：</p>
+<h3 id="dependency-cruiserによる可視化"><a class="header" href="#dependency-cruiserによる可視化">dependency-cruiserによる可視化</a></h3>
+<pre><code class="language-bash"># 基本的な依存関係図の生成
+npm run viz:dependencies:dot
+
+# インタラクティブなグラフ生成
+npm run viz:dependencies:noconfig:dot
+npm run viz:dependencies:noconfig:ddot
+
+# 高度なストリーム形式の生成
+npm run viz:dependencies:stream:dot
+npm run viz:dependencies:stream:ddot
+
+# HTMLラップされた見やすいグラフ
+npm run viz:dependencies:wrap_html:dot
+npm run viz:dependencies:wrap_html:ddot
+</code></pre>
+<p>詳細な可視化については <a href="System-design/guides/architecture/./dependency-visualization.html">依存関係の可視化ガイド</a> を参照してください。</p>
 <h2 id="開発環境のセットアップ"><a class="header" href="#開発環境のセットアップ">開発環境のセットアップ</a></h2>
 <h3 id="必要要件"><a class="header" href="#必要要件">必要要件</a></h3>
 <ul>
@@ -1644,6 +1684,101 @@ cd GoF23_TypeScript
 <li><code>npm run docs:api</code>: TypeDocによるAPI文書生成</li>
 <li><code>npm run book:build</code>: mdbookによるドキュメントビルド</li>
 <li><code>npm run book:serve</code>: ドキュメントのローカルサーバー起動</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="コード依存関係の可視化"><a class="header" href="#コード依存関係の可視化">コード依存関係の可視化</a></h1>
+<p>このプロジェクトでは、コードの依存関係を視覚的に把握するための可視化ツールとして <code>dependency-cruiser</code> を使用しています。これにより、各デザインパターンの実装同士の関係や、全体のコード構造を理解しやすくなります。</p>
+<h2 id="依存関係の可視化方法"><a class="header" href="#依存関係の可視化方法">依存関係の可視化方法</a></h2>
+<h3 id="準備"><a class="header" href="#準備">準備</a></h3>
+<p>依存関係の可視化には <code>dependency-cruiser</code> を使用します。必要なパッケージはすでにプロジェクトの依存関係として含まれていますが、新たにセットアップする場合は以下のコマンドで実行できます：</p>
+<pre><code class="language-bash">npm run viz:setup
+</code></pre>
+<p>このコマンドは依存関係に <code>dependency-cruiser</code> を追加します。</p>
+<h3 id="依存関係グラフの生成"><a class="header" href="#依存関係グラフの生成">依存関係グラフの生成</a></h3>
+<p>依存関係グラフを生成するための様々なスクリプトが <code>package.json</code> に用意されています。</p>
+<h4 id="基本的な依存関係の生成"><a class="header" href="#基本的な依存関係の生成">基本的な依存関係の生成</a></h4>
+<pre><code class="language-bash"># DOT形式の依存関係グラフを生成
+npm run viz:dependencies:dot
+
+# HTML形式の依存関係グラフを生成
+npm run viz:dependencies:html
+</code></pre>
+<p>これらのコマンドは <code>docs/CodeViz</code> ディレクトリに <code>.dot</code> または <code>.html</code> ファイルを生成します。</p>
+<h4 id="インタラクティブなグラフ生成"><a class="header" href="#インタラクティブなグラフ生成">インタラクティブなグラフ生成</a></h4>
+<pre><code class="language-bash"># VSCodeのファイルリンク付きインタラクティブグラフ生成（dot形式）
+npm run viz:dependencies:interactive:dot
+
+# VSCodeのファイルリンク付きインタラクティブグラフ生成（ddot形式）
+npm run viz:dependencies:interactive:ddot
+</code></pre>
+<p>これらのコマンドは生成後に自動的にブラウザでグラフを開きます。生成されたファイルはクリックでVSCodeのファイルにリンクします。</p>
+<h4 id="ストリーム形式とラップhtml"><a class="header" href="#ストリーム形式とラップhtml">ストリーム形式とラップHTML</a></h4>
+<p>より高度な可視化には以下のコマンドが用意されています：</p>
+<pre><code class="language-bash"># ストリーム形式のSVGを生成 (dot形式)
+npm run viz:dependencies:stream:dot
+
+# ストリーム形式のSVGを生成 (ddot形式)
+npm run viz:dependencies:stream:ddot
+
+# ストリーム出力をHTMLでラップして見やすくする (dot形式)
+npm run viz:dependencies:wrap_html:dot
+
+# ストリーム出力をHTMLでラップして見やすくする (ddot形式)
+npm run viz:dependencies:wrap_html:ddot
+</code></pre>
+<p><code>wrap_html</code> コマンドは以下の機能を提供します：</p>
+<ul>
+<li>オレンジ色の文字を黒色に変更（見やすさ向上）</li>
+<li>VSCodeへのリンクパスの修正</li>
+<li>背景色の調整</li>
+</ul>
+<h2 id="出力ファイルと活用方法"><a class="header" href="#出力ファイルと活用方法">出力ファイルと活用方法</a></h2>
+<h3 id="出力ファイル形式"><a class="header" href="#出力ファイル形式">出力ファイル形式</a></h3>
+<p>依存関係の可視化は様々な形式で出力できます：</p>
+<ul>
+<li><strong>DOT形式</strong> (<code>.dot</code>): Graphviz形式のグラフ定義ファイル</li>
+<li><strong>HTML形式</strong> (<code>.html</code>): ブラウザで表示可能な静的HTMLファイル</li>
+<li><strong>Stream形式</strong> (<code>.html</code>): インタラクティブな機能が含まれたHTML+SVG</li>
+</ul>
+<h3 id="主要な出力ファイル"><a class="header" href="#主要な出力ファイル">主要な出力ファイル</a></h3>
+<ul>
+<li><code>dependencies.dot</code> - プロジェクト全体の依存関係（DOT形式）</li>
+<li><code>dependencies.html</code> - プロジェクト全体の依存関係（HTML形式）</li>
+<li><code>dependencies-dot-stream.html</code> - dot形式のストリーム形式依存関係</li>
+<li><code>dependencies-ddot-stream.html</code> - ddot形式のストリーム形式依存関係</li>
+<li><code>dependencies-dot-wrapped.html</code> - ラップされたインタラクティブな依存関係グラフ（dot形式）</li>
+<li><code>dependencies-ddot-wrapped.html</code> - ラップされたインタラクティブな依存関係グラフ（ddot形式）</li>
+</ul>
+<h2 id="依存関係グラフの読み方"><a class="header" href="#依存関係グラフの読み方">依存関係グラフの読み方</a></h2>
+<p>依存関係グラフでは、以下の情報を確認できます：</p>
+<ul>
+<li><strong>ノード</strong>：各ファイル（TypeScriptモジュール）を表します</li>
+<li><strong>エッジ（線）</strong>：ファイル間の依存関係を表します</li>
+<li><strong>方向</strong>：依存の方向を矢印で示します（通常は依存する側から依存される側へ）</li>
+<li><strong>グループ化</strong>：ディレクトリ構造に基づいて関連ファイルがグループ化されます</li>
+</ul>
+<h3 id="インタラクティブな機能wrap_html"><a class="header" href="#インタラクティブな機能wrap_html">インタラクティブな機能（wrap_html）</a></h3>
+<p><code>wrap_html</code> で生成されたHTMLファイルでは以下の操作が可能です：</p>
+<ul>
+<li><strong>マウスホバー</strong> - ノードやエッジにマウスを置くと関連要素がハイライト</li>
+<li><strong>右クリック</strong> - ハイライト状態を固定</li>
+<li><strong>ESCキー</strong> - ハイライト解除</li>
+</ul>
+<h2 id="活用例"><a class="header" href="#活用例">活用例</a></h2>
+<p>依存関係グラフは以下のような用途に活用できます：</p>
+<ol>
+<li>デザインパターン実装の全体構造把握</li>
+<li>コードリファクタリング時の影響範囲の確認</li>
+<li>コード間の関係性の理解と説明</li>
+<li>モジュール間の依存関係の複雑さの分析</li>
+<li>循環参照などの問題発見</li>
+</ol>
+<h2 id="アーキテクチャビューの活用"><a class="header" href="#アーキテクチャビューの活用">アーキテクチャビューの活用</a></h2>
+<p>標準ビューが詳細すぎる場合は、ddot形式のビュー (<code>viz:dependencies:wrap_html:ddot</code>) を使用すると、より高レベルな依存関係を確認できます。このビューでは、個々のファイルの依存関係がよりまとまって表示されます。</p>
+<h2 id="注意点"><a class="header" href="#注意点">注意点</a></h2>
+<ul>
+<li>依存関係グラフが大きくなりすぎると見づらくなることがあります</li>
+<li>ブラウザによってはSVGの表示に時間がかかる場合があります</li>
+<li>ノード数が多い場合は、ddot形式のビューを使用することで概要を把握しやすくなります</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="設計実装ガイドライン"><a class="header" href="#設計実装ガイドライン">設計・実装ガイドライン</a></h1>
 <p>このドキュメントは、GoF23デザインパターンTypeScript実装プロジェクトの設計・実装に関する包括的なガイドラインへの参照を提供します。詳細は各セクション別のドキュメントを参照してください。</p>
@@ -14376,17 +14511,17 @@ console.log(JSON.stringify(json));
  * Product インターフェース - ファクトリーメソッドによって生成される製品の共通インターフェース
  */
 interface Vehicle {
-  /**
+    /**
    * 乗り物の種類を返す
    */
   getType(): string;
   
   /**
    * 乗り物の説明を返す
-   */
+     */
   getDescription(): string;
-  
-  /**
+
+/**
    * 乗り物を運転する
    */
   drive(): void;
@@ -14398,15 +14533,15 @@ interface Vehicle {
 class Car implements Vehicle {
   private brand: string;
   
-  /**
+    /**
    * 車のブランドを指定して初期化
    * @param brand 車のブランド名
    */
   constructor(brand: string) {
     this.brand = brand;
   }
-  
-  /**
+
+    /**
    * 乗り物の種類を返す
    * @returns 「車」という文字列
    */
@@ -14427,7 +14562,7 @@ class Car implements Vehicle {
    */
   drive(): void {
     console.log(`${this.getDescription()}を運転しています。`);
-  }
+    }
 }
 
 /**
@@ -14437,7 +14572,7 @@ class Motorcycle implements Vehicle {
   private model: string;
   private engineSize: number;
   
-  /**
+/**
    * バイクのモデルとエンジンサイズを指定して初期化
    * @param model バイクのモデル名
    * @param engineSize エンジンサイズ（cc）
@@ -14447,7 +14582,7 @@ class Motorcycle implements Vehicle {
     this.engineSize = engineSize;
   }
   
-  /**
+    /**
    * 乗り物の種類を返す
    * @returns 「バイク」という文字列
    */
@@ -14458,7 +14593,7 @@ class Motorcycle implements Vehicle {
   /**
    * バイクの説明を返す
    * @returns モデル名とエンジンサイズを含む説明文
-   */
+     */
   getDescription(): string {
     return `${this.model} ${this.engineSize}ccのバイク`;
   }
@@ -14468,14 +14603,14 @@ class Motorcycle implements Vehicle {
    */
   drive(): void {
     console.log(`${this.getDescription()}を運転しています。`);
-  }
+    }
 }
 
 /**
  * Creator - ファクトリーメソッドを宣言する抽象クラス
  */
 abstract class VehicleFactory {
-  /**
+    /**
    * ファクトリーメソッド - サブクラスで実装される
    * @returns 生成された乗り物オブジェクト
    */
@@ -14495,7 +14630,7 @@ abstract class VehicleFactory {
     console.log('テスト走行を行います...');
     vehicle.drive();
     console.log('配送完了！');
-  }
+    }
 }
 
 /**
@@ -14513,13 +14648,13 @@ class CarFactory extends VehicleFactory {
     this.brand = brand;
   }
   
-  /**
+    /**
    * ファクトリーメソッドの実装 - 車を生成
    * @returns 生成された車オブジェクト
-   */
+     */
   createVehicle(): Vehicle {
     return new Car(this.brand);
-  }
+    }
 }
 
 /**
@@ -14546,7 +14681,7 @@ class MotorcycleFactory extends VehicleFactory {
    */
   createVehicle(): Vehicle {
     return new Motorcycle(this.model, this.engineSize);
-  }
+    }
 }
 </code></pre>
 <h3 id="使用例"><a class="header" href="#使用例">使用例</a></h3>
@@ -14566,7 +14701,7 @@ function clientCode() {
   hondaFactory.deliverVehicle();
   
   console.log('\n');
-  
+
   // バイクの生成と配送
   console.log('--- バイクの配送 ---');
   const kawasakiFactory = new MotorcycleFactory('Ninja', 1000);
@@ -15223,7 +15358,7 @@ export class ConfigManager {
    */
   private settings: { [key: string]: any } = {};
 
-  /**
+    /**
    * 最後に設定が更新された日時
    */
   private lastUpdated: Date;
@@ -15232,8 +15367,8 @@ export class ConfigManager {
    * privateコンストラクタで外部からのインスタンス化を防止
    * 
    * このコンストラクタは、getInstance()メソッド内からのみ呼び出される
-   */
-  private constructor() {
+     */
+    private constructor() {
     this.lastUpdated = new Date();
     console.log('ConfigManager インスタンスが作成されました');
     
@@ -15244,24 +15379,24 @@ export class ConfigManager {
       notifications: true,
       autoSave: true
     };
-  }
+    }
 
-  /**
+    /**
    * シングルトンインスタンスを取得するメソッド
    * 
    * インスタンスが存在しない場合は新規作成し、存在する場合は既存のインスタンスを返す
    * @returns ConfigManagerの唯一のインスタンス
-   */
+     */
   public static getInstance(): ConfigManager {
     // インスタンスが存在しない場合に初期化
     if (ConfigManager.instance === null) {
       ConfigManager.instance = new ConfigManager();
-    }
+        }
     
     return ConfigManager.instance;
-  }
+    }
 
-  /**
+    /**
    * 設定値を取得
    * 
    * @param key 設定キー
@@ -15277,14 +15412,14 @@ export class ConfigManager {
    * 
    * @param key 設定キー
    * @param value 設定値
-   */
+     */
   public setSetting(key: string, value: any): void {
     this.settings[key] = value;
     this.lastUpdated = new Date();
     console.log(`設定 "${key}" が "${value}" に更新されました`);
-  }
+    }
 
-  /**
+    /**
    * 全ての設定値を取得
    * 
    * @returns 全ての設定値
@@ -15295,7 +15430,7 @@ export class ConfigManager {
 
   /**
    * 設定値を初期値にリセット
-   */
+     */
   public resetSettings(): void {
     this.settings = {
       theme: 'light',
@@ -15325,7 +15460,7 @@ export class ConfigManager {
   private static createInstance(): ConfigManager {
     const instance = new ConfigManager();
     return instance;
-  }
+    }
 }
 </code></pre>
 <h3 id="使用例-1"><a class="header" href="#使用例-1">使用例</a></h3>
@@ -15382,20 +15517,20 @@ main();
 <pre><code class="language-typescript">public static getInstance(): Singleton {
   if (Singleton.instance === null) {
     Singleton.instance = new Singleton();
-  }
+        }
   return Singleton.instance;
 }
 </code></pre>
 <h3 id="2-即時初期化eager-initialization"><a class="header" href="#2-即時初期化eager-initialization">2. 即時初期化（Eager Initialization）</a></h3>
 <p>クラスのロード時にインスタンスを作成します。リソースを多く消費するシングルトンでは避けるべき場合もあります。</p>
 <pre><code class="language-typescript">export class EagerSingleton {
-  private static instance: EagerSingleton = new EagerSingleton();
-  
+    private static instance: EagerSingleton = new EagerSingleton();
+    
   private constructor() { /* ... */ }
-  
-  public static getInstance(): EagerSingleton {
-    return EagerSingleton.instance;
-  }
+    
+    public static getInstance(): EagerSingleton {
+        return EagerSingleton.instance;
+    }
 }
 </code></pre>
 <h3 id="3-double-checked-locking-パターン"><a class="header" href="#3-double-checked-locking-パターン">3. Double-Checked Locking パターン</a></h3>
@@ -15403,22 +15538,22 @@ main();
 TypeScriptは主にシングルスレッド環境で実行されるため、通常は必要ありませんが、
 概念的に理解するために掲載します。</p>
 <pre><code class="language-typescript">export class ThreadSafeSingleton {
-  private static instance: ThreadSafeSingleton | null = null;
+    private static instance: ThreadSafeSingleton | null = null;
   private static lock = {};
-  
+    
   private constructor() { /* ... */ }
-  
-  public static getInstance(): ThreadSafeSingleton {
+    
+    public static getInstance(): ThreadSafeSingleton {
     if (ThreadSafeSingleton.instance === null) {
       // ここでロックを取得する（概念的なコード）
       synchronized(this.lock) {
         if (ThreadSafeSingleton.instance === null) {
-          ThreadSafeSingleton.instance = new ThreadSafeSingleton();
+                    ThreadSafeSingleton.instance = new ThreadSafeSingleton();
+                }
+            }
         }
-      }
+        return ThreadSafeSingleton.instance;
     }
-    return ThreadSafeSingleton.instance;
-  }
 }
 </code></pre>
 <h2 id="メリット-1"><a class="header" href="#メリット-1">メリット</a></h2>
@@ -24887,6 +25022,7 @@ Chain of Responsibilityパターンの中心となるインターフェースで
 <p>シングルトンパターン</p>
 <p>クラスのインスタンスが1つだけ存在することを保証し、
 そのインスタンスへのグローバルなアクセスポイントを提供します。</p>
+<p>Singleton</p>
 <h2 id="table-of-contents-67"><a class="header" href="#table-of-contents-67">Table of contents</a></h2>
 <h3 id="methods-132"><a class="header" href="#methods-132">Methods</a></h3>
 <ul>

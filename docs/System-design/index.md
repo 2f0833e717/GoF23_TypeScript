@@ -55,3 +55,9 @@
 - [Strategy（ストラテジー）](./patterns/behavioral/strategy.md)
 - [Template Method（テンプレートメソッド）](./patterns/behavioral/template-method.md)
 - [Visitor（ビジター）](./patterns/behavioral/visitor.md)
+
+## 依存関係の可視化
+
+コードの依存関係を視覚的に把握するために、`dependency-cruiser`を使用した依存関係の可視化機能を提供しています。この機能により、各デザインパターンの実装間の関係性やプロジェクト全体の構造を把握しやすくなります。
+
+詳細は[依存関係の可視化](dependency-visualization.md)を参照してください。

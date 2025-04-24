@@ -216,9 +216,9 @@ graph TD
   "description": "TypeScriptで実装するGoF23デザインパターン",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "node dist/index.js",
+    "start": "npm run start:dev",
     "test": "jest",
     "test:runInBand": "jest --runInBand",
     "test:watch": "jest --watch",
@@ -234,15 +234,14 @@ graph TD
     "test:view:win": "npm run test &amp;&amp; npm run test:coverage:view:win",
     "test:view:wsl": "npm run test &amp;&amp; npm run test:coverage:view:wsl",
     "test:clean": "rimraf dist coverage",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "docs:api": "typedoc --entryPointStrategy expand --out docs/api src/**/*.ts --exclude \"**/*.test.ts\"",
     "book:create-summary": "node scripts/generate-summary.js",
-    "book:build:win": "cd docs &amp;&amp; ..\\scripts\\mdbook\\mdbook.exe build",
-    "book:build:wsl": "mdbook build",
-    "book:serve:win": "npx serve docs/book -p 3000",
-    "book:serve:wsl": "npx serve docs/book -p 3000",
+    "book:build:win": "powershell -Command \"cd docs; mdbook build; cd ..\"",
+    "book:build:wsl": "cd docs/ &amp;&amp; mdbook build &amp;&amp; cd ..",
+    "book:serve": "powershell -Command \"cd docs; mdbook serve --open\"",
     "book:stop:wsl": "pkill -f 'serve docs/book' || true",
     "book:clean": "rimraf docs/book",
     "book:preview:win": "node -e \"const { exec } = require('child_process'); const { existsSync } = require('fs'); const path = 'docs/book/index.html'; if (!existsSync(path)) { console.error('Error: ' + path + ' does not exist. Please run book:build first.'); process.exit(1); } exec('start ' + path, (error) =&gt; { if (error) { console.error('Error opening file:', error); process.exit(1); } });\"",
@@ -250,7 +249,18 @@ graph TD
     "book:all:win": "npm run docs:api &amp;&amp; npm run book:create-summary &amp;&amp; npm run book:build:win &amp;&amp; npm run book:preview:win",
     "book:all:wsl": "npm run docs:api &amp;&amp; npm run book:create-summary &amp;&amp; npm run book:build:wsl &amp;&amp; npm run book:preview:wsl",
     "reference:all:win": "npm run test:view:win &amp;&amp; npm run book:all:win",
-    "reference:all:wsl": "npm run test:view:wsl &amp;&amp; npm run book:all:wsl"
+    "reference:all:wsl": "npm run test:view:wsl &amp;&amp; npm run book:all:wsl",
+    "viz:setup": "npm install --save-dev dependency-cruiser",
+    "viz:dependencies:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies.dot",
+    "viz:dependencies:matrix": "depcruise --no-config --output-type html \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-matrix.html &amp;&amp; start docs/CodeViz/dependencies-matrix.html",
+    "viz:dependencies:noconfig:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-noconfig-dot.html &amp;&amp; start docs/CodeViz/dependencies-noconfig-dot.html",
+    "viz:dependencies:noconfig:ddot": "depcruise --no-config --output-type ddot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-noconfig-ddot.html &amp;&amp; start docs/CodeViz/dependencies-noconfig-ddot.html",
+    "viz:dependencies:stream:dot": "depcruise --config .dependency-cruiser.js --output-type dot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-dot-stream.html",
+    "viz:dependencies:stream:ddot": "depcruise --config .dependency-cruiser.js --output-type ddot \"src/**/*.ts\" &gt; docs/CodeViz/dependencies-ddot-stream.html",
+    "viz:dependencies:wrap_html:dot": "npm run viz:dependencies:stream:dot &amp;&amp; node scripts/wrap-html.js docs/CodeViz/dependencies-dot-stream.html docs/CodeViz/dependencies-dot-wrapped.html",
+    "viz:all": "npm run viz:dependencies:dot &amp;&amp; npm run viz:dependencies:matrix &amp;&amp; npm run viz:dependencies:noconfig:dot &amp;&amp; npm run viz:dependencies:noconfig:ddot &amp;&amp; npm run viz:dependencies:stream:dot &amp;&amp; npm run viz:dependencies:stream:ddot &amp;&amp; npm run viz:dependencies:wrap_html:dot",
+    "docs:all:win": "npm run reference:all:win &amp;&amp; npm run viz:all",
+    "docs:all:wsl": "npm run reference:all:wsl &amp;&amp; npm run viz:all"
   },
   "keywords": [
     "typescript",
@@ -271,17 +281,23 @@ graph TD
     "@types/node": "^20.17.19",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
+    "@viz-js/viz": "^3.12.0",
+    "dependency-cruiser": "^16.10.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
+    "express": "^5.1.0",
+    "graphviz-cli": "^2.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.1",
+    "puppeteer": "^24.7.1",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typedoc": "^0.25.7",
-    "typedoc-plugin-markdown": "^3.17.1"
+    "typedoc-plugin-markdown": "^3.17.1",
+    "viz.js": "^2.1.2"
   },
   "dependencies": {
     "tsc": "^2.0.4"
@@ -852,14 +868,16 @@ describe('OrderService', () =&gt; {
 <pre><code class="language-json">{
   "scripts": {
     "clean": "rimraf dist coverage",
-    "lint": "eslint --ext .ts src",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "prebuild": "npm run clean &amp;&amp; npm run lint &amp;&amp; npm run typecheck",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npx tsc -p tsconfig.build.json",
     "postbuild": "npm run copy-assets",
     "copy-assets": "copyfiles -u 1 src/**/*.{html,css,json} dist/",
-    "docs": "typedoc --out docs/api src/",
+    "docs:api": "typedoc --entryPointStrategy expand --out docs/api src/**/*.ts --exclude \"**/*.test.ts\"",
+    "viz:dependencies:dot": "depcruise --no-config --output-type dot \"src/**/*.ts\" \"tests/**/*.ts\" \"examples/**/*.ts\" &gt; docs/CodeViz/dependencies.dot",
+    "viz:dependencies:wrap_html:dot": "npm run viz:dependencies:stream:dot &amp;&amp; node scripts/wrap-html.js docs/CodeViz/dependencies-dot-stream.html docs/CodeViz/dependencies-dot-wrapped.html &amp;&amp; start docs/CodeViz/dependencies-dot-wrapped.html",
     "predeploy": "npm run build &amp;&amp; npm run test",
     "deploy": "node scripts/deploy.js"
   }
@@ -1110,6 +1128,25 @@ npm install --lock=true
 </ul>
 </li>
 </ol>
+<h2 id="可視化ツールの活用"><a class="header" href="#可視化ツールの活用">可視化ツールの活用</a></h2>
+<p>依存関係の可視化は複雑なコードベースの理解とリファクタリングに役立ちます。このプロジェクトでは以下の可視化ツールを利用できます：</p>
+<h3 id="dependency-cruiserによる可視化"><a class="header" href="#dependency-cruiserによる可視化">dependency-cruiserによる可視化</a></h3>
+<pre><code class="language-bash"># 基本的な依存関係図の生成
+npm run viz:dependencies:dot
+
+# インタラクティブなグラフ生成
+npm run viz:dependencies:noconfig:dot
+npm run viz:dependencies:noconfig:ddot
+
+# 高度なストリーム形式の生成
+npm run viz:dependencies:stream:dot
+npm run viz:dependencies:stream:ddot
+
+# HTMLラップされた見やすいグラフ
+npm run viz:dependencies:wrap_html:dot
+npm run viz:dependencies:wrap_html:ddot
+</code></pre>
+<p>詳細な可視化については <a href="./dependency-visualization.html">依存関係の可視化ガイド</a> を参照してください。</p>
 <h2 id="開発環境のセットアップ"><a class="header" href="#開発環境のセットアップ">開発環境のセットアップ</a></h2>
 <h3 id="必要要件"><a class="header" href="#必要要件">必要要件</a></h3>
 <ul>
@@ -1167,7 +1204,7 @@ cd GoF23_TypeScript
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../../System-design/guides/architecture/develop-guidelines.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../System-design/guides/architecture/dependency-visualization.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -1181,7 +1218,7 @@ cd GoF23_TypeScript
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../../System-design/guides/architecture/develop-guidelines.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../System-design/guides/architecture/dependency-visualization.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

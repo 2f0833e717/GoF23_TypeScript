@@ -124,7 +124,7 @@ export class ConfigManager {
    */
   private settings: { [key: string]: any } = {};
 
-  /**
+    /**
    * 最後に設定が更新された日時
    */
   private lastUpdated: Date;
@@ -133,8 +133,8 @@ export class ConfigManager {
    * privateコンストラクタで外部からのインスタンス化を防止
    * 
    * このコンストラクタは、getInstance()メソッド内からのみ呼び出される
-   */
-  private constructor() {
+     */
+    private constructor() {
     this.lastUpdated = new Date();
     console.log('ConfigManager インスタンスが作成されました');
     
@@ -145,24 +145,24 @@ export class ConfigManager {
       notifications: true,
       autoSave: true
     };
-  }
+    }
 
-  /**
+    /**
    * シングルトンインスタンスを取得するメソッド
    * 
    * インスタンスが存在しない場合は新規作成し、存在する場合は既存のインスタンスを返す
    * @returns ConfigManagerの唯一のインスタンス
-   */
+     */
   public static getInstance(): ConfigManager {
     // インスタンスが存在しない場合に初期化
     if (ConfigManager.instance === null) {
       ConfigManager.instance = new ConfigManager();
-    }
+        }
     
     return ConfigManager.instance;
-  }
+    }
 
-  /**
+    /**
    * 設定値を取得
    * 
    * @param key 設定キー
@@ -178,14 +178,14 @@ export class ConfigManager {
    * 
    * @param key 設定キー
    * @param value 設定値
-   */
+     */
   public setSetting(key: string, value: any): void {
     this.settings[key] = value;
     this.lastUpdated = new Date();
     console.log(`設定 "${key}" が "${value}" に更新されました`);
-  }
+    }
 
-  /**
+    /**
    * 全ての設定値を取得
    * 
    * @returns 全ての設定値
@@ -196,7 +196,7 @@ export class ConfigManager {
 
   /**
    * 設定値を初期値にリセット
-   */
+     */
   public resetSettings(): void {
     this.settings = {
       theme: 'light',
@@ -226,7 +226,7 @@ export class ConfigManager {
   private static createInstance(): ConfigManager {
     const instance = new ConfigManager();
     return instance;
-  }
+    }
 }
 ```
 
@@ -291,7 +291,7 @@ main();
 public static getInstance(): Singleton {
   if (Singleton.instance === null) {
     Singleton.instance = new Singleton();
-  }
+        }
   return Singleton.instance;
 }
 ```
@@ -302,13 +302,13 @@ public static getInstance(): Singleton {
 
 ```typescript
 export class EagerSingleton {
-  private static instance: EagerSingleton = new EagerSingleton();
-  
+    private static instance: EagerSingleton = new EagerSingleton();
+    
   private constructor() { /* ... */ }
-  
-  public static getInstance(): EagerSingleton {
-    return EagerSingleton.instance;
-  }
+    
+    public static getInstance(): EagerSingleton {
+        return EagerSingleton.instance;
+    }
 }
 ```
 
@@ -320,22 +320,22 @@ TypeScriptは主にシングルスレッド環境で実行されるため、通�
 
 ```typescript
 export class ThreadSafeSingleton {
-  private static instance: ThreadSafeSingleton | null = null;
+    private static instance: ThreadSafeSingleton | null = null;
   private static lock = {};
-  
+    
   private constructor() { /* ... */ }
-  
-  public static getInstance(): ThreadSafeSingleton {
+    
+    public static getInstance(): ThreadSafeSingleton {
     if (ThreadSafeSingleton.instance === null) {
       // ここでロックを取得する（概念的なコード）
       synchronized(this.lock) {
         if (ThreadSafeSingleton.instance === null) {
-          ThreadSafeSingleton.instance = new ThreadSafeSingleton();
+                    ThreadSafeSingleton.instance = new ThreadSafeSingleton();
+                }
+            }
         }
-      }
+        return ThreadSafeSingleton.instance;
     }
-    return ThreadSafeSingleton.instance;
-  }
 }
 ```
 
