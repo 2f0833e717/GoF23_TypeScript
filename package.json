@@ -64,7 +64,7 @@
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@modelcontextprotocol/server-filesystem": "^2025.3.28",
     "@modelcontextprotocol/server-github": "^2025.3.28",
-    "@modelcontextprotocol/server-memory": "^0.6.2",
+    "@modelcontextprotocol/server-memory": "^2025.0.0",
     "@modelcontextprotocol/server-sequential-thinking": "^0.6.2",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.17.19",
