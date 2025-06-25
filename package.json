@@ -67,7 +67,7 @@
     "@modelcontextprotocol/server-memory": "^2025.0.0",
     "@modelcontextprotocol/server-sequential-thinking": "^0.6.2",
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.15.30",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "@viz-js/viz": "^3.12.0",
