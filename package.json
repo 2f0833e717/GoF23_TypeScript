@@ -72,7 +72,7 @@
     "@typescript-eslint/parser": "^8.24.1",
     "@viz-js/viz": "^3.14.0",
     "dependency-cruiser": "^16.10.2",
-    "eslint-config-prettier": "^10.1.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.4.1",
     "express": "^5.1.0",
     "graphviz-cli": "^2.0.0",
