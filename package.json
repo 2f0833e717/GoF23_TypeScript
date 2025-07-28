@@ -65,7 +65,7 @@
     "@modelcontextprotocol/server-filesystem": "^2025.7.1",
     "@modelcontextprotocol/server-github": "^2025.3.28",
     "@modelcontextprotocol/server-memory": "^2025.0.0",
-    "@modelcontextprotocol/server-sequential-thinking": "^0.6.2",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.15.30",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
