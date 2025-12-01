@@ -74,7 +74,7 @@
     "dependency-cruiser": "^16.10.2",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.4.1",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "graphviz-cli": "^2.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.5.1",
