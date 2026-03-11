@@ -76,7 +76,7 @@
     "eslint-plugin-prettier": "^5.4.1",
     "express": "^5.1.0",
     "graphviz-cli": "^2.0.0",
-    "jest": "^30.0.0",
+    "jest": "^30.3.0",
     "prettier": "^3.5.1",
     "puppeteer": "^24.7.1",
     "rimraf": "^6.0.0",
